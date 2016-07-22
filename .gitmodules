@@ -1,0 +1,3 @@
+[submodule "solid-python"]
+	path = solid-python
+	url = https://github.com/BBBSnowball/SolidPython
