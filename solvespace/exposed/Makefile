@@ -39,9 +39,10 @@ CFILES = ../win32/w32util.cpp \
 
 OFILES = $(SSOBJS) $(LIBOBJS) $(W32OBJS) $(LIBS)
 OWRAP = $(OBJDIR)/slvs_wrap.obj
-CWRAP = slvs_wrap.cpp
+CWRAP = slvs_wrap.cxx
 PYTHONSO = _slvs.so
 LIBSO = libslvs.so
+CDEMO = cdemo.exe
 
 CXX = g++
 SWIG = "W:\SWIG\swig.exe"
@@ -53,49 +54,58 @@ PYTHONA = W:/Anaconda3/libs/libpython35.a
 VPATH = .. \
         ../win32 \
 
-all: $(PYTHONSO) slvs.py test-c test-python
+all: $(PYTHONSO) $(CDEMO) slvs.py
+	@echo Complete
 
-test-c: cdemo
-	LD_LIBRARY_PATH=. ./cdemo
+test-c: $(CDEMO)
+	LD_LIBRARY_PATH=. ./$(CDEMO)
 
-test-python: slvs.py Usage.py test.py
+usage-python: slvs.py Usage.py
 	@echo "$@"
 	@echo Usage
 	$(PYTHON) Usage.py
+
+test-python: slvs.py test.py
+	@echo "$@"
 	@echo test
 	$(PYTHON) test.py
 
 clean:
 	@rm -f $(OBJDIR)/*
-	@rm -f cdemo.exe
+	@rm -f $(CDEMO)
 	@rm -f $(LIBSO)
 	@rm -f $(PYTHONSO)
 	@rm -f slvs.py
 	@rm -f $(CWRAP)
-	@rm -f slvs.pyd
 
 .SECONDEXPANSION:
 
 $(LIBSO): $(OFILES)
-	@echo "$@"
+	@echo ---------------------------
+	@echo Dynamic link library: "$@"
 	@$(CXX) -shared -fPIC -o $@ $^
+	@echo ---------------------------
 
-cdemo: CDemo.c $(LIBSO)
-	@echo "$@"
+$(CDEMO): CDemo.c $(LIBSO)
+	@echo ===========================
+	@echo Executable files: "$@"
 	@$(CXX) $(CFLAGS) -o $@ $< -L. -l:$(LIBSO)
+	@echo ===========================
 
 $(OBJDIR)/%.obj: %.cpp $(HEADERS)
-	@echo object "$@"
+	@echo object: "$@"
 	@$(CXX) -fPIC $(CFLAGS) $(DEFINES) -c -o $@ $<
 
 $(CWRAP): slvs.i slvs_python.hpp $(LIBSO)
-	@echo SWIG
+	@echo SWIG: "$@"
 	@$(SWIG) -c++ -python -py3 -o $@ $<
 
 $(OWRAP): $(CWRAP)
-	@echo object "$@"
+	@echo object: "$@"
 	@$(CXX) -fPIC -D__WIN32__ -Wno-unused-but-set-variable -c -g -o $@ $< $(PYTHONINCLUDE)
 
 $(PYTHONSO): $(OFILES) $(OWRAP)
-	@echo "$@"
-	@$(CXX) -shared -fPIC -o $@ $^ $(PYTHONLIB) -L. -lslvs
+	@echo ---------------------------
+	@echo Dynamic link library: "$@"
+	@$(CXX) -shared -fPIC -o $@ $^ $(PYTHONLIB) -L. -l:$(LIBSO)
+	@echo ---------------------------

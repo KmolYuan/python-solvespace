@@ -5,18 +5,11 @@
       <df name="exposed">
         <df name="__pycache__">
         </df>
-        <df name="build">
-          <df name="temp.win-amd64-3.5">
-            <df name="Release">
-            </df>
-          </df>
-        </df>
         <in>CDemo.c</in>
         <in>lib.cpp</in>
         <in>slvs.h</in>
         <in>slvs.i</in>
         <in>slvs_python.hpp</in>
-        <in>slvs_wrap.cxx</in>
       </df>
       <df name="extlib">
         <df name="si">
