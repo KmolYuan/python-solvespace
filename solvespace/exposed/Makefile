@@ -30,55 +30,72 @@ LIBS = ../extlib/libpng.lib \
        ../extlib/zlib.lib \
        ../extlib/si/siapp.lib \
 
-CXX = g++
+CFILES = ../win32/w32util.cpp \
+        ../entity.cpp \
+        ../expr.cpp \
+        ../constrainteq.cpp \
+        ../system.cpp \
+        lib.cpp \
 
-SWIG = "W:\swigwin-3.0.9\swig.exe"
+OFILES = $(SSOBJS) $(LIBOBJS) $(W32OBJS) $(LIBS)
+OWRAP = $(OBJDIR)/slvs_wrap.obj
+CWRAP = slvs_wrap.cpp
+PYTHONSO = _slvs.so
+LIBSO = libslvs.so
+
+CXX = g++
+SWIG = "W:\SWIG\swig.exe"
 PYTHON = W:\Anaconda3\python.exe
 PYTHONLIB = -LW:/Anaconda3/libs -lPython35
 PYTHONINCLUDE = -IW:/Anaconda3/include
+PYTHONA = W:/Anaconda3/libs/libpython35.a
 
 VPATH = .. \
         ../win32 \
 
-all: cdemo _slvs.so slvs.py
+all: $(PYTHONSO) slvs.py test-c test-python
+
+test-c: cdemo
 	LD_LIBRARY_PATH=. ./cdemo
 
-test-python: _slvs.so slvs.py
-	@echo test
-	$(PYTHON) test.py
+test-python: slvs.py Usage.py test.py
+	@echo "$@"
 	@echo Usage
 	$(PYTHON) Usage.py
+	@echo test
+	$(PYTHON) test.py
 
 clean:
 	@rm -f $(OBJDIR)/*
 	@rm -f cdemo.exe
-	@rm -f libslvs.so
-	@rm -f _slvs.so
+	@rm -f $(LIBSO)
+	@rm -f $(PYTHONSO)
 	@rm -f slvs.py
-	@rm -f slvs_wrap.cxx
+	@rm -f $(CWRAP)
+	@rm -f slvs.pyd
 
 .SECONDEXPANSION:
 
-libslvs.so: $(SSOBJS) $(LIBOBJS) $(W32OBJS)
-	@echo libslvs.so
-	@$(CXX) -shared -fPIC -o $@ $^ $(LIBS)
+$(LIBSO): $(OFILES)
+	@echo "$@"
+	@$(CXX) -shared -fPIC -o $@ $^
 
-cdemo: CDemo.c libslvs.so
-	@echo cdemo
-	@$(CXX) $(CFLAGS) -o $@ $< -L. -l:libslvs.so $(LIBS)
+cdemo: CDemo.c $(LIBSO)
+	@echo "$@"
+	@$(CXX) $(CFLAGS) -o $@ $< -L. -l:$(LIBSO)
 
 $(OBJDIR)/%.obj: %.cpp $(HEADERS)
-	@echo obj "$@"
+	@echo object "$@"
 	@$(CXX) -fPIC $(CFLAGS) $(DEFINES) -c -o $@ $<
 
-slvs.py slvs_wrap.cxx: slvs.i slvs_python.hpp
-	@echo wrapCPP
-	@$(SWIG) -c++ -python -py3 slvs.i
+$(CWRAP): slvs.i slvs_python.hpp $(LIBSO)
+	@echo SWIG
+	@$(SWIG) -c++ -python -py3 -o $@ $<
 
-$(OBJDIR)/slvs_wrap.o: slvs_wrap.cxx slvs_python.hpp
-	@echo wrapO
-	@$(CXX) -fPIC -Wno-unused-but-set-variable -c -o $@ $< $(PYTHONINCLUDE)
+$(OWRAP): $(CWRAP)
+	@echo object "$@"
+	@$(CXX) -fPIC -D__WIN32__ -Wno-unused-but-set-variable -c -g -o $@ $< $(PYTHONINCLUDE)
 
-_slvs.so: $(SSOBJS) $(LIBOBJS) $(W32OBJS) $(OBJDIR)/slvs_wrap.o
-	@echo _slvs.so
-	@$(CXX) -shared -o $@ $^ $(LIBS) $(PYTHONLIB) -L. -l:libslvs.so
+$(PYTHONSO): $(OFILES) $(OWRAP)
+	@echo "$@"
+	@$(CXX) -shared -fPIC -o $@ $^ $(PYTHONLIB) -L. -lslvs

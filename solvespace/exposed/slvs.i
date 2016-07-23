@@ -239,7 +239,7 @@ def move_and_rotate(p1, p2, p3):
 // %ignore Param::prepareFor;
 // %ignore Entity::Entity;
 
-// %include "slvs_python.hpp"
+//%include "slvs_python.hpp"
 
 class Param {
 public:
