@@ -21,7 +21,7 @@ Edit `Usage.py` to design a subject.
 
 (You can reference `DOC.txt`!)
 
-And then execute `python Usage.py` in Commder of Windows.
+And then execute `python Usage.py` in Command Prompt of Windows.
 
 So `slvs.py` will ask `_slvs.pyd` and `libslvs.so` to solve subject.
 
