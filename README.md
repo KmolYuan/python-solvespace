@@ -21,14 +21,18 @@ Edit `Usage.py` to design a subject.
 
 (You can reference `DOC.txt`!)
 
-And then execute `python Usage.py` in Commder of Windows,
-
-or `python3 Usage.py` in Linux Terminal.
+And then execute `python Usage.py` in Commder of Windows.
 
 So `slvs.py` will ask `_slvs.pyd` and `libslvs.so` to solve subject.
 
 My using tools
 =================
+
+In Ubuntu, you need to rebuild `_slvs.pyd` to `_slvs.so`.
+
+Original `_slvs.so` is not compatible with Linux OS.
+
+This project made by following tools. (But they are Win-version.)
 
 Compiler
 -------------
