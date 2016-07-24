@@ -13,6 +13,11 @@ Compiler
 
 Netbeans IDE `8.1`
 
+Python
+-------------
+
+Python `3.5.2`
+
 GNU
 -------------
 
