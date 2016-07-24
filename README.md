@@ -23,7 +23,7 @@ Edit `Usage.py` to design a subject.
 
 And then execute `python Usage.py` in Commder of Windows,
 
-or `python3 Usage.py` in Linix Terminal.
+or `python3 Usage.py` in Linux Terminal.
 
 So `slvs.py` will ask `_slvs.pyd` and `libslvs.so` to solve subject.
 
