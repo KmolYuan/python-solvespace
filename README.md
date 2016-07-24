@@ -8,7 +8,7 @@ Use for academic research and learning.
 Project-files
 =================
 
-Put those files into a same folder (Or you can just use them):
+Put these files into a same folder (Or you can just use them):
 
 ````
 solvespace/exposed/_slvs.pyd
@@ -25,12 +25,14 @@ And then execute `python Usage.py` in Commder of Windows.
 
 So `slvs.py` will ask `_slvs.pyd` and `libslvs.so` to solve subject.
 
-My using tools
-=================
-
 In Ubuntu, you need to rebuild `_slvs.pyd` to `_slvs.so`.
 
 Original `_slvs.so` is not compatible with Linux OS.
+
+＊Of crouse you need to install [Python 3](https://www.python.org/downloads/"python.org") or [Anaconda](https://www.continuum.io/downloads"continuum.io") within it.
+
+My using tools
+=================
 
 This project made by following tools. (But they are Win-version.)
 
