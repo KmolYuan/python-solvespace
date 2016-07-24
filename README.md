@@ -13,6 +13,14 @@ Compiler
 
 Netbeans IDE `8.1`
 
+plugins:
+
+````
+Python
+
+Python/Jython Sample Projects
+````
+
 Python
 -------------
 
