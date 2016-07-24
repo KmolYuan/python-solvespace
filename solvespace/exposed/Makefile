@@ -1,11 +1,10 @@
 WIN_DEFINES = -D_WIN32_WINNT=0x500 -D_WIN32_IE=0x500 -DWIN32_LEAN_AND_MEAN
-DEFINES = -DISOLATION_AWARE_ENABLED -DLIBRARY
+DEFINES = -DISOLATION_AWARE_ENABLED -DLIBRARY -DDLL_EXPORT
 # Use the multi-threaded static libc because libpng and zlib do; not sure if anything bad
 # happens if those mix, but don't want to risk it.
 #TODO -MT - multithread?
 #TODO /Zi /EHs /O2 /GS-
 CFLAGS  = -I../extlib -I../../common/win32 -I. -I.. -D_DEBUG -D_CRT_SECURE_NO_WARNINGS -O2 -g -Wno-write-strings -fpermissive
-CFLAGS_SHARED = -fPIC -shared $(CFLAGS)
 
 HEADERS = ../solvespace.h \
           ../dsc.h \
@@ -26,9 +25,7 @@ W32OBJS = $(OBJDIR)/w32util.obj \
 LIBOBJS = $(OBJDIR)/lib.obj \
 
 #LIBS = user32.lib gdi32.lib comctl32.lib advapi32.lib shell32.lib
-LIBS = ../extlib/libpng.lib \
-       ../extlib/zlib.lib \
-       ../extlib/si/siapp.lib \
+LIBS = 
 
 CFILES = ../win32/w32util.cpp \
         ../entity.cpp \
@@ -38,23 +35,27 @@ CFILES = ../win32/w32util.cpp \
         lib.cpp \
 
 OFILES = $(SSOBJS) $(LIBOBJS) $(W32OBJS) $(LIBS)
-OWRAP = $(OBJDIR)/slvs_wrap.obj
+OWRAP = $(OBJDIR)/slvs_wrap.o
 CWRAP = slvs_wrap.cxx
+PYTHONDLL = _slvs.pyd
 PYTHONSO = _slvs.so
-LIBSO = libslvs.so
+CSO = libslvs.so
 CDEMO = cdemo.exe
 
 CXX = g++
+LN = ln -sf
 SWIG = "W:\SWIG\swig.exe"
 PYTHON = W:\Anaconda3\python.exe
 PYTHONLIB = -LW:/Anaconda3/libs -lPython35
 PYTHONINCLUDE = -IW:/Anaconda3/include
 PYTHONA = W:/Anaconda3/libs/libpython35.a
+SONAME = -Wl,-soname,$(PYTHONSO) -o $(PYTHONSO)
+DEFLIB = -Wl,--output-def,libslvs.def,--out-implib,libslvs.lib
 
 VPATH = .. \
         ../win32 \
 
-all: $(PYTHONSO) $(CDEMO) slvs.py
+all: $(CSO) $(CDEMO) $(PYTHONDLL)
 	@echo Complete
 
 test-c: $(CDEMO)
@@ -63,49 +64,55 @@ test-c: $(CDEMO)
 usage-python: slvs.py Usage.py
 	@echo "$@"
 	@echo Usage
-	$(PYTHON) Usage.py
+	@$(PYTHON) Usage.py
 
 test-python: slvs.py test.py
 	@echo "$@"
 	@echo test
-	$(PYTHON) test.py
+	@$(PYTHON) test.py
 
 clean:
 	@rm -f $(OBJDIR)/*
 	@rm -f $(CDEMO)
-	@rm -f $(LIBSO)
-	@rm -f $(PYTHONSO)
+	@rm -f *.so*
 	@rm -f slvs.py
 	@rm -f $(CWRAP)
+	@rm -f *.o
+	@rm -f *.exe
+	@rm -f *.a
+	@rm -f *.dll
+	@rm -f *.pyd
+	@rm -f *.def
+	@rm -f *.lib
 
 .SECONDEXPANSION:
 
-$(LIBSO): $(OFILES)
-	@echo ---------------------------
+$(CSO): $(OFILES)
+	@echo --------------------------------
 	@echo Dynamic link library: "$@"
-	@$(CXX) -shared -fPIC -o $@ $^
-	@echo ---------------------------
+	$(CXX) -shared -o $@ $^
+	@echo --------------------------------
 
-$(CDEMO): CDemo.c $(LIBSO)
-	@echo ===========================
+$(PYTHONDLL): $(OFILES) $(OWRAP)
+	@echo --------------------------------
+	@echo Dynamic link library: "$@"
+	$(CXX) -shared -o $@ $(DEFLIB) $^ $(PYTHONLIB) -L. -l:$(CSO)
+	@echo --------------------------------
+
+$(CDEMO): CDemo.c $(CSO)
+	@echo ================================
 	@echo Executable files: "$@"
-	@$(CXX) $(CFLAGS) -o $@ $< -L. -l:$(LIBSO)
-	@echo ===========================
+	@$(CXX) $(CFLAGS) -o $@ $< -L. -l:$(CSO)
+	@echo ================================
 
 $(OBJDIR)/%.obj: %.cpp $(HEADERS)
 	@echo object: "$@"
 	@$(CXX) -fPIC $(CFLAGS) $(DEFINES) -c -o $@ $<
 
-$(CWRAP): slvs.i slvs_python.hpp $(LIBSO)
+$(CWRAP): slvs.i slvs_python.hpp $(CSO)
 	@echo SWIG: "$@"
 	@$(SWIG) -c++ -python -py3 -o $@ $<
 
 $(OWRAP): $(CWRAP)
 	@echo object: "$@"
-	@$(CXX) -fPIC -D__WIN32__ -Wno-unused-but-set-variable -c -g -o $@ $< $(PYTHONINCLUDE)
-
-$(PYTHONSO): $(OFILES) $(OWRAP)
-	@echo ---------------------------
-	@echo Dynamic link library: "$@"
-	@$(CXX) -shared -fPIC -o $@ $^ $(PYTHONLIB) -L. -l:$(LIBSO)
-	@echo ---------------------------
+	@$(CXX) -fPIC -I../extlib -I../../common/win32 -I. -I.. -O2 $(DEFINES) -c -o $@ $< $(PYTHONINCLUDE)
