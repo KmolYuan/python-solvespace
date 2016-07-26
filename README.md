@@ -29,7 +29,7 @@ In Ubuntu, you need to rebuild `_slvs.pyd` to `_slvs.so`.
 
 Original `_slvs.so` is not compatible with Linux OS.
 
-＊Of crouse you need to install [Python 3](https://www.python.org/downloads/) or [Anaconda](https://www.continuum.io/downloads) within it.
+＊Of crouse you need to install [Anaconda](https://www.continuum.io/downloads) within Python 3.
 
 My using tools
 =================
@@ -52,7 +52,9 @@ Python/Jython Sample Projects
 Python
 -------------
 
-Python `3.5.2`
+Anaconda 3 with Python `3.5.2`
+
+Other Python version maybe not compatible for some libraries.
 
 GNU
 -------------
