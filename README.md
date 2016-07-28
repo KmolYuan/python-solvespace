@@ -5,32 +5,6 @@ Python library from solver of Solve Space.
 
 Use for academic research and learning.
 
-Project-files
-=================
-
-Put these files into a same folder (Or you can just use them):
-
-````
-solvespace/exposed/_slvs.pyd
-solvespace/exposed/libslvs.so
-solvespace/exposed/slvs.py
-solvespace/exposed/Usage.py
-````
-
-Edit `Usage.py` to design a subject.
-
-(You can reference `DOC.txt`!)
-
-And then execute `python Usage.py` in Command Prompt of Windows.
-
-So `slvs.py` will ask `_slvs.pyd` and `libslvs.so` to solve subject.
-
-In Ubuntu, you need to rebuild `_slvs.pyd` to `_slvs.so`.
-
-Original `_slvs.so` is not compatible with Linux OS.
-
-＊Of crouse you need to install [Anaconda](https://www.continuum.io/downloads) within Python 3.
-
 My using tools
 =================
 

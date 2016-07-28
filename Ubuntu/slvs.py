@@ -419,8 +419,8 @@ def Slvs_MakeWorkplane(h: 'Slvs_hEntity', group: 'Slvs_hGroup', origin: 'Slvs_hE
     return _slvs.Slvs_MakeWorkplane(h, group, origin, normal)
 Slvs_MakeWorkplane = _slvs.Slvs_MakeWorkplane
 
-def Slvs_MakeConstraint(h: 'Slvs_hConstraint', group: 'Slvs_hGroup', type: 'int', wrkpl: 'Slvs_hEntity', valA: 'double', ptA: 'Slvs_hEntity', ptB: 'Slvs_hEntity', entityA: 'Slvs_hEntity', entityB: 'Slvs_hEntity') -> "Slvs_Constraint":
-    return _slvs.Slvs_MakeConstraint(h, group, type, wrkpl, valA, ptA, ptB, entityA, entityB)
+def Slvs_MakeConstraint(h: 'Slvs_hConstraint', group: 'Slvs_hGroup', type: 'int', wrkpl: 'Slvs_hEntity', valA: 'double', ptA: 'Slvs_hEntity', ptB: 'Slvs_hEntity', entityA: 'Slvs_hEntity', entityB: 'Slvs_hEntity', entityC: 'Slvs_hEntity', entityD: 'Slvs_hEntity', other: 'bool', other2: 'bool') -> "Slvs_Constraint":
+    return _slvs.Slvs_MakeConstraint(h, group, type, wrkpl, valA, ptA, ptB, entityA, entityB, entityC, entityD, other, other2)
 Slvs_MakeConstraint = _slvs.Slvs_MakeConstraint
 
 
@@ -1098,6 +1098,66 @@ class Constraint(_object):
         equal_radius = staticmethod(_slvs.Constraint_equal_radius)
     else:
         equal_radius = _slvs.Constraint_equal_radius
+    if _newclass:
+        equal = staticmethod(_slvs.Constraint_equal)
+    else:
+        equal = _slvs.Constraint_equal
+    if _newclass:
+        equal_point_line = staticmethod(_slvs.Constraint_equal_point_line)
+    else:
+        equal_point_line = _slvs.Constraint_equal_point_line
+    if _newclass:
+        equal_angle = staticmethod(_slvs.Constraint_equal_angle)
+    else:
+        equal_angle = _slvs.Constraint_equal_angle
+    if _newclass:
+        ratio = staticmethod(_slvs.Constraint_ratio)
+    else:
+        ratio = _slvs.Constraint_ratio
+    if _newclass:
+        symmetric = staticmethod(_slvs.Constraint_symmetric)
+    else:
+        symmetric = _slvs.Constraint_symmetric
+    if _newclass:
+        symmetric_H = staticmethod(_slvs.Constraint_symmetric_H)
+    else:
+        symmetric_H = _slvs.Constraint_symmetric_H
+    if _newclass:
+        symmetric_V = staticmethod(_slvs.Constraint_symmetric_V)
+    else:
+        symmetric_V = _slvs.Constraint_symmetric_V
+    if _newclass:
+        midpoint = staticmethod(_slvs.Constraint_midpoint)
+    else:
+        midpoint = _slvs.Constraint_midpoint
+    if _newclass:
+        orientation = staticmethod(_slvs.Constraint_orientation)
+    else:
+        orientation = _slvs.Constraint_orientation
+    if _newclass:
+        angle = staticmethod(_slvs.Constraint_angle)
+    else:
+        angle = _slvs.Constraint_angle
+    if _newclass:
+        perpendicular = staticmethod(_slvs.Constraint_perpendicular)
+    else:
+        perpendicular = _slvs.Constraint_perpendicular
+    if _newclass:
+        parallel = staticmethod(_slvs.Constraint_parallel)
+    else:
+        parallel = _slvs.Constraint_parallel
+    if _newclass:
+        distance_proj = staticmethod(_slvs.Constraint_distance_proj)
+    else:
+        distance_proj = _slvs.Constraint_distance_proj
+    if _newclass:
+        dragged = staticmethod(_slvs.Constraint_dragged)
+    else:
+        dragged = _slvs.Constraint_dragged
+    if _newclass:
+        tangent = staticmethod(_slvs.Constraint_tangent)
+    else:
+        tangent = _slvs.Constraint_tangent
     __swig_destroy__ = _slvs.delete_Constraint
     __del__ = lambda self: None
 Constraint_swigregister = _slvs.Constraint_swigregister
@@ -1134,6 +1194,66 @@ Constraint_diameter = _slvs.Constraint_diameter
 def Constraint_equal_radius(*args) -> "Constraint":
     return _slvs.Constraint_equal_radius(*args)
 Constraint_equal_radius = _slvs.Constraint_equal_radius
+
+def Constraint_equal(*args) -> "Constraint":
+    return _slvs.Constraint_equal(*args)
+Constraint_equal = _slvs.Constraint_equal
+
+def Constraint_equal_point_line(*args) -> "Constraint":
+    return _slvs.Constraint_equal_point_line(*args)
+Constraint_equal_point_line = _slvs.Constraint_equal_point_line
+
+def Constraint_equal_angle(*args) -> "Constraint":
+    return _slvs.Constraint_equal_angle(*args)
+Constraint_equal_angle = _slvs.Constraint_equal_angle
+
+def Constraint_ratio(*args) -> "Constraint":
+    return _slvs.Constraint_ratio(*args)
+Constraint_ratio = _slvs.Constraint_ratio
+
+def Constraint_symmetric(*args) -> "Constraint":
+    return _slvs.Constraint_symmetric(*args)
+Constraint_symmetric = _slvs.Constraint_symmetric
+
+def Constraint_symmetric_H(*args) -> "Constraint":
+    return _slvs.Constraint_symmetric_H(*args)
+Constraint_symmetric_H = _slvs.Constraint_symmetric_H
+
+def Constraint_symmetric_V(*args) -> "Constraint":
+    return _slvs.Constraint_symmetric_V(*args)
+Constraint_symmetric_V = _slvs.Constraint_symmetric_V
+
+def Constraint_midpoint(*args) -> "Constraint":
+    return _slvs.Constraint_midpoint(*args)
+Constraint_midpoint = _slvs.Constraint_midpoint
+
+def Constraint_orientation(*args) -> "Constraint":
+    return _slvs.Constraint_orientation(*args)
+Constraint_orientation = _slvs.Constraint_orientation
+
+def Constraint_angle(*args) -> "Constraint":
+    return _slvs.Constraint_angle(*args)
+Constraint_angle = _slvs.Constraint_angle
+
+def Constraint_perpendicular(*args) -> "Constraint":
+    return _slvs.Constraint_perpendicular(*args)
+Constraint_perpendicular = _slvs.Constraint_perpendicular
+
+def Constraint_parallel(*args) -> "Constraint":
+    return _slvs.Constraint_parallel(*args)
+Constraint_parallel = _slvs.Constraint_parallel
+
+def Constraint_distance_proj(*args) -> "Constraint":
+    return _slvs.Constraint_distance_proj(*args)
+Constraint_distance_proj = _slvs.Constraint_distance_proj
+
+def Constraint_dragged(*args) -> "Constraint":
+    return _slvs.Constraint_dragged(*args)
+Constraint_dragged = _slvs.Constraint_dragged
+
+def Constraint_tangent(*args) -> "Constraint":
+    return _slvs.Constraint_tangent(*args)
+Constraint_tangent = _slvs.Constraint_tangent
 
 class System(Slvs_System):
     __swig_setmethods__ = {}

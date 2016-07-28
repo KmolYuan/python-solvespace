@@ -56,6 +56,9 @@ VPATH = .. \
         ../win32 \
 
 all: $(CSO) $(CDEMO) $(PYTHONDLL)
+	@cp -f --target-directory=W:/tmp/workplace/exposed/ _slvs.pyd libslvs.so slvs.py
+	@cp -f --target-directory="W:/tmp/python-solvespace-my/Windows" libslvs.so slvs.py _slvs.pyd
+	@cp -f --target-directory="W:/tmp/python-solvespace-my/Ubuntu" libslvs.so slvs.py
 	@echo Complete
 
 test-c: $(CDEMO)

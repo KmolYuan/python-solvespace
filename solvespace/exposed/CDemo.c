@@ -56,7 +56,7 @@ void Example3d(void)
                                             SLVS_C_PT_PT_DISTANCE,
                                             SLVS_FREE_IN_3D,
                                             30.0,
-                                            101, 102, 0, 0);
+                                            101, 102, 0, 0, 0, 0, 0, 0);
 
     // Let's tell the solver to keep the second point as close to constant
     // as possible, instead moving the first point.
@@ -163,7 +163,7 @@ void Example2d(void)
                                             SLVS_C_PT_PT_DISTANCE,
                                             200,
                                             30.0,
-                                            301, 302, 0, 0);
+                                            301, 302, 0, 0, 0, 0, 0, 0);
 
     // And the distance from our line segment to the origin is 10.0 units.
     sys.constraint[sys.constraints++] = Slvs_MakeConstraint(
@@ -171,21 +171,21 @@ void Example2d(void)
                                             SLVS_C_PT_LINE_DISTANCE,
                                             200,
                                             10.0,
-                                            101, 0, 400, 0);
+                                            101, 0, 400, 0, 0, 0, 0, 0);
     // And the line segment is vertical.
     sys.constraint[sys.constraints++] = Slvs_MakeConstraint(
                                             3, g,
                                             SLVS_C_VERTICAL,
                                             200,
                                             0.0,
-                                            0, 0, 400, 0);
+                                            0, 0, 400, 0, 0, 0, 0, 0);
     // And the distance from one endpoint to the origin is 15.0 units.
     sys.constraint[sys.constraints++] = Slvs_MakeConstraint(
                                             4, g,
                                             SLVS_C_PT_PT_DISTANCE,
                                             200,
                                             15.0,
-                                            301, 101, 0, 0);
+                                            301, 101, 0, 0, 0, 0, 0, 0);
 /*
     // And same for the other endpoint; so if you add this constraint then
     // the sketch is overconstrained and will signal an error.
@@ -202,14 +202,14 @@ void Example2d(void)
                                             SLVS_C_EQUAL_RADIUS,
                                             200,
                                             0.0,
-                                            0, 0, 401, 402);
+                                            0, 0, 401, 402, 0, 0, 0, 0);
     // The arc has radius 17.0 units.
     sys.constraint[sys.constraints++] = Slvs_MakeConstraint(
                                             7, g,
                                             SLVS_C_DIAMETER,
                                             200,
                                             17.0*2,
-                                            0, 0, 401, 0);
+                                            0, 0, 401, 0, 0, 0, 0, 0);
 
     // If the solver fails, then ask it to report which constraints caused
     // the problem.
