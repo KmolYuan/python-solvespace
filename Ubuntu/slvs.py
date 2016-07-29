@@ -1075,14 +1075,6 @@ class Constraint(_object):
     else:
         coincident = _slvs.Constraint_coincident
     if _newclass:
-        distance = staticmethod(_slvs.Constraint_distance)
-    else:
-        distance = _slvs.Constraint_distance
-    if _newclass:
-        on = staticmethod(_slvs.Constraint_on)
-    else:
-        on = _slvs.Constraint_on
-    if _newclass:
         horizontal = staticmethod(_slvs.Constraint_horizontal)
     else:
         horizontal = _slvs.Constraint_horizontal
@@ -1158,6 +1150,14 @@ class Constraint(_object):
         tangent = staticmethod(_slvs.Constraint_tangent)
     else:
         tangent = _slvs.Constraint_tangent
+    if _newclass:
+        distance = staticmethod(_slvs.Constraint_distance)
+    else:
+        distance = _slvs.Constraint_distance
+    if _newclass:
+        on = staticmethod(_slvs.Constraint_on)
+    else:
+        on = _slvs.Constraint_on
     __swig_destroy__ = _slvs.delete_Constraint
     __del__ = lambda self: None
 Constraint_swigregister = _slvs.Constraint_swigregister
@@ -1170,14 +1170,6 @@ Constraint_some_other_constraint = _slvs.Constraint_some_other_constraint
 def Constraint_coincident(*args) -> "Constraint":
     return _slvs.Constraint_coincident(*args)
 Constraint_coincident = _slvs.Constraint_coincident
-
-def Constraint_distance(*args) -> "Constraint":
-    return _slvs.Constraint_distance(*args)
-Constraint_distance = _slvs.Constraint_distance
-
-def Constraint_on(*args) -> "Constraint":
-    return _slvs.Constraint_on(*args)
-Constraint_on = _slvs.Constraint_on
 
 def Constraint_horizontal(*args) -> "Constraint":
     return _slvs.Constraint_horizontal(*args)
@@ -1254,6 +1246,14 @@ Constraint_dragged = _slvs.Constraint_dragged
 def Constraint_tangent(*args) -> "Constraint":
     return _slvs.Constraint_tangent(*args)
 Constraint_tangent = _slvs.Constraint_tangent
+
+def Constraint_distance(*args) -> "Constraint":
+    return _slvs.Constraint_distance(*args)
+Constraint_distance = _slvs.Constraint_distance
+
+def Constraint_on(*args) -> "Constraint":
+    return _slvs.Constraint_on(*args)
+Constraint_on = _slvs.Constraint_on
 
 class System(Slvs_System):
     __swig_setmethods__ = {}

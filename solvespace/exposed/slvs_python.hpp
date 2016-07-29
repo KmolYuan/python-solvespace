@@ -518,6 +518,18 @@ public:
             0, 0));
     }
 //SLVS_C_PT_FACE_DISTANCE
+    static Constraint distance(double value,
+            Point3d p, Cubic c,
+            Slvs_hGroup group = USE_DEFAULT_GROUP) {
+        return init(p.system(), Slvs_MakeConstraint(
+            0, group,
+            SLVS_C_PT_LINE_DISTANCE,
+            SLVS_FREE_IN_3D,
+            value,
+            p.handle(), 0,
+            c.handle(), 0, 0, 0,
+            0, 0));
+    }
 //SLVS_C_PT_IN_PLANE
     static Constraint on(
             Workplane wrkpl, Point3d p,
@@ -571,6 +583,18 @@ public:
             0, 0));
     }
 // SLVS_C_PT_ON_FACE
+    static Constraint on(
+            Point3d p, Cubic c,
+            Slvs_hGroup group = USE_DEFAULT_GROUP) {
+        return init(p.system(), Slvs_MakeConstraint(
+            0, group,
+            SLVS_C_PT_ON_CIRCLE,
+            SLVS_FREE_IN_3D,
+            0,
+            p.handle(), 0,
+            c.handle(), 0, 0, 0,
+            0, 0));
+    }
 // SLVS_C_EQUAL_LENGTH_LINES
     static Constraint equal(Workplane wrkpl,
             LineSegment line1, LineSegment line2,
@@ -865,16 +889,16 @@ public:
     }
 // SLVS_C_CUBIC_LINE_TANGENT
     static Constraint tangent(
-            Cubic cubic, LineSegment line,
+            Cubic c, LineSegment l,
             bool other,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
-        return init(cubic.system(), Slvs_MakeConstraint(
+        return init(c.system(), Slvs_MakeConstraint(
             0, group,
             SLVS_C_CUBIC_LINE_TANGENT,
             SLVS_FREE_IN_3D,
             0,
             0, 0,
-            cubic.handle(), line.handle(), 0, 0,
+            c.handle(), l.handle(), 0, 0,
             other, 0));
     }
 //SLVS_C_EQUAL_RADIUS
