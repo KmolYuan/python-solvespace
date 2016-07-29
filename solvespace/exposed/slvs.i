@@ -630,7 +630,7 @@ public:
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint midpoint(
-            Point3d p, LineSegment3d line1, LineSegment3d line2,
+            Point3d p, LineSegment3d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint midpoint(Workplane wrkpl,
@@ -658,7 +658,7 @@ public:
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint tangent(
-            Circular arc, LineSegment line, bool other,
+            ArcOfCircle arc, LineSegment2d line, bool other,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint tangent(

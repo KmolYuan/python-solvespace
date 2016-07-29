@@ -743,7 +743,7 @@ public:
     }
 // SLVS_C_AT_MIDPOINT_3D
     static Constraint midpoint(
-            Point3d p, LineSegment3d line1, LineSegment3d line2,
+            Point3d p, LineSegment3d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(p.system(), Slvs_MakeConstraint(
             0, group,
@@ -751,7 +751,7 @@ public:
             SLVS_FREE_IN_3D,
             0,
             p.handle(), 0,
-            line1.handle(), line2.handle(), 0, 0,
+            line.handle(), 0, 0, 0,
             0, 0));
     }
 // SLVS_C_AT_MIDPOINT_2D
@@ -875,7 +875,7 @@ public:
     }
 // SLVS_C_ARC_LINE_TANGENT
     static Constraint tangent(
-            Circular arc, LineSegment line,
+            ArcOfCircle arc, LineSegment2d line,
             bool other,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(arc.system(), Slvs_MakeConstraint(
