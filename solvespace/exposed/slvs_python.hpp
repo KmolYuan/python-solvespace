@@ -571,7 +571,7 @@ public:
     }
 //SLVS_C_PT_ON_CIRCLE
     static Constraint on(
-            Workplane wrkpl, Point p, Circle circle,
+            Workplane wrkpl, Point p, Circle c,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
             0, group,
@@ -579,7 +579,7 @@ public:
             wrkpl.handle(),
             0,
             p.handle(), 0,
-            circle.handle(), 0, 0, 0,
+            c.handle(), 0, 0, 0,
             0, 0));
     }
 // SLVS_C_PT_ON_FACE
@@ -820,7 +820,7 @@ public:
             0, 0));
     }
 // SLVS_C_ANGLE
-    static Constraint angle(Workplane wrkpl,
+    static Constraint angle(Workplane wrkpl, double value,
             LineSegment line1, LineSegment line2,
             bool other,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
@@ -828,7 +828,7 @@ public:
             0, group,
             SLVS_C_ANGLE,
             wrkpl.handle(),
-            0,
+            value,
             0, 0,
             line1.handle(), line2.handle(), 0, 0,
             other, 0));
@@ -889,7 +889,7 @@ public:
     }
 // SLVS_C_CUBIC_LINE_TANGENT
     static Constraint tangent(
-            Cubic c, LineSegment l,
+            Cubic c, LineSegment3d l,
             bool other,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(c.system(), Slvs_MakeConstraint(

@@ -569,7 +569,7 @@ public:
             Slvs_hGroup group = USE_DEFAULT_GROUP)
 		throw_entity_constructor;
     static Constraint on(
-            Workplane wrkpl, Point p, Circle circle,
+            Workplane wrkpl, Point p, Circle c,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
 		throw_entity_constructor;
     static Constraint horizontal(
@@ -641,7 +641,7 @@ public:
             Normal3d nrml1, Normal3d nrml2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint angle(Workplane wrkpl,
+    static Constraint angle(Workplane wrkpl,  double value,
             LineSegment line1, LineSegment line2, bool other,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
@@ -662,7 +662,7 @@ public:
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint tangent(
-            Cubic cubic, LineSegment line, bool other,
+            Cubic cubic, LineSegment3d line, bool other,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint distance_proj(double value,
