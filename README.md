@@ -5,6 +5,8 @@ Python library from solver of Solve Space.
 
 Use for academic research and learning.
 
+Feature for CDemo and Python interface can see [Here](http://project.mde.tw/blog/40323230ji-lu-slvszi-liao-ku-han-shi.html) in Chinese.
+
 My using tools
 =================
 
