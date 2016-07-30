@@ -5,7 +5,11 @@ Python library from solver of Solve Space.
 
 Use for academic research and learning.
 
+There hasn't any Solvespace main program but Makefile in the `exposed` folder.
+
 Feature for CDemo and Python interface can see [Here](http://project.mde.tw/blog/40323230ji-lu-slvszi-liao-ku-han-shi.html) in Chinese.
+
+And there are some code and Solvespace drawing in OS (Windows and Ubuntu) folder.
 
 My using tools
 =================
