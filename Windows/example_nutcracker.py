@@ -15,6 +15,7 @@ b0 = 0.75 #基塊寬度(mm)
 n1 = 1.5 #後連桿長度(mm)
 n2 = 2.3 #前連桿長度(mm)
 R0 = 0.25 #半圓頭半徑(mm)
+L0 = 3.25 #底線距離(mm)
 
 #開始繪圖
 
@@ -56,7 +57,7 @@ Line1 = LineSegment2d(Workplane1, Point2, Point3)
 p13 = sys.add_param(b0/2)
 p14 = sys.add_param(h0)
 Point4 = Point2d(Workplane1, p13, p14)
-Constraint.dragged(Workplane1, Point4)
+Constraint.dragged(Workplane1, Point4) #必須鎖住已知點
 Constraint.distance(R0, Workplane1, Point4, Line1)
 Constraint.distance(n1, Workplane1, Point1, Point2)
 Constraint.distance(n2, Workplane1, Point2, Point3)
@@ -64,6 +65,9 @@ Constraint.distance(n2, Workplane1, Point2, Point3)
 #以下解題
 
 sys.solve()
+
+Ansmin = sys.get_param(11).val - b0/2
+Ansmax = L0 - R0 - b0/2
 
 if (sys.result == SLVS_RESULT_OKAY):
     print ("點座標：")
@@ -73,6 +77,10 @@ if (sys.result == SLVS_RESULT_OKAY):
     print("P2(-0.400 1.450 0.000)")
     print(("P3(%.3f %.3f %.3f)")%(sys.get_param(11).val, sys.get_param(12).val, sys.get_param(2).val))
     print("P4(1.390 0.000 0.000)\n")
+    print("Min:")
+    print(("(%.3f)")%(Ansmin))
+    print("Max:")
+    print(("(%.3f)")%(Ansmax))
     print ("%d DOF" % sys.dof)
 elif (sys.result == SLVS_RESULT_INCONSISTENT):
     print ("solve failed")
