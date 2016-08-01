@@ -677,8 +677,20 @@ public:
             Point2d p,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
+    static Constraint tangent(Workplane wrkpl,
+            ArcOfCircle c1, ArcOfCircle c2, bool other, bool other2,
+            Slvs_hGroup group = USE_DEFAULT_GROUP)
+        throw_entity_constructor;
     static Constraint tangent(
-            Cubic cubic1, Cubic cubic2, bool other, bool other2,
+            Cubic c1, Cubic c2, bool other, bool other2,
+            Slvs_hGroup group = USE_DEFAULT_GROUP)
+        throw_entity_constructor;
+    static Constraint tangent(Workplane wrkpl,
+            ArcOfCircle c1, Cubic c2, bool other, bool other2,
+            Slvs_hGroup group = USE_DEFAULT_GROUP)
+        throw_entity_constructor;
+    static Constraint tangent(Workplane wrkpl,
+            Cubic c1, ArcOfCircle c2, bool other, bool other2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
 };

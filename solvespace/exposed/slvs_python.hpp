@@ -927,7 +927,21 @@ public:
             0, 0, 0, 0,
             0, 0));
     }
-//SLVS_C_CURVE_CURVE_TANGENT
+//SLVS_C_CURVE_CURVE_TANGENT_ARC_ARC
+    static Constraint tangent(Workplane wrkpl,
+            ArcOfCircle c1, ArcOfCircle c2,
+            bool other, bool other2,
+            Slvs_hGroup group = USE_DEFAULT_GROUP) {
+        return init(wrkpl.system(), Slvs_MakeConstraint(
+            0, group,
+            SLVS_C_CURVE_CURVE_TANGENT,
+            wrkpl.handle(),
+            0,
+            0, 0,
+            c1.handle(), c2.handle(), 0, 0,
+            other, other2));
+    }
+//SLVS_C_CURVE_CURVE_TANGENT_CUBIC_CUBIC
     static Constraint tangent(
             Cubic c1, Cubic c2,
             bool other, bool other2,
@@ -936,6 +950,34 @@ public:
             0, group,
             SLVS_C_CURVE_CURVE_TANGENT,
             SLVS_FREE_IN_3D,
+            0,
+            0, 0,
+            c1.handle(), c2.handle(), 0, 0,
+            other, other2));
+    }
+//SLVS_C_CURVE_CURVE_TANGENT_ARC_CUBIC
+    static Constraint tangent(Workplane wrkpl,
+            ArcOfCircle c1, Cubic c2,
+            bool other, bool other2,
+            Slvs_hGroup group = USE_DEFAULT_GROUP) {
+        return init(wrkpl.system(), Slvs_MakeConstraint(
+            0, group,
+            SLVS_C_CURVE_CURVE_TANGENT,
+            wrkpl.handle(),
+            0,
+            0, 0,
+            c1.handle(), c2.handle(), 0, 0,
+            other, other2));
+    }
+//SLVS_C_CURVE_CURVE_TANGENT_CUBIC_ARC
+    static Constraint tangent(Workplane wrkpl,
+            Cubic c1, ArcOfCircle c2,
+            bool other, bool other2,
+            Slvs_hGroup group = USE_DEFAULT_GROUP) {
+        return init(wrkpl.system(), Slvs_MakeConstraint(
+            0, group,
+            SLVS_C_CURVE_CURVE_TANGENT,
+            wrkpl.handle(),
             0,
             0, 0,
             c1.handle(), c2.handle(), 0, 0,
