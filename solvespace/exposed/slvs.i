@@ -549,7 +549,7 @@ public:
             Slvs_hGroup group = USE_DEFAULT_GROUP)
 		throw_entity_constructor;
     static Constraint distance(double value,
-            Workplane wrkpl, Point p, LineSegment line,
+            Workplane wrkpl, Point p, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
 		throw_entity_constructor;
     static Constraint distance(double value,
@@ -561,7 +561,7 @@ public:
             Slvs_hGroup group = USE_DEFAULT_GROUP)
 		throw_entity_constructor;
     static Constraint on(
-            Workplane wrkpl, Point p, LineSegment line,
+            Workplane wrkpl, Point p, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
 		throw_entity_constructor;
     static Constraint on(
@@ -573,11 +573,11 @@ public:
             Slvs_hGroup group = USE_DEFAULT_GROUP)
 		throw_entity_constructor;
     static Constraint horizontal(
-            Workplane wrkpl, LineSegment line,
+            Workplane wrkpl, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
 		throw_entity_constructor;
     static Constraint vertical(
-            Workplane wrkpl, LineSegment line,
+            Workplane wrkpl, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
 		throw_entity_constructor;
     static Constraint diameter(double diameter,
@@ -589,24 +589,24 @@ public:
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint equal(Workplane wrkpl,
-            LineSegment line, Circular c,
+            LineSegment2d line, Circular c,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint equal(Workplane wrkpl,
-            LineSegment line1, LineSegment line2,
+            LineSegment2d line1, LineSegment2d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint equal_point_line(Workplane wrkpl,
             Point2d p1, Point2d p2,
-            LineSegment line1, LineSegment line2,
+            LineSegment2d line1, LineSegment2d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint equal_angle(Workplane wrkpl,
-            LineSegment line1, LineSegment line2, LineSegment line3, LineSegment line4,
+            LineSegment2d line1, LineSegment2d line2, LineSegment2d line3, LineSegment2d line4,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint ratio(double value,
-            Workplane wrkpl, LineSegment line1, LineSegment line2,
+            Workplane wrkpl, LineSegment2d line1, LineSegment2d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint symmetric(Workplane wrkpl,
@@ -618,7 +618,7 @@ public:
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint symmetric(Workplane wrkpl,
-            Point2d p1, Point2d p2, LineSegment line,
+            Point2d p1, Point2d p2, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint symmetric_H(Workplane wrkpl,
@@ -634,7 +634,7 @@ public:
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint midpoint(Workplane wrkpl,
-            Point2d p, LineSegment line,
+            Point2d p, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint orientation(
@@ -642,11 +642,11 @@ public:
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint angle(Workplane wrkpl,  double value,
-            LineSegment line1, LineSegment line2, bool other,
+            LineSegment2d line1, LineSegment2d line2, bool other,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint perpendicular(Workplane wrkpl,
-            LineSegment line1, LineSegment line2, bool other,
+            LineSegment2d line1, LineSegment2d line2, bool other,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint parallel(
@@ -654,7 +654,7 @@ public:
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint parallel(Workplane wrkpl,
-            LineSegment line1, LineSegment line2,
+            LineSegment2d line1, LineSegment2d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     static Constraint tangent(

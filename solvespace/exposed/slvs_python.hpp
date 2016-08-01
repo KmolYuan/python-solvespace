@@ -493,7 +493,7 @@ public:
     }
 //SLVS_C_PT_LINE_DISTANCE_2D
     static Constraint distance(double value,
-            Workplane wrkpl, Point p, LineSegment line,
+            Workplane wrkpl, Point p, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
             0, group,
@@ -532,7 +532,7 @@ public:
     }
 //SLVS_C_PT_ON_LINE_2D
     static Constraint on(
-            Workplane wrkpl, Point p, LineSegment line,
+            Workplane wrkpl, Point p, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
             0, group,
@@ -571,7 +571,7 @@ public:
     }
 // SLVS_C_EQUAL_LENGTH_LINES
     static Constraint equal(Workplane wrkpl,
-            LineSegment line1, LineSegment line2,
+            LineSegment2d line1, LineSegment2d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
             0, group,
@@ -584,7 +584,7 @@ public:
     }
 // SLVS_C_LENGTH_RATIO
     static Constraint ratio(double value,
-            Workplane wrkpl, LineSegment line1, LineSegment line2,
+            Workplane wrkpl, LineSegment2d line1, LineSegment2d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
             0, group,
@@ -598,7 +598,7 @@ public:
 // SLVS_C_EQ_LEN_PT_LINE_D
     static Constraint equal(Workplane wrkpl,
             Point2d p,
-            LineSegment line1, LineSegment line2,
+            LineSegment2d line1, LineSegment2d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
             0, group,
@@ -612,7 +612,7 @@ public:
 // SLVS_C_EQ_PT_LN_DISTANCES
     static Constraint equal_point_line(Workplane wrkpl,
             Point2d p1, Point2d p2,
-            LineSegment line1, LineSegment line2,
+            LineSegment2d line1, LineSegment2d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
             0, group,
@@ -625,7 +625,7 @@ public:
     }
 // SLVS_C_EQUAL_ANGLE
     static Constraint equal_angle(Workplane wrkpl,
-            LineSegment line1, LineSegment line2, LineSegment line3, LineSegment line4,
+            LineSegment2d line1, LineSegment2d line2, LineSegment2d line3, LineSegment2d line4,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
             0, group,
@@ -638,7 +638,7 @@ public:
     }
 // SLVS_C_EQUAL_LINE_ARC_LEN
     static Constraint equal(Workplane wrkpl,
-            LineSegment line, Circular c,
+            LineSegment2d line, Circular c,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
             0, group,
@@ -704,7 +704,7 @@ public:
 //SLVS_C_SYMMETRIC_LINE
     static Constraint symmetric(Workplane wrkpl,
             Point2d p1, Point2d p2,
-            LineSegment line,
+            LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
             0, group,
@@ -730,7 +730,7 @@ public:
     }
 //SLVS_C_AT_MIDPOINT_2D
     static Constraint midpoint(Workplane wrkpl,
-            Point2d p, LineSegment line,
+            Point2d p, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
             0, group,
@@ -743,7 +743,7 @@ public:
     }
 //SLVS_C_HORIZONTAL
     static Constraint horizontal(
-            Workplane wrkpl, LineSegment line,
+            Workplane wrkpl, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
             0, group,
@@ -756,7 +756,7 @@ public:
     }
 //SLVS_C_VERTICAL
     static Constraint vertical(
-            Workplane wrkpl, LineSegment line,
+            Workplane wrkpl, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
             0, group,
@@ -795,7 +795,7 @@ public:
     }
 //SLVS_C_ANGLE
     static Constraint angle(Workplane wrkpl, double value,
-            LineSegment line1, LineSegment line2,
+            LineSegment2d line1, LineSegment2d line2,
             bool other,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
@@ -809,7 +809,7 @@ public:
     }
 //SLVS_C_PERPENDICULAR
     static Constraint perpendicular(Workplane wrkpl,
-            LineSegment line1, LineSegment line2,
+            LineSegment2d line1, LineSegment2d line2,
             bool other,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
@@ -836,7 +836,7 @@ public:
     }
 //SLVS_C_PARALLEL_2D
     static Constraint parallel(Workplane wrkpl,
-            LineSegment line1, LineSegment line2,
+            LineSegment2d line1, LineSegment2d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(wrkpl.system(), Slvs_MakeConstraint(
             0, group,
