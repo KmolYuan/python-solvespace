@@ -452,7 +452,7 @@ public:
             0, 0, 0, 0,
             0, 0));
     }
-//SLVS_C_PT_PT_DISTANCE
+//SLVS_C_PT_PT_DISTANCE_3D
     static Constraint distance(double value,
             Point3d p1, Point3d p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
@@ -465,7 +465,7 @@ public:
             0, 0, 0, 0,
             0, 0));
     }
-//SLVS_C_PT_PT_DISTANCE
+//SLVS_C_PT_PT_DISTANCE_2D
     static Constraint distance(double value,
             Workplane wrkpl, Point p1, Point p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
@@ -517,19 +517,6 @@ public:
             line.handle(), 0, 0, 0,
             0, 0));
     }
-//SLVS_C_PT_FACE_DISTANCE
-    static Constraint distance(double value,
-            Point3d p, Cubic c,
-            Slvs_hGroup group = USE_DEFAULT_GROUP) {
-        return init(p.system(), Slvs_MakeConstraint(
-            0, group,
-            SLVS_C_PT_LINE_DISTANCE,
-            SLVS_FREE_IN_3D,
-            value,
-            p.handle(), 0,
-            c.handle(), 0, 0, 0,
-            0, 0));
-    }
 //SLVS_C_PT_IN_PLANE
     static Constraint on(
             Workplane wrkpl, Point3d p,
@@ -577,19 +564,6 @@ public:
             0, group,
             SLVS_C_PT_ON_CIRCLE,
             wrkpl.handle(),
-            0,
-            p.handle(), 0,
-            c.handle(), 0, 0, 0,
-            0, 0));
-    }
-// SLVS_C_PT_ON_FACE
-    static Constraint on(
-            Point3d p, Cubic c,
-            Slvs_hGroup group = USE_DEFAULT_GROUP) {
-        return init(p.system(), Slvs_MakeConstraint(
-            0, group,
-            SLVS_C_PT_ON_CIRCLE,
-            SLVS_FREE_IN_3D,
             0,
             p.handle(), 0,
             c.handle(), 0, 0, 0,
@@ -675,7 +649,7 @@ public:
             line.handle(), c.handle(), 0, 0,
             0, 0));
     }
-// SLVS_C_SYMMETRIC_3D
+//SLVS_C_SYMMETRIC_3D
     static Constraint symmetric(Workplane wrkpl,
             Point3d p1, Point3d p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
@@ -688,7 +662,7 @@ public:
             wrkpl.handle(), 0, 0, 0,
             0, 0));
     }
-// SLVS_C_SYMMETRIC_2D
+//SLVS_C_SYMMETRIC_2D
     static Constraint symmetric(Workplane wrkpl,
             Point2d p1, Point2d p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
@@ -701,7 +675,7 @@ public:
             wrkpl.handle(), 0, 0, 0,
             0, 0));
     }
-// SLVS_C_SYMMETRIC_HORIZ
+//SLVS_C_SYMMETRIC_HORIZ
     static Constraint symmetric_H(Workplane wrkpl,
             Point2d p1, Point2d p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
@@ -714,7 +688,7 @@ public:
             0, 0, 0, 0,
             0, 0));
     }
-// SLVS_C_SYMMETRIC_VERT
+//SLVS_C_SYMMETRIC_VERT
     static Constraint symmetric_V(Workplane wrkpl,
             Point2d p1, Point2d p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
@@ -727,7 +701,7 @@ public:
             0, 0, 0, 0,
             0, 0));
     }
-// SLVS_C_SYMMETRIC_LINE
+//SLVS_C_SYMMETRIC_LINE
     static Constraint symmetric(Workplane wrkpl,
             Point2d p1, Point2d p2,
             LineSegment line,
@@ -741,7 +715,7 @@ public:
             line.handle(), 0, 0, 0,
             0, 0));
     }
-// SLVS_C_AT_MIDPOINT_3D
+//SLVS_C_AT_MIDPOINT_3D
     static Constraint midpoint(
             Point3d p, LineSegment3d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
@@ -754,7 +728,7 @@ public:
             line.handle(), 0, 0, 0,
             0, 0));
     }
-// SLVS_C_AT_MIDPOINT_2D
+//SLVS_C_AT_MIDPOINT_2D
     static Constraint midpoint(Workplane wrkpl,
             Point2d p, LineSegment line,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
@@ -806,7 +780,7 @@ public:
             c.handle(), 0, 0, 0,
             0, 0));
     }
-// SLVS_C_SAME_ORIENTATION
+//SLVS_C_SAME_ORIENTATION
     static Constraint orientation(
             Normal3d nrml1, Normal3d nrml2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
@@ -819,7 +793,7 @@ public:
             nrml1.handle(), nrml2.handle(), 0, 0,
             0, 0));
     }
-// SLVS_C_ANGLE
+//SLVS_C_ANGLE
     static Constraint angle(Workplane wrkpl, double value,
             LineSegment line1, LineSegment line2,
             bool other,
@@ -833,7 +807,7 @@ public:
             line1.handle(), line2.handle(), 0, 0,
             other, 0));
     }
-// SLVS_C_PERPENDICULAR
+//SLVS_C_PERPENDICULAR
     static Constraint perpendicular(Workplane wrkpl,
             LineSegment line1, LineSegment line2,
             bool other,
@@ -847,7 +821,7 @@ public:
             line1.handle(), line2.handle(), 0, 0,
             other, 0));
     }
-// SLVS_C_PARALLEL_3D
+//SLVS_C_PARALLEL_3D
     static Constraint parallel(
             LineSegment3d line1, LineSegment3d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
@@ -860,7 +834,7 @@ public:
             line1.handle(), line2.handle(), 0, 0,
             0, 0));
     }
-// SLVS_C_PARALLEL_2D
+//SLVS_C_PARALLEL_2D
     static Constraint parallel(Workplane wrkpl,
             LineSegment line1, LineSegment line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
@@ -873,7 +847,7 @@ public:
             line1.handle(), line2.handle(), 0, 0,
             0, 0));
     }
-// SLVS_C_ARC_LINE_TANGENT
+//SLVS_C_ARC_LINE_TANGENT
     static Constraint tangent(
             ArcOfCircle arc, LineSegment2d line,
             bool other,
@@ -887,7 +861,7 @@ public:
             arc.handle(), line.handle(), 0, 0,
             other, 0));
     }
-// SLVS_C_CUBIC_LINE_TANGENT
+//SLVS_C_CUBIC_LINE_TANGENT
     static Constraint tangent(
             Cubic c, LineSegment3d l,
             bool other,
@@ -914,7 +888,7 @@ public:
             c1.handle(), c2.handle(), 0, 0,
             0, 0));
     }
-// SLVS_C_PROJ_PT_DISTANCE
+//SLVS_C_PROJ_PT_DISTANCE
     static Constraint distance_proj(double value,
             Point3d p1, Point3d p2, Workplane wrkpl,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
@@ -927,7 +901,7 @@ public:
             wrkpl.handle(), 0, 0, 0,
             0, 0));
     }
-// SLVS_C_WHERE_DRAGGED_2D
+//SLVS_C_WHERE_DRAGGED_2D
     static Constraint dragged(Workplane wrkpl,
             Point2d p,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
@@ -940,7 +914,7 @@ public:
             0, 0, 0, 0,
             0, 0));
     }
-// SLVS_C_WHERE_DRAGGED_3D
+//SLVS_C_WHERE_DRAGGED_3D
     static Constraint dragged(
             Point3d p,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
@@ -953,7 +927,7 @@ public:
             0, 0, 0, 0,
             0, 0));
     }
-// SLVS_C_CURVE_CURVE_TANGENT
+//SLVS_C_CURVE_CURVE_TANGENT
     static Constraint tangent(
             Cubic c1, Cubic c2,
             bool other, bool other2,
@@ -967,6 +941,8 @@ public:
             c1.handle(), c2.handle(), 0, 0,
             other, other2));
     }
+//SLVS_C_PT_FACE_DISTANCE
+//SLVS_C_PT_ON_FACE
 };
 
 #define ENABLE_SAFETY 1

@@ -681,14 +681,6 @@ public:
             Cubic cubic1, Cubic cubic2, bool other, bool other2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint distance(double value,
-            Point3d p, Cubic c,
-            Slvs_hGroup group = USE_DEFAULT_GROUP)
-        throw_entity_constructor;
-    static Constraint on(
-            Point3d p, Cubic c,
-            Slvs_hGroup group = USE_DEFAULT_GROUP)
-        throw_entity_constructor;
 };
 
 class System : public Slvs_System {
