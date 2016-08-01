@@ -1071,10 +1071,6 @@ class Constraint(_object):
     else:
         some_other_constraint = _slvs.Constraint_some_other_constraint
     if _newclass:
-        coincident = staticmethod(_slvs.Constraint_coincident)
-    else:
-        coincident = _slvs.Constraint_coincident
-    if _newclass:
         distance = staticmethod(_slvs.Constraint_distance)
     else:
         distance = _slvs.Constraint_distance
@@ -1166,10 +1162,6 @@ Constraint_swigregister(Constraint)
 def Constraint_some_other_constraint(*args) -> "Constraint":
     return _slvs.Constraint_some_other_constraint(*args)
 Constraint_some_other_constraint = _slvs.Constraint_some_other_constraint
-
-def Constraint_coincident(*args) -> "Constraint":
-    return _slvs.Constraint_coincident(*args)
-Constraint_coincident = _slvs.Constraint_coincident
 
 def Constraint_distance(*args) -> "Constraint":
     return _slvs.Constraint_distance(*args)

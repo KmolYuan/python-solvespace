@@ -427,7 +427,7 @@ public:
             0, 0));
     }
 //SLVS_C_POINTS_COINCIDENT_3D
-    static Constraint coincident(
+    static Constraint on(
             Point3d p1, Point3d p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(p1.system(), Slvs_MakeConstraint(
@@ -440,7 +440,7 @@ public:
             0, 0));
     }
 //SLVS_C_POINTS_COINCIDENT_2D
-    static Constraint coincident(
+    static Constraint on(
             Workplane wrkpl, Point p1, Point p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         return init(p1.system(), Slvs_MakeConstraint(
