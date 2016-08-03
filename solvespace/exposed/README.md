@@ -34,11 +34,9 @@ If you got a warning say can't find `libpython35`, or a lot of warning, such as:
 1. Use this command:
 
 ```
-cd "where you put python"\Anaconda3\libs
-
-gendef python35.dll
-
-dlltool --dllname python35.dll --def python35.def --output-lib libpython35.a
+>cd "where you put python"\Anaconda3\libs
+>gendef python35.dll
+>dlltool --dllname python35.dll --def python35.def --output-lib libpython35.a
 ```
 
 1. In `\Anaconda3\include\pyconfig.h`, find this:
@@ -69,7 +67,7 @@ self.dll_libraries = get_msvcr()
 
 If you got a warning with `_hypot` in `pyconfig.h`, you should do this:
 
-1. In `\Anaconda3\include\pyconfig.h`, find this: `＃define hypot _hypot`
+1. In `\Anaconda3\include\pyconfig.h`, find this: `#define hypot _hypot`
 
 1. Edit it to this:
 
