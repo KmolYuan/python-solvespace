@@ -3,7 +3,13 @@ Library Files
 
 1. `_slvs.pyd` or `_slvs.so`
 
-1. 
+1. `slvs.py`
+
+1. `libslvs.so`
+
+1. `slvs_solid.py` (If want to use it)
+
+1. And your python program(s)
 
 Anaconda Adjustment
 ===
