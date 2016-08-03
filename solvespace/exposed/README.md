@@ -18,7 +18,7 @@ Some conflicts between the C Language and Python.
 
 You need change a few of Python files to avoid these conflicts.
 
-But you can be assured that this 
+But you can be assured that the changes won't cause any negative impact.
 
 libpython35.a
 ---
