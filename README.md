@@ -9,7 +9,7 @@ There hasn't any Solvespace main program but Makefile in the `exposed` folder.
 
 Feature for CDemo and Python interface can see [Here](http://project.mde.tw/blog/slvs-library-functions.html) in English.
 
-Or see [Here](http://project.mde.tw/blog/slvszi-liao-ku-han-shi.html) in Chinese.
+Or see [Here](http://project.mde.tw/blog/slvs-cheng-shi-ku-han-shi.html) in Chinese.
 
 And there are some code and Solvespace drawing in OS (Windows and Ubuntu) folder.
 
