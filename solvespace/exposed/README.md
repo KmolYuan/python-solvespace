@@ -7,7 +7,7 @@ Library Files
 
 1. `libslvs.so`
 
-1. `slvs_solid.py` (If want to use it)
+1. `slvs_solid.py` (If you want to use it)
 
 1. And your python program(s)
 
