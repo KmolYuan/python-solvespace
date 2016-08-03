@@ -67,7 +67,11 @@ Commit `self.dll_libraries = get_msvcr()`
 
 If you got a warning with `_hypot` in `pyconfig.h`, you should do this:
 
-In `\Anaconda3\include\pyconfig.h`, find this: `#define hypot _hypot`
+In `\Anaconda3\include\pyconfig.h`, find this:
+
+```
+#define hypot _hypot
+```
 
 Edit it to this:
 
