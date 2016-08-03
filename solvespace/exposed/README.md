@@ -34,7 +34,7 @@ If you got a warning say can't find `libpython35`, or a lot of warning, such as:
 Use this command:
 
 ```
->cd "where you put python"\Anaconda3\libs
+>cd "where your python"\Anaconda3\libs
 >gendef python35.dll
 >dlltool --dllname python35.dll --def python35.def --output-lib libpython35.a
 ```
