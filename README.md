@@ -5,18 +5,20 @@ Python library from solver of Solve Space.
 
 Use for academic research and learning.
 
-There hasn't any Solvespace main program but Makefile in the `exposed` folder.
+There hasn't any Solvespace main program but Makefile in the `exposed` folder (With two OS version).
 
 Feature for CDemo and Python interface can see [Here](http://project.mde.tw/blog/slvs-library-functions.html) in English.
 
 Or see [Here](http://project.mde.tw/blog/slvs-cheng-shi-ku-han-shi.html) in Chinese.
 
-And there are some code and Solvespace drawing in OS (Windows and Ubuntu) folder.
+And there are some code and Solvespace drawing (Also include COMPILED library files) in OS (Windows and Ubuntu) folder.
 
 My using tools
 ===
 
-This project made by following tools. (But they are Win-version.)
+This project is made by following tools. (But they are Win-version.)
+
+In Ubuntu, you just need to install Netbeans and SWIG.
 
 Compiler
 ---
@@ -37,6 +39,8 @@ Python
 Anaconda 3 with Python `3.5.2`
 
 Other Python version maybe not compatible for some libraries.
+
+In Ubuntu, I used Python `3.4.5` to made them.
 
 GNU
 ---
