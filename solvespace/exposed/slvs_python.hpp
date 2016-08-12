@@ -54,7 +54,7 @@ public:
         va_start(args, fmt);
 
         char* buf;
-        if (__mingw_vasprintf(&buf, fmt, args) >= 0) {
+        if (vasprintf(&buf, fmt, args) >= 0) {
             _what = std::string(buf);
             free(buf);
         } else {

@@ -65,6 +65,8 @@
                    projectFiles="false"
                    kind="IMPORTANT_FILES_FOLDER">
       <itemPath>Makefile</itemPath>
+      <itemPath>exposed/Makefile</itemPath>
+      <itemPath>exposed/Makefile.win</itemPath>
       <itemPath>nbproject/private/launcher.properties</itemPath>
     </logicalFolder>
   </logicalFolder>

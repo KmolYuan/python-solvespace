@@ -1,4 +1,4 @@
-WIN_DEFINES = -D_WIN32_WINNT=0x500 -D_WIN32_IE=0x500 -DWIN32_LEAN_AND_MEAN
+#WIN_DEFINES = -D_WIN32_WINNT=0x500 -D_WIN32_IE=0x500 -DWIN32_LEAN_AND_MEAN
 DEFINES = -DISOLATION_AWARE_ENABLED -DLIBRARY -DDLL_EXPORT
 # Use the multi-threaded static libc because libpng and zlib do; not sure if anything bad
 # happens if those mix, but don't want to risk it.
@@ -43,22 +43,18 @@ CSO = libslvs.so
 CDEMO = cdemo.exe
 
 CXX = g++
-LN = ln -sf
-SWIG = "W:\SWIG\swig.exe"
-PYTHON = W:\Anaconda3\python.exe
-PYTHONLIB = -LW:/Anaconda3/libs -lPython35
-PYTHONINCLUDE = -IW:/Anaconda3/include
-PYTHONA = W:/Anaconda3/libs/libpython35.a
+SWIG = swig
+PYTHON = python3
+PYTHONLIB = -L/usr/lib/x86_64-linux-gnu -lpython3.4m
+PYTHONINCLUDE = -I/usr/include/python3.4/
 SONAME = -Wl,-soname,$(PYTHONSO) -o $(PYTHONSO)
 DEFLIB = -Wl,--output-def,libslvs.def,--out-implib,libslvs.lib
 
 VPATH = .. \
         ../win32 \
 
-all: $(CSO) $(CDEMO) $(PYTHONDLL)
-	@cp -f --target-directory=W:/tmp/workplace/exposed/ _slvs.pyd libslvs.so slvs.py
-	@cp -f --target-directory="W:/tmp/python-solvespace-my/Windows" libslvs.so slvs.py _slvs.pyd
-	@cp -f --target-directory="W:/tmp/python-solvespace-my/Ubuntu" libslvs.so slvs.py
+all: $(CSO) $(CDEMO) $(PYTHONSO)
+	@cp -f --target-directory=../../Ubuntu/ _slvs.so libslvs.so slvs.py
 	@echo Complete
 
 test-c: $(CDEMO)
@@ -96,10 +92,10 @@ $(CSO): $(OFILES)
 	$(CXX) -shared -o $@ $^
 	@echo --------------------------------
 
-$(PYTHONDLL): $(OFILES) $(OWRAP)
+$(PYTHONSO): $(OFILES) $(OWRAP)
 	@echo --------------------------------
 	@echo Dynamic link library: "$@"
-	$(CXX) -shared -o $@ $(DEFLIB) $^ $(PYTHONLIB) -L. -l:$(CSO)
+	$(CXX) -shared -o $@ $^ $(PYTHONLIB)
 	@echo --------------------------------
 
 $(CDEMO): CDemo.c $(CSO)
