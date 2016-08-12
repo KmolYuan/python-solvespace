@@ -5,7 +5,7 @@
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
             <name>solvespace</name>
             <c-extensions>c,i</c-extensions>
-            <cpp-extensions>cpp,cxx</cpp-extensions>
+            <cpp-extensions>cpp</cpp-extensions>
             <header-extensions>h,hpp,table</header-extensions>
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects/>
