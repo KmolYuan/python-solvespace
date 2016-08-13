@@ -3,6 +3,7 @@
 /solvespace/exposed/libslvs.so
 /solvespace/exposed/slvs.dll
 /solvespace/exposed/cdemo
+/solvespace/exposed/Makefile
 
 /solvespace/exposed/_slvs.so
 /solvespace/exposed/_slvs.pyd
