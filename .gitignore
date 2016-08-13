@@ -5,6 +5,9 @@
 /solvespace/exposed/cdemo
 
 /solvespace/exposed/_slvs.so
+/solvespace/exposed/_slvs.pyd
 /solvespace/exposed/slvs.py
 *.pyc
 /solvespace/exposed/slvs_wrap.cxx
+
+*__pycache__*
