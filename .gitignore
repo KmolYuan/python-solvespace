@@ -10,6 +10,9 @@
 /solvespace/exposed/slvs.py
 *.pyc
 *.o*
+*.def
+*.dll
+*.a
 /solvespace/exposed/slvs_wrap.cxx
 
 *__pycache__*
