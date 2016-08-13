@@ -40,7 +40,7 @@ CWRAP = slvs_wrap.cxx
 PYTHONDLL = _slvs.pyd
 PYTHONSO = _slvs.so
 CSO = libslvs.so
-CDEMO = cdemo.exe
+CDEMO = cdemo
 
 CXX = g++
 SWIG = swig
