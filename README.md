@@ -1,4 +1,4 @@
-python-solvespace
+Python Solvespace
 ===
 
 Python library from solver of Solve Space. 
