@@ -103,14 +103,10 @@ def crank_rock(degree):
 Xval  = []
 Yval  = []
 
-for i in range(0, 361):
-    print ("Degree: %3s deg"%(i))
-    #crank_rock(i,0,0)
+for i in range(0, 361, 5):
     x, y = crank_rock(i)
-    print ("=======")
     Xval += [x]
     Yval += [y]
-  #  a = str(x)+","+str(y)+"\n"
 print ("Solve Completed")
 
 plt.plot(Xval, Yval)
