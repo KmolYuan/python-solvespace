@@ -456,27 +456,47 @@ public:
     static Constraint distance(double value,
             Point3d p1, Point3d p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
-        return init(p1.system(), Slvs_MakeConstraint(
-            0, group,
-            SLVS_C_PT_PT_DISTANCE,
-            SLVS_FREE_IN_3D,
-            value,
-            p1.handle(), p2.handle(),
-            0, 0, 0, 0,
-            0, 0));
+        if(value == 0){
+            return init(p1.system(), Slvs_MakeConstraint(
+                0, group,
+                SLVS_C_POINTS_COINCIDENT,
+                SLVS_FREE_IN_3D,
+                0,
+                p1.handle(), p2.handle(),
+                0, 0, 0, 0,
+                0, 0));}
+        else{
+            return init(p1.system(), Slvs_MakeConstraint(
+                0, group,
+                SLVS_C_PT_PT_DISTANCE,
+                SLVS_FREE_IN_3D,
+                value,
+                p1.handle(), p2.handle(),
+                0, 0, 0, 0,
+                0, 0));}
     }
 //SLVS_C_PT_PT_DISTANCE_2D
     static Constraint distance(double value,
             Workplane wrkpl, Point p1, Point p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
-        return init(wrkpl.system(), Slvs_MakeConstraint(
-            0, group,
-            SLVS_C_PT_PT_DISTANCE,
-            wrkpl.handle(),
-            value,
-            p1.handle(), p2.handle(),
-            0, 0, 0, 0,
-            0, 0));
+        if(value == 0){
+            return init(p1.system(), Slvs_MakeConstraint(
+                0, group,
+                SLVS_C_POINTS_COINCIDENT,
+                wrkpl.handle(),
+                0,
+                p1.handle(), p2.handle(),
+                0, 0, 0, 0,
+                0, 0));}
+        else{
+            return init(wrkpl.system(), Slvs_MakeConstraint(
+                0, group,
+                SLVS_C_PT_PT_DISTANCE,
+                wrkpl.handle(),
+                value,
+                p1.handle(), p2.handle(),
+                0, 0, 0, 0,
+                0, 0));}
     }
 //SLVS_C_PT_PLANE_DISTANCE
     static Constraint distance(double value,
