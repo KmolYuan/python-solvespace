@@ -11,7 +11,7 @@ Library Files
 
 1. And your python program(s)
 
-Anaconda Adjustment
+Anaconda Adjustment (Windows)
 ===
 
 Some conflicts between the C Language and Python.

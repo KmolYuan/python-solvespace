@@ -18,7 +18,7 @@ My using tools
 
 This project is made by following tools. (But they are Win-version.)
 
-In Ubuntu, you just need to install Netbeans and SWIG.
+In Ubuntu, you just need to install Python 3.4-dev, Netbeans and SWIG.
 
 Compiler
 ---
