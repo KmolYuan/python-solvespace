@@ -550,13 +550,13 @@ public:
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
         if(value == 0){
             return init(p.system(), Slvs_MakeConstraint(
-            0, group,
-            SLVS_C_PT_ON_LINE,
-            SLVS_FREE_IN_3D,
-            0,
-            p.handle(), 0,
-            line.handle(), 0, 0, 0,
-            0, 0));}
+                0, group,
+                SLVS_C_PT_ON_LINE,
+                SLVS_FREE_IN_3D,
+                0,
+                p.handle(), 0,
+                line.handle(), 0, 0, 0,
+                0, 0));}
         else{
             return init(p.system(), Slvs_MakeConstraint(
                 0, group,
