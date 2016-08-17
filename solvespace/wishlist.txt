@@ -15,5 +15,3 @@ faster triangulation
 loop detection
 IGES export
 incremental regen of entities
-
-
