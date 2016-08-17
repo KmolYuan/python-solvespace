@@ -8,6 +8,7 @@
         <in>slvs.h</in>
         <in>slvs.i</in>
         <in>slvs_python.hpp</in>
+        <in>slvs_wrap.cxx</in>
       </df>
       <df name="extlib">
         <df name="si">
