@@ -54,7 +54,7 @@ public:
         va_start(args, fmt);
 
         char* buf;
-        if (vasprintf(&buf, fmt, args) >= 0) {
+        if (__mingw_vasprintf(&buf, fmt, args) >= 0) {
             _what = std::string(buf);
             free(buf);
         } else {
@@ -502,40 +502,70 @@ public:
     static Constraint distance(double value,
             Workplane wrkpl, Point3d p,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
-        return init(wrkpl.system(), Slvs_MakeConstraint(
-            0, group,
-            SLVS_C_PT_PLANE_DISTANCE,
-            wrkpl.handle(),
-            value,
-            p.handle(), 0,
-            wrkpl.handle(), 0, 0, 0,
-            0, 0));
+        if(value == 0){
+            return init(wrkpl.system(), Slvs_MakeConstraint(
+                0, group,
+                SLVS_C_PT_IN_PLANE,
+                wrkpl.handle(),
+                0,
+                p.handle(), 0,
+                wrkpl.handle(), 0, 0, 0,
+                0, 0));}
+        else{
+            return init(wrkpl.system(), Slvs_MakeConstraint(
+                0, group,
+                SLVS_C_PT_PLANE_DISTANCE,
+                wrkpl.handle(),
+                value,
+                p.handle(), 0,
+                wrkpl.handle(), 0, 0, 0,
+                0, 0));}
     }
 //SLVS_C_PT_LINE_DISTANCE_2D
     static Constraint distance(double value,
             Workplane wrkpl, Point p, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
-        return init(wrkpl.system(), Slvs_MakeConstraint(
-            0, group,
-            SLVS_C_PT_LINE_DISTANCE,
-            wrkpl.handle(),
-            value,
-            p.handle(), 0,
-            line.handle(), 0, 0, 0,
-            0, 0));
+        if(value == 0){
+            return init(wrkpl.system(), Slvs_MakeConstraint(
+                0, group,
+                SLVS_C_PT_ON_LINE,
+                wrkpl.handle(),
+                0,
+                p.handle(), 0,
+                line.handle(), 0, 0, 0,
+                0, 0));}
+        else{
+            return init(wrkpl.system(), Slvs_MakeConstraint(
+                0, group,
+                SLVS_C_PT_LINE_DISTANCE,
+                wrkpl.handle(),
+                value,
+                p.handle(), 0,
+                line.handle(), 0, 0, 0,
+                0, 0));}
     }
 //SLVS_C_PT_LINE_DISTANCE_3D
     static Constraint distance(double value,
             Point3d p, LineSegment3d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP) {
-        return init(p.system(), Slvs_MakeConstraint(
+        if(value == 0){
+            return init(p.system(), Slvs_MakeConstraint(
             0, group,
-            SLVS_C_PT_LINE_DISTANCE,
+            SLVS_C_PT_ON_LINE,
             SLVS_FREE_IN_3D,
-            value,
+            0,
             p.handle(), 0,
             line.handle(), 0, 0, 0,
-            0, 0));
+            0, 0));}
+        else{
+            return init(p.system(), Slvs_MakeConstraint(
+                0, group,
+                SLVS_C_PT_LINE_DISTANCE,
+                SLVS_FREE_IN_3D,
+                value,
+                p.handle(), 0,
+                line.handle(), 0, 0, 0,
+                0, 0));}
     }
 //SLVS_C_PT_IN_PLANE
     static Constraint on(
