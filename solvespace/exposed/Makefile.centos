@@ -71,12 +71,11 @@ test-python: slvs.py test.py
 	@$(PYTHON) test.py
 
 clean:
-	@rm -f $(OBJDIR)/*
+	@rm -f $(OBJDIR)/*.o*
 	@rm -f $(CDEMO)
 	@rm -f *.so*
 	@rm -f slvs.py
 	@rm -f $(CWRAP)
-	@rm -f *.o*
 	@rm -f *.exe
 	@rm -f *.a
 	@rm -f *.dll
