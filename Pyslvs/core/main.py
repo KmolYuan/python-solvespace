@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #MainWindow.
+import csv
 from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox
 from PyQt5.QtGui import QPixmap, QIcon
@@ -7,15 +8,16 @@ from PyQt5.QtGui import QPixmap, QIcon
 from core.Ui_main import Ui_MainWindow
 import webbrowser
 #Dialog Ports
-from core.version import version_show
-from core.info import Info_show
-from core.warning.reset_workbook import reset_show
-from core.warning.zero_value import zero_show
-from core.warning.repeated_value import same_show
-from core.draw.draw_point import New_point
-from core.draw.draw_link import New_link
-from core.draw.draw_stay_chain import chain_show
-#import core.python_solvespace.draw
+from .version import version_show
+from .info import Info_show
+from .warning.reset_workbook import reset_show
+from .warning.zero_value import zero_show
+from .warning.repeated_value import same_show
+from .draw.draw_point import New_point
+from .draw.draw_link import New_link
+from .draw.draw_stay_chain import chain_show
+from .draw.draw_delete_point import delete_point_show
+#from .python_solve import Solve
 
 Environment_variables = '../'
 
@@ -140,14 +142,36 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     @pyqtSlot()
     def on_action_Output_Coordinate_to_Text_File_triggered(self):
+        table = self.Entiteis_Point
         print("Saving to script...")
         fileName, sub = QFileDialog.getSaveFileName(self, 'Save file...', Environment_variables, 'Text File(*.txt);;CSV File(*.csv)')
-        if sub == "Text File(*.txt)":
-            fileName += ".txt"
-        if sub == "CSV File(*.csv)":
-            fileName += ".csv"
-        print("Saved to:"+str(fileName))
-        # TODO: Output_Coordinate_to_Text_File
+        if fileName:
+            fileName = fileName.replace(".txt", "")
+            fileName = fileName.replace(".csv", "")
+            if sub == "Text File(*.txt)":
+                fileName += ".txt"
+            if sub == "CSV File(*.csv)":
+                fileName += ".csv"
+            stream = open(fileName, 'w', newline="\n")
+            writer = csv.writer(stream)
+            csv.register_dialect(
+                'mydialect',
+                delimiter = ',',
+                quotechar = '\"',
+                doublequote = True,
+                skipinitialspace = True,
+                lineterminator = '\r\n',
+                quoting = csv.QUOTE_MINIMAL)
+            for row in range(table.rowCount()):
+                rowdata = []
+                for column in range(table.columnCount()):
+                    print(row, column)
+                    item = table.item(row, column)
+                    if item is not None:
+                        rowdata += [item.text()+'\t']
+                    else:
+                        rowdata += ['\n']
+                writer.writerow(rowdata)
     
     @pyqtSlot()
     def on_action_New_Point_triggered(self):
@@ -181,7 +205,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             icon.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
             draw_link  = New_link()
             for i in range(table1.rowCount()):
-                point_select = "Point "+str(i)
+                point_select = "Point"+str(i)
                 draw_link.Start_Piont.insertItem(i, icon, point_select)
                 draw_link.End_Point.insertItem(i, icon, point_select)
             table2 = self.Entiteis_Link
@@ -189,7 +213,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             draw_link.show()
             if draw_link.exec_():
                 a = draw_link.Start_Piont.currentText()
-                b = draw_link.Start_Piont.currentText()
+                b = draw_link.End_Point.currentText()
                 if a == b:
                     dlg = same_show()
                     dlg.show()
@@ -215,7 +239,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             New_stay_chain = chain_show()
             table2 = self.Entiteis_Stay_Chain
             for i in range(table1.rowCount()):
-                point_select = "Point "+str(i)
+                point_select = "Point"+str(i)
                 New_stay_chain.Point1.insertItem(i, icon, point_select)
                 New_stay_chain.Point2.insertItem(i, icon, point_select)
                 New_stay_chain.Point3.insertItem(i, icon, point_select)
@@ -238,15 +262,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     @pyqtSlot()
     def on_actionDelet_Entity_triggered(self):
-        """
-        Slot documentation goes here.
-        """
-        # TODO: not implemented yet
+        table = self.Entiteis_Point
+        if table.rowCount() <= 1:
+            dlg = zero_show()
+            dlg.show()
+            if dlg.exec_():
+                pass
+        else:
+            dlg = delete_point_show()
+            dlg.show
+            if dlg.exec_():
+                pass
 
 def Points_list_add(table, x, y, fixed):
     rowPosition = table.rowCount()
     table.insertRow(rowPosition)
-    table.setItem(rowPosition , 0, QTableWidgetItem("Point "+str(rowPosition)))
+    table.setItem(rowPosition , 0, QTableWidgetItem("Point"+str(rowPosition)))
     table.setItem(rowPosition , 1, QTableWidgetItem(str(x)))
     table.setItem(rowPosition , 2, QTableWidgetItem(str(y)))
     checkbox = QTableWidgetItem("")
@@ -256,7 +287,7 @@ def Points_list_add(table, x, y, fixed):
     else:
         checkbox.setCheckState(Qt.Unchecked)
     table.setItem(rowPosition , 3, checkbox)
-    print("Add Point "+str(rowPosition)+".")
+    print("Add Point"+str(rowPosition)+".")
 
 def Links_list_add(table, start, end, l):
     rowPosition = table.rowCount()
@@ -270,7 +301,7 @@ def Links_list_add(table, start, end, l):
 def Chain_list_add(table, p1, p2, p3, a, b, c):
     rowPosition = table.rowCount()
     table.insertRow(rowPosition)
-    table.setItem(rowPosition , 0, QTableWidgetItem("Line "+str(rowPosition)))
+    table.setItem(rowPosition , 0, QTableWidgetItem("Chain "+str(rowPosition)))
     table.setItem(rowPosition , 1, QTableWidgetItem(str(p1)))
     table.setItem(rowPosition , 2, QTableWidgetItem(str(p2)))
     table.setItem(rowPosition , 3, QTableWidgetItem(str(p3)))
