@@ -15,3 +15,9 @@
 /solvespace/exposed/slvs_wrap.cxx
 
 *__pycache__*
+
+*.eric6project*
+*.e4p
+*.e4q
+*.e6t
+*.ui
