@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/ahshoe/Desktop/Pyslvs/core/draw/draw_delete_linkage.ui'
+# Form implementation generated from reading ui file '/home/ahshoe/Desktop/Pyslvs/core/draw/draw_delete_chain.ui'
 #
 # Created by: PyQt5 UI code generator 5.7
 #
@@ -15,7 +15,7 @@ class Ui_Dialog(object):
         Dialog.setMinimumSize(QtCore.QSize(377, 169))
         Dialog.setMaximumSize(QtCore.QSize(377, 169))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/icons/deleteline.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/icons/deletechain.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Dialog.setWindowIcon(icon)
         Dialog.setSizeGripEnabled(True)
         Dialog.setModal(True)
@@ -41,8 +41,8 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Delete Linkage"))
-        self.label_3.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Choose the Linkage that want to delete.</span></p><p><span style=\" font-size:12pt;\">If you remove a Linkage, it\'s associated points won\'t be remove.</span></p></body></html>"))
+        Dialog.setWindowTitle(_translate("Dialog", "Delete Stay Chain"))
+        self.label_3.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Choose the Stay Chain that want to delete.</span></p><p><span style=\" font-size:12pt;\">If you remove a Stay Chain, it\'s associated points won\'t be remove.</span></p></body></html>"))
 
 import icons_rc
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/ahshoe/Desktop/Pyslvs/core/draw/draw_point.ui'
+# Form implementation generated from reading ui file '/home/ahshoe/Desktop/Pyslvs/core/draw/draw_edit_point.ui'
 #
 # Created by: PyQt5 UI code generator 5.7
 #
@@ -15,7 +15,7 @@ class Ui_Dialog(object):
         Dialog.setMinimumSize(QtCore.QSize(377, 219))
         Dialog.setMaximumSize(QtCore.QSize(377, 219))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/icons/point.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/icons/editpoint.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Dialog.setWindowIcon(icon)
         Dialog.setSizeGripEnabled(True)
         Dialog.setModal(True)
@@ -49,14 +49,14 @@ class Ui_Dialog(object):
         self.Fix_Point = QtWidgets.QCheckBox(Dialog)
         self.Fix_Point.setGeometry(QtCore.QRect(260, 180, 101, 21))
         self.Fix_Point.setObjectName("Fix_Point")
-        self.Point_num = QtWidgets.QTextBrowser(Dialog)
-        self.Point_num.setGeometry(QtCore.QRect(40, 110, 241, 31))
-        self.Point_num.setObjectName("Point_num")
         self.label_4 = QtWidgets.QLabel(Dialog)
         self.label_4.setGeometry(QtCore.QRect(40, 80, 101, 21))
         self.label_4.setTextFormat(QtCore.Qt.RichText)
         self.label_4.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.label_4.setObjectName("label_4")
+        self.Point = QtWidgets.QComboBox(Dialog)
+        self.Point.setGeometry(QtCore.QRect(40, 110, 131, 25))
+        self.Point.setObjectName("Point")
 
         self.retranslateUi(Dialog)
         self.buttonBox.accepted.connect(Dialog.accept)
@@ -65,14 +65,13 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "New Point"))
+        Dialog.setWindowTitle(_translate("Dialog", "Edit Point"))
         self.X_coordinate.setWhatsThis(_translate("Dialog", "X coordinate for next point."))
         self.label.setText(_translate("Dialog", "x coordinate"))
         self.label_2.setText(_translate("Dialog", "y coordinate"))
         self.Y_coordinate.setWhatsThis(_translate("Dialog", "Y coordinate for next point."))
-        self.label_3.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Setting Coordinates for the New Point.</span></p></body></html>"))
+        self.label_3.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Setting new Coordinates for the Selected Point.</span></p></body></html>"))
         self.Fix_Point.setText(_translate("Dialog", "&Fixed"))
-        self.Point_num.setWhatsThis(_translate("Dialog", "Name for next point."))
         self.label_4.setText(_translate("Dialog", "<html><head/><body><p>Point Number</p></body></html>"))
 
 import icons_rc

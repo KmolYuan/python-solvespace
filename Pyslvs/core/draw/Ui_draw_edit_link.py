@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/ahshoe/Desktop/Pyslvs/core/draw/draw_link.ui'
+# Form implementation generated from reading ui file '/home/ahshoe/Desktop/Pyslvs/core/draw/draw_edit_link.ui'
 #
 # Created by: PyQt5 UI code generator 5.7
 #
@@ -53,9 +53,9 @@ class Ui_Dialog(object):
         self.label_5 = QtWidgets.QLabel(Dialog)
         self.label_5.setGeometry(QtCore.QRect(30, 80, 101, 21))
         self.label_5.setObjectName("label_5")
-        self.Link_num = QtWidgets.QTextBrowser(Dialog)
-        self.Link_num.setGeometry(QtCore.QRect(30, 110, 211, 31))
-        self.Link_num.setObjectName("Link_num")
+        self.Link = QtWidgets.QComboBox(Dialog)
+        self.Link.setGeometry(QtCore.QRect(30, 110, 141, 25))
+        self.Link.setObjectName("Link")
 
         self.retranslateUi(Dialog)
         self.buttonBox.accepted.connect(Dialog.accept)
@@ -64,10 +64,10 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "New Link"))
+        Dialog.setWindowTitle(_translate("Dialog", "Edit Link"))
         self.label.setText(_translate("Dialog", "Start Point"))
         self.label_2.setText(_translate("Dialog", "End Point"))
-        self.label_3.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Setting two Points for the New Link.</span></p></body></html>"))
+        self.label_3.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Setting two Points for the Selected Link.</span></p></body></html>"))
         self.Start_Point.setWhatsThis(_translate("Dialog", "Start point for next link."))
         self.End_Point.setWhatsThis(_translate("Dialog", "End point for next link."))
         self.label_4.setText(_translate("Dialog", "<html><head/><body><p>Length</p></body></html>"))
