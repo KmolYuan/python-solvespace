@@ -16,6 +16,7 @@ class Ui_Warning_no_value(object):
         icon.addPixmap(QtGui.QPixmap(":/icons/main.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Warning_no_value.setWindowIcon(icon)
         Warning_no_value.setSizeGripEnabled(True)
+        Warning_no_value.setModal(True)
         self.buttonBox = QtWidgets.QDialogButtonBox(Warning_no_value)
         self.buttonBox.setGeometry(QtCore.QRect(320, 60, 81, 61))
         self.buttonBox.setOrientation(QtCore.Qt.Vertical)

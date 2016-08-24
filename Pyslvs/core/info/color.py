@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 """
-Module implementing delete_point_show.
+Module implementing color_show.
 """
 
 from PyQt5.QtWidgets import QDialog
-from .Ui_draw_delete_point import Ui_Dialog
+from .Ui_color import Ui_Info_Dialog
 
-class delete_point_show(QDialog, Ui_Dialog):
+class color_show(QDialog, Ui_Info_Dialog):
     """
     Class documentation goes here.
     """
@@ -18,5 +18,5 @@ class delete_point_show(QDialog, Ui_Dialog):
         @param parent reference to the parent widget
         @type QWidget
         """
-        super(delete_point_show, self).__init__(parent)
+        super(color_show, self).__init__(parent)
         self.setupUi(self)

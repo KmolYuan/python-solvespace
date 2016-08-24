@@ -18,6 +18,7 @@ class Ui_Dialog(object):
         icon.addPixmap(QtGui.QPixmap(":/icons/point.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Dialog.setWindowIcon(icon)
         Dialog.setSizeGripEnabled(True)
+        Dialog.setModal(True)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(290, 20, 81, 61))
         self.buttonBox.setOrientation(QtCore.Qt.Vertical)

@@ -16,6 +16,7 @@ class Ui_Warning_reset(object):
         icon.addPixmap(QtGui.QPixmap(":/icons/main.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Warning_reset.setWindowIcon(icon)
         Warning_reset.setSizeGripEnabled(True)
+        Warning_reset.setModal(True)
         self.OK = QtWidgets.QPushButton(Warning_reset)
         self.OK.setGeometry(QtCore.QRect(210, 110, 80, 25))
         self.OK.setObjectName("OK")
