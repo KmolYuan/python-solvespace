@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
+#CSV
 import csv
+#Matplotlib
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+#PyQt5
 from PyQt5.QtCore import pyqtSlot, Qt
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox, QMenu, QAction
 from PyQt5.QtGui import QPixmap, QIcon
 #UI Ports
 from core.Ui_main import Ui_MainWindow
@@ -28,7 +33,6 @@ from .draw.draw_edit_stay_chain import edit_stay_chain_show
 from .draw.draw_delete_point import delete_point_show
 from .draw.draw_delete_linkage import delete_linkage_show
 from .draw.draw_delete_chain import delete_chain_show
-#from .python_solve import Solve
 
 Environment_variables = "../"
 
@@ -41,6 +45,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
+        self.Entiteis_Point.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.Entiteis_Point.customContextMenuRequested.connect(self.on_point_context_menu)
+        self.popMenu = QMenu(self)
+        icon_point = QIcon()
+        icon_point.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
+        self.popMenu.addAction(QAction(icon_point, "Add a Point", self))
+        self.popMenu.addAction(QAction("Edit a Point", self))
+        self.popMenu.addSeparator()
+        self.popMenu.addAction(QAction("Delete a Point", self)) 
+    
+    #Right-click menu event
+    def on_point_context_menu(self, point):
+        action = self.popMenu.exec_(self.Entiteis_Point.mapToGlobal(point))
+        print(action)
+        if action:
+            self.on_action_New_Point_triggered()
     
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Message',
@@ -52,6 +72,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             event.ignore()
     
+    def addmpl(self, fig):
+        self.canvas = FigureCanvas(fig)
+        self.mplLayout.addWidget(self.canvas)
+        self.canvas.draw()
+    
+    #Start @pyqtSlot()
     @pyqtSlot()
     def on_actionMi_nimized_triggered(self):
         print("Minmized Windows.")
@@ -413,6 +439,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         icon.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
         table1 = self.Entiteis_Point
         table2 = self.Entiteis_Point_Style
+        table3 = self.Entiteis_Link
+        table4 = self.Entiteis_Stay_Chain
         if table1.rowCount() <= 1:
             dlg = zero_show()
             dlg.show()
@@ -424,7 +452,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 dlg.Point.insertItem(i, icon, table1.item(i, 0).text())
             dlg.show()
             if dlg.exec_():
-                Point_list_delete(table1, table2, dlg)
+                Point_list_delete(table1, table2, table3, table4, dlg)
+                #Two_list_delete(self.Entiteis_Link, self.Entiteis_Stay_Chain, dlg)
     
     @pyqtSlot()
     def on_actionDelete_Linkage_triggered(self):
@@ -461,6 +490,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             dlg.show()
             if dlg.exec_():
                 One_list_delete(table, "Chain", dlg)
+    
+    @pyqtSlot()
+    def on_Repaint_clicked(self):
+        Repaint()
 
 def Points_list_add(table, name, x, y, fixed):
     rowPosition = table.rowCount()
@@ -489,6 +522,7 @@ def Links_list_add(table, name, start, end, l):
     table.setItem(rowPosition , 2, QTableWidgetItem(end))
     table.setItem(rowPosition , 3, QTableWidgetItem(l))
     print("Add a link, Line "+str(rowPosition)+".")
+    Repaint()
 
 def Chain_list_add(table, name, p1, p2, p3, a, b, c):
     rowPosition = table.rowCount()
@@ -503,6 +537,7 @@ def Chain_list_add(table, name, p1, p2, p3, a, b, c):
     table.setItem(rowPosition , 5, QTableWidgetItem(b))
     table.setItem(rowPosition , 6, QTableWidgetItem(c))
     print("Add a Triangle Chain, Line "+str(rowPosition)+".")
+    Repaint()
 
 def Points_style_add(table, name, color, ringsize, ringcolor):
     rowPosition = table.rowCount()
@@ -514,6 +549,7 @@ def Points_style_add(table, name, color, ringsize, ringcolor):
     table.setItem(rowPosition , 2, QTableWidgetItem(ringsize))
     table.setItem(rowPosition , 3, QTableWidgetItem(ringcolor))
     print("Add Point Style for Point"+str(rowPosition)+".")
+    Repaint()
 
 def Points_list_edit(table, name, x, y, fixed):
     rowPosition = int(name.replace("Point", ""))
@@ -530,6 +566,7 @@ def Points_list_edit(table, name, x, y, fixed):
         checkbox.setCheckState(Qt.Unchecked)
     table.setItem(rowPosition , 3, checkbox)
     print("Edit Point"+str(rowPosition)+".")
+    Repaint()
 
 def Links_list_edit(table, name, start, end, l):
     rowPosition = int(name.replace("Line", ""))
@@ -540,6 +577,7 @@ def Links_list_edit(table, name, start, end, l):
     table.setItem(rowPosition , 2, QTableWidgetItem(end))
     table.setItem(rowPosition , 3, QTableWidgetItem(l))
     print("Edit a link, Line "+str(rowPosition)+".")
+    Repaint()
 
 def Chain_list_edit(table, name, p1, p2, p3, a, b, c):
     rowPosition = int(name.replace("Chain", ""))
@@ -553,23 +591,41 @@ def Chain_list_edit(table, name, p1, p2, p3, a, b, c):
     table.setItem(rowPosition , 5, QTableWidgetItem(b))
     table.setItem(rowPosition , 6, QTableWidgetItem(c))
     print("Edit a Triangle Chain, Line "+str(rowPosition)+".")
+    Repaint()
 
-def Point_list_delete(table1, table2, dlg):
+def Point_list_delete(table1, table2, table3, table4, dlg):
+    for i in range(table3.rowCount()):
+        if (dlg.Point.currentText() == table3.item(i, 1).text()) or (dlg.Point.currentText() == table3.item(i, 2).text()):
+            table3.removeRow(i)
+            for j in range(i, table3.rowCount()):
+                table3.setItem(j, 0, QTableWidgetItem("Line"+str(j)))
+            break
+    for i in range(table4.rowCount()):
+        if (dlg.Point.currentText() == table4.item(i, 1).text()) or (dlg.Point.currentText() == table4.item(i, 2).text()):
+            table4.removeRow(i)
+            for j in range(i, table4.rowCount):
+                table4.setItem(j, 0, QTableWidgetItem("Chain"+str(j)))
+            break
     for i in range(1, table1.rowCount()):
-                    if (dlg.Point.currentText() == table1.item(i, 0).text()):
-                        table1.removeRow(i)
-                        table2.removeRow(i)
-                        for y in range(i, table1.rowCount()):
-                            table1.setItem(y , 0, QTableWidgetItem("Point"+str(y)))
-                        break
-                        for y in range(i, table2.rowCount()):
-                            table2.setItem(y , 0, QTableWidgetItem("Point"+str(y)))
-                        break
+        if (dlg.Point.currentText() == table1.item(i, 0).text()):
+            table1.removeRow(i)
+            table2.removeRow(i)
+            for j in range(i, table1.rowCount()):
+                table1.setItem(j , 0, QTableWidgetItem("Point"+str(j)))
+            for j in range(i, table1.rowCount()):
+                table2.setItem(j , 0, QTableWidgetItem("Point"+str(j)))
+            break
+    Repaint()
 
 def One_list_delete(table, name, dlg):
     for i in range(table.rowCount()):
-                    if (dlg.Entity.currentText() == table.item(i, 0).text()):
-                        table.removeRow(i)
-                        for y in range(i, table.rowCount()):
-                            table.setItem(y , 0, QTableWidgetItem(name+str(y)))
-                        break
+        if (dlg.Entity.currentText() == table.item(i, 0).text()):
+            table.removeRow(i)
+            for j in range(i, table.rowCount()):
+                table.setItem(j , 0, QTableWidgetItem(name+str(j)))
+            break
+    Repaint()
+
+def Repaint():
+    #TODO: Repaint
+    print("Rebuild the cavance.")
