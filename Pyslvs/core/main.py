@@ -47,20 +47,39 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.Entiteis_Point.setContextMenuPolicy(Qt.CustomContextMenu)
         self.Entiteis_Point.customContextMenuRequested.connect(self.on_point_context_menu)
-        self.popMenu = QMenu(self)
-        icon_point = QIcon()
-        icon_point.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
-        self.popMenu.addAction(QAction(icon_point, "Add a Point", self))
-        self.popMenu.addAction(QAction("Edit a Point", self))
-        self.popMenu.addSeparator()
-        self.popMenu.addAction(QAction("Delete a Point", self)) 
+        self.popMenu_point = QMenu(self)
+        icon_point_add = QIcon()
+        icon_point_add.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
+        self.action_point_right_click_menu_add = QAction(icon_point_add, "Add a Point", self)
+        self.popMenu_point.addAction(self.action_point_right_click_menu_add)
+        icon_point_edit = QIcon()
+        icon_point_edit.addPixmap(QPixmap(":/icons/editpoint.png"), QIcon.Normal, QIcon.Off)
+        self.action_point_right_click_menu_edit = QAction(icon_point_edit, "Edit a Point", self)
+        self.popMenu_point.addAction(self.action_point_right_click_menu_edit)
+        self.popMenu_point.addSeparator()
+        icon_point_delete = QIcon()
+        icon_point_delete.addPixmap(QPixmap(":/icons/delete.png"), QIcon.Normal, QIcon.Off)
+        self.action_point_right_click_menu_delete = QAction(icon_point_delete, "Delete a Point", self)
+        self.popMenu_point.addAction(self.action_point_right_click_menu_delete) 
     
-    #Right-click menu event
+    #TODO: Right-click menu event
     def on_point_context_menu(self, point):
-        action = self.popMenu.exec_(self.Entiteis_Point.mapToGlobal(point))
-        print(action)
-        if action:
+        action = self.popMenu_point.exec_(self.Entiteis_Point.mapToGlobal(point))
+        if action == self.action_point_right_click_menu_add:
             self.on_action_New_Point_triggered()
+        elif action == self.action_point_right_click_menu_edit:
+            self.on_actionEdit_Point_triggered()
+        elif action == self.action_point_right_click_menu_delete:
+            self.on_actionDelete_Point_triggered()
+    
+    def on_link_context_menu(self, point):
+        action = self.popMenu.exec_(self.Entiteis_Link.mapToGlobal(point))
+        if action == self.action_point_right_click_menu_add:
+            self.on_action_New_Point_triggered()
+        elif action == self.action_point_right_click_menu_edit:
+            self.on_actionEdit_Point_triggered()
+        elif action == self.action_point_right_click_menu_delete:
+            self.on_actionDelete_Point_triggered()
     
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Message',
