@@ -24,7 +24,7 @@ class Ui_Warning_reset(object):
         self.Cancel.setGeometry(QtCore.QRect(300, 110, 80, 25))
         self.Cancel.setObjectName("Cancel")
         self.label = QtWidgets.QLabel(Warning_reset)
-        self.label.setGeometry(QtCore.QRect(20, 20, 361, 51))
+        self.label.setGeometry(QtCore.QRect(20, 20, 361, 71))
         self.label.setTextFormat(QtCore.Qt.RichText)
         self.label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.label.setWordWrap(True)

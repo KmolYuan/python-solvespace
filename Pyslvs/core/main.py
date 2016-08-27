@@ -33,18 +33,16 @@ from .draw.draw_edit_stay_chain import edit_stay_chain_show
 from .draw.draw_delete_point import delete_point_show
 from .draw.draw_delete_linkage import delete_linkage_show
 from .draw.draw_delete_chain import delete_chain_show
+#Simulate Dialog Ports
+from .simulate.set_drive_shaft import shaft_show
 
 Environment_variables = "../"
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
-        """
-        Constructor
-        @param parent reference to the parent widget
-        @type QWidget
-        """
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
+        #Entiteis_Point Right-click menu
         self.Entiteis_Point.setContextMenuPolicy(Qt.CustomContextMenu)
         self.Entiteis_Point.customContextMenuRequested.connect(self.on_point_context_menu)
         self.popMenu_point = QMenu(self)
@@ -61,6 +59,40 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         icon_point_delete.addPixmap(QPixmap(":/icons/delete.png"), QIcon.Normal, QIcon.Off)
         self.action_point_right_click_menu_delete = QAction(icon_point_delete, "Delete a Point", self)
         self.popMenu_point.addAction(self.action_point_right_click_menu_delete) 
+        #Entiteis_Link Right-click menu
+        self.Entiteis_Link.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.Entiteis_Link.customContextMenuRequested.connect(self.on_link_context_menu)
+        self.popMenu_link = QMenu(self)
+        icon_link_add = QIcon()
+        icon_link_add.addPixmap(QPixmap(":/icons/line.png"), QIcon.Normal, QIcon.Off)
+        self.action_link_right_click_menu_add = QAction(icon_link_add, "Add a Link", self)
+        self.popMenu_link.addAction(self.action_link_right_click_menu_add)
+        icon_link_edit = QIcon()
+        icon_link_edit.addPixmap(QPixmap(":/icons/length.png"), QIcon.Normal, QIcon.Off)
+        self.action_link_right_click_menu_edit = QAction(icon_link_edit, "Edit a Link", self)
+        self.popMenu_link.addAction(self.action_link_right_click_menu_edit)
+        self.popMenu_link.addSeparator()
+        icon_link_delete = QIcon()
+        icon_link_delete.addPixmap(QPixmap(":/icons/deleteline.png"), QIcon.Normal, QIcon.Off)
+        self.action_link_right_click_menu_delete = QAction(icon_link_delete, "Delete a Link", self)
+        self.popMenu_link.addAction(self.action_link_right_click_menu_delete) 
+        #Entiteis_Chain Right-click menu
+        self.Entiteis_Stay_Chain.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.Entiteis_Stay_Chain.customContextMenuRequested.connect(self.on_chain_context_menu)
+        self.popMenu_chain = QMenu(self)
+        icon_chain_add = QIcon()
+        icon_chain_add.addPixmap(QPixmap(":/icons/equal.png"), QIcon.Normal, QIcon.Off)
+        self.action_chain_right_click_menu_add = QAction(icon_chain_add, "Add a Chain", self)
+        self.popMenu_chain.addAction(self.action_chain_right_click_menu_add)
+        icon_chain_edit = QIcon()
+        icon_chain_edit.addPixmap(QPixmap(":/icons/editchain.png"), QIcon.Normal, QIcon.Off)
+        self.action_chain_right_click_menu_edit = QAction(icon_chain_edit, "Edit a Chain", self)
+        self.popMenu_chain.addAction(self.action_chain_right_click_menu_edit)
+        self.popMenu_chain.addSeparator()
+        icon_chain_delete = QIcon()
+        icon_chain_delete.addPixmap(QPixmap(":/icons/deletechain.png"), QIcon.Normal, QIcon.Off)
+        self.action_chain_right_click_menu_delete = QAction(icon_chain_delete, "Delete a Chain", self)
+        self.popMenu_chain.addAction(self.action_chain_right_click_menu_delete) 
     
     #TODO: Right-click menu event
     def on_point_context_menu(self, point):
@@ -73,14 +105,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.on_actionDelete_Point_triggered()
     
     def on_link_context_menu(self, point):
-        action = self.popMenu.exec_(self.Entiteis_Link.mapToGlobal(point))
-        if action == self.action_point_right_click_menu_add:
-            self.on_action_New_Point_triggered()
-        elif action == self.action_point_right_click_menu_edit:
-            self.on_actionEdit_Point_triggered()
-        elif action == self.action_point_right_click_menu_delete:
-            self.on_actionDelete_Point_triggered()
+        action = self.popMenu_link.exec_(self.Entiteis_Link.mapToGlobal(point))
+        if action == self.action_link_right_click_menu_add:
+            self.on_action_New_Line_triggered()
+        elif action == self.action_link_right_click_menu_edit:
+            self.on_actionEdit_Linkage_triggered()
+        elif action == self.action_link_right_click_menu_delete:
+            self.on_actionEdit_Linkage_triggered()
     
+    def on_chain_context_menu(self, point):
+        action = self.popMenu_chain.exec_(self.Entiteis_Stay_Chain.mapToGlobal(point))
+        if action == self.action_chain_right_click_menu_add:
+            self.on_action_New_Stay_Chain_triggered()
+        elif action == self.action_chain_right_click_menu_edit:
+            self.on_actionEdit_Stay_Chain_triggered()
+        elif action == self.action_chain_right_click_menu_delete:
+            self.on_actionDelete_Stay_Chain_triggered()
+    
+    #Close Event
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Message',
             "Are you sure to quit?\nAny Changes won't be saved.",
@@ -95,44 +137,38 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.canvas = FigureCanvas(fig)
         self.mplLayout.addWidget(self.canvas)
         self.canvas.draw()
+        #TODO: addmpl
     
     #Start @pyqtSlot()
     @pyqtSlot()
-    def on_actionMi_nimized_triggered(self):
-        print("Minmized Windows.")
+    def on_actionMi_nimized_triggered(self): print("Minmized Windows.")
     
     @pyqtSlot()
-    def on_actionM_axmized_triggered(self):
-        print("Maxmized Windows.")
+    def on_actionM_axmized_triggered(self): print("Maxmized Windows.")
     
     @pyqtSlot()
-    def on_action_Full_Screen_triggered(self):
-        print("Full Screen.")
+    def on_action_Full_Screen_triggered(self): print("Full Screen.")
     
     @pyqtSlot()
-    def on_actionNormalmized_triggered(self):
-        print("Normal Screen.")
+    def on_actionNormalmized_triggered(self): print("Normal Screen.")
     
     @pyqtSlot()
     def on_actionHow_to_use_triggered(self):
         dlg_help = Help_info_show()
         dlg_help.show()
-        if dlg_help.exec_():
-            pass
+        if dlg_help.exec_(): pass
     
     @pyqtSlot()
     def on_actionColor_Settings_triggered(self):
         dlg_color = color_show()
         dlg_color.show()
-        if dlg_color.exec_():
-            pass
+        if dlg_color.exec_(): pass
     
     @pyqtSlot()
     def on_Color_set_clicked(self):
         dlg_color = color_show()
         dlg_color.show()
-        if dlg_color.exec_():
-            pass
+        if dlg_color.exec_(): pass
     
     @pyqtSlot()
     def on_action_Get_Help_triggered(self):
@@ -153,33 +189,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_action_About_Pyslvs_triggered(self):
         dlg_version  = version_show()
         dlg_version.show()
-        if dlg_version.exec_():
-            pass
+        if dlg_version.exec_(): pass
     
     @pyqtSlot()
     def on_action_About_Python_Solvspace_triggered(self):
         dlg_info  = Info_show()
         dlg_info.show()
-        if dlg_info.exec_():
-            pass
+        if dlg_info.exec_(): pass
     
     @pyqtSlot()
     def on_action_New_Workbook_triggered(self):
         dlg  = reset_show()
         dlg.show()
         if dlg.exec_():
-            table1 = self.Entiteis_Point
-            table2 = self.Entiteis_Link
-            table3 = self.Entiteis_Stay_Chain
-            table4 = self.Entiteis_Point_Style
-            for i in reversed(range(1, table1.rowCount())):
-                table1.removeRow(i)
-            for i in reversed(range(table2.rowCount())):
-                table2.removeRow(i)
-            for i in reversed(range(table3.rowCount())):
-                table3.removeRow(i)
-            for i in reversed(range(1, table4.rowCount())):
-                table4.removeRow(i)
+            Reset_notebook(self.Entiteis_Point, 1)
+            Reset_notebook(self.Entiteis_Link, 0)
+            Reset_notebook(self.Entiteis_Stay_Chain, 0)
+            Reset_notebook(self.Entiteis_Point_Style, 0)
             print("Reset workbook.")
     
     @pyqtSlot()
@@ -187,18 +213,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         warning_reset  = reset_show()
         warning_reset.show()
         if warning_reset.exec_():
-            table1 = self.Entiteis_Point
-            table2 = self.Entiteis_Link
-            table3 = self.Entiteis_Stay_Chain
-            table4 = self.Entiteis_Point_Style
-            for i in reversed(range(1, table1.rowCount())):
-                table1.removeRow(i)
-            for i in reversed(range(table2.rowCount())):
-                table2.removeRow(i)
-            for i in reversed(range(table3.rowCount())):
-                table3.removeRow(i)
-            for i in reversed(range(1, table4.rowCount())):
-                table4.removeRow(i)
+            Reset_notebook(self.Entiteis_Point, 1)
+            Reset_notebook(self.Entiteis_Link, 0)
+            Reset_notebook(self.Entiteis_Stay_Chain, 0)
+            Reset_notebook(self.Entiteis_Point_Style, 0)
             print("Reset workbook.")
             print("Loading workbook...")
             fileName, _ = QFileDialog.getOpenFileName(self, 'Open file...', Environment_variables, 'CSV File(*.csv)')
@@ -213,10 +231,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 x = data[i+1]
                 y = data[i+2]
                 fix = data[i+3]
-                if fix=="Fixed":
-                    fixed = True
-                else:
-                    fixed = False
+                if fix=="Fixed": fixed = True
+                else: fixed = False
                 Points_list_add(table1, name, x, y, fixed)
                 Points_style_add(table4, "Point"+str(table2.rowCount()), "GREEN", "1", "GREEN")
     
@@ -253,8 +269,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         print("Saving to script...")
         fileName, sub = QFileDialog.getSaveFileName(self, 'Save file...', Environment_variables, 'Python Script(*.py)')
         fileName = fileName.replace(".py", "")
-        if sub == "Python Script(*.py)":
-            fileName += ".py"
+        if sub == "Python Script(*.py)": fileName += ".py"
         print("Saved to:"+str(fileName))
         # TODO: Output_to_Script
     
@@ -263,8 +278,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         print("Saving to script...")
         fileName, sub = QFileDialog.getSaveFileName(self, 'Save file...', Environment_variables, 'PNG file(*.png)')
         fileName = fileName.replace(".png", "")
-        if sub == "PNG file(*.png)":
-            fileName += ".png"
+        if sub == "PNG file(*.png)": fileName += ".png"
         print("Saved to:"+str(fileName))
         # TODO: Output_to_Picture
     
@@ -296,8 +310,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if (table.rowCount() <= 1):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_():
-                pass
+            if dlg.exec_(): pass
         else:
             draw_point  = edit_point_show()
             icon = QIcon()
@@ -310,14 +323,50 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     draw_point.X_coordinate.text(), draw_point.Y_coordinate.text(),
                     draw_point.Fix_Point.checkState())
     
+    
+    @pyqtSlot()
+    def on_action_Set_Drive_Shaft_triggered(self):
+        table1 = self.Entiteis_Point
+        table2 = self.Drive_Shaft
+        if (table1.rowCount() <= 1):
+            dlg = zero_show()
+            dlg.show()
+            if dlg.exec_(): pass
+        else:
+            dlg = shaft_show()
+            icon = QIcon()
+            icon.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
+            for i in range(table1.rowCount()):
+                dlg.Shaft_Center.insertItem(i, icon, table1.item(i, 0).text())
+                dlg.References.insertItem(i, icon, table1.item(i, 0).text())
+            dlg.Shaft_num.insertPlainText("Shaft"+str(table2.rowCount()))
+            dlg.show()
+            if dlg.exec_():
+                a = dlg.Shaft_Center.currentText()
+                b = dlg.References.currentText()
+                c = dlg.Start_Angle.text()
+                d = dlg.End_Angle.text()
+                if (a == b) or (c == d):
+                    dlg = same_show()
+                    dlg.show()
+                    if dlg.exec_(): self.on_action_Set_Drive_Shaft_triggered()
+                else:
+                    Shaft_add(table2, dlg.Shaft_num.toPlainText(), a, b, c, d)
+    
+    @pyqtSlot()
+    def on_action_Set_Slider_triggered(self):
+        """
+        Slot documentation goes here.
+        """
+        # TODO: not implemented yet
+    
     @pyqtSlot()
     def on_action_New_Line_triggered(self):
         table1 = self.Entiteis_Point
         if (table1.rowCount() <= 1):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_():
-                pass
+            if dlg.exec_(): pass
         else:
             icon = QIcon()
             icon.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
@@ -334,13 +383,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if a == b:
                     dlg = same_show()
                     dlg.show()
-                    if dlg.exec_():
-                        pass
+                    if dlg.exec_(): self.on_action_New_Line_triggered()
                 else:
-                    start = draw_link.Start_Point.currentText()
-                    end = draw_link.End_Point.currentText()
                     Links_list_add(table2, draw_link.Link_num.toPlainText(),
-                        start, end,
+                        draw_link.Start_Point.currentText(), draw_link.End_Point.currentText(),
                         draw_link.Length.text())
     
     @pyqtSlot()
@@ -350,8 +396,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if (table2.rowCount() <= 0):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_():
-                pass
+            if dlg.exec_(): pass
         else:
             icon1 = QIcon()
             icon1.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
@@ -370,13 +415,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if a == b:
                     dlg = same_show()
                     dlg.show()
-                    if dlg.exec_():
-                        pass
+                    if dlg.exec_(): self.on_actionEdit_Linkage_triggered()
                 else:
-                    start = draw_link.Start_Point.currentText()
-                    end = draw_link.End_Point.currentText()
                     Links_list_edit(table2, draw_link.Link.currentText(),
-                        start, end,
+                        draw_link.Start_Point.currentText(),  draw_link.End_Point.currentText(),
                         draw_link.Length.text())
     
     @pyqtSlot()
@@ -387,8 +429,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if (table1.rowCount() <= 2):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_():
-                pass
+            if dlg.exec_(): pass
         else:
             New_stay_chain = chain_show()
             table2 = self.Entiteis_Stay_Chain
@@ -405,8 +446,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if (p1 == p2) | (p2 == p3) | (p1 == p3):
                     dlg = same_show()
                     dlg.show()
-                    if dlg.exec_():
-                        pass
+                    if dlg.exec_(): self.on_action_New_Stay_Chain_triggered()
                 else:
                     Chain_list_add(table2, New_stay_chain.Chain_num.toPlainText(),
                         p1, p2, p3,
@@ -425,8 +465,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if (table2.rowCount() <= 0):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_():
-                pass
+            if dlg.exec_(): pass
         else:
             New_stay_chain = edit_stay_chain_show()
             for i in range(table1.rowCount()):
@@ -443,11 +482,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if (p1 == p2) | (p2 == p3) | (p1 == p3):
                     dlg = same_show()
                     dlg.show()
-                    if dlg.exec_():
-                        pass
+                    if dlg.exec_(): self.on_actionEdit_Stay_Chain_triggered()
                 else:
-                    Chain_list_edit(table2, New_stay_chain.Chain.currentText(),
-                        p1, p2, p3,
+                    Chain_list_edit(table2, New_stay_chain.Chain.currentText(), p1, p2, p3,
                         New_stay_chain.p1_p2.text(),
                         New_stay_chain.p2_p3.text(),
                         New_stay_chain.p1_p3.text())
@@ -463,16 +500,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if table1.rowCount() <= 1:
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_():
-                pass
+            if dlg.exec_(): pass
         else:
             dlg = delete_point_show()
             for i in range(1, table1.rowCount()):
                 dlg.Point.insertItem(i, icon, table1.item(i, 0).text())
             dlg.show()
-            if dlg.exec_():
-                Point_list_delete(table1, table2, table3, table4, dlg)
-                #Two_list_delete(self.Entiteis_Link, self.Entiteis_Stay_Chain, dlg)
+            if dlg.exec_(): Point_list_delete(table1, table2, table3, table4, dlg)
     
     @pyqtSlot()
     def on_actionDelete_Linkage_triggered(self):
@@ -482,15 +516,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if table.rowCount() <= 0:
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_():
-                pass
+            if dlg.exec_(): pass
         else:
             dlg = delete_linkage_show()
             for i in range(table.rowCount()):
                 dlg.Entity.insertItem(i, icon, table.item(i, 0).text())
             dlg.show()
-            if dlg.exec_():
-                One_list_delete(table, "Line", dlg)
+            if dlg.exec_(): One_list_delete(table, "Line", dlg)
     
     @pyqtSlot()
     def on_actionDelete_Stay_Chain_triggered(self):
@@ -500,15 +532,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if table.rowCount() <= 0:
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_():
-                pass
+            if dlg.exec_(): pass
         else:
             dlg = delete_chain_show()
             for i in range(table.rowCount()):
                 dlg.Entity.insertItem(i, icon, table.item(i, 0).text())
             dlg.show()
-            if dlg.exec_():
-                One_list_delete(table, "Chain", dlg)
+            if dlg.exec_(): One_list_delete(table, "Chain", dlg)
     
     @pyqtSlot()
     def on_Repaint_clicked(self):
@@ -644,6 +674,21 @@ def One_list_delete(table, name, dlg):
                 table.setItem(j , 0, QTableWidgetItem(name+str(j)))
             break
     Repaint()
+
+def Shaft_add(table, name, center, references, start, end):
+    rowPosition = int(name.replace("Shaft", ""))
+    name_set = QTableWidgetItem(name)
+    name_set.setFlags(Qt.ItemIsEnabled)
+    table.insertRow(rowPosition)
+    table.setItem(rowPosition , 0, name_set)
+    table.setItem(rowPosition , 1, QTableWidgetItem(center))
+    table.setItem(rowPosition , 2, QTableWidgetItem(references))
+    table.setItem(rowPosition , 3, QTableWidgetItem(start))
+    table.setItem(rowPosition , 4, QTableWidgetItem(end))
+
+def Reset_notebook(table, k):
+    for i in reversed(range(k, table.rowCount())):
+        table.removeRow(i)
 
 def Repaint():
     #TODO: Repaint
