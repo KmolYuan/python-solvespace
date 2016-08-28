@@ -210,7 +210,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             Reset_notebook(self.Entiteis_Link, 0)
             Reset_notebook(self.Entiteis_Stay_Chain, 0)
             Reset_notebook(self.Entiteis_Point_Style, 0)
-            print("Reset workbook.")
+            Reset_notebook(self.Drive_Shaft, 0)
+            Reset_notebook(self.Slider, 0)
+            print("Reset the workbook.")
     
     @pyqtSlot()
     def on_action_Load_Workbook_triggered(self):
@@ -221,6 +223,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             Reset_notebook(self.Entiteis_Link, 0)
             Reset_notebook(self.Entiteis_Stay_Chain, 0)
             Reset_notebook(self.Entiteis_Point_Style, 0)
+            Reset_notebook(self.Drive_Shaft, 0)
+            Reset_notebook(self.Slider, 0)
             print("Reset workbook.")
             fileName, _ = QFileDialog.getOpenFileName(self, 'Open file...', Environment_variables, 'CSV File(*.csv);;Text File(*.txt)')
             print("Get:"+fileName)
@@ -251,10 +255,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             for i in range(bookmark+1, len(data), 5):
                 bookmark = i
                 if data[i] == 'Next_table\t': break
-                Shaft_add(self.Drive_Shaft, data[i], data[i+1], data[i+2], data[i+3], data[i+4])
+                Shaft_list(self.Drive_Shaft, data[i], data[i+1], data[i+2], data[i+3], data[i+4], False)
             for i in range(bookmark+1, len(data), 3):
                 bookmark = i
-                Slider_add(self.Slider, data[i], data[i+1], data[i+2])
+                Slider_list(self.Slider, data[i], data[i+1], data[i+2], False)
             print("Successful Load the workbook...")
     
     @pyqtSlot()
@@ -374,7 +378,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     dlg.show()
                     if dlg.exec_(): self.on_action_Set_Drive_Shaft_triggered()
                 else:
-                    Shaft_add(table2, dlg.Shaft_num.toPlainText(), a, b, c, d)
+                    Shaft_list(table2, dlg.Shaft_num.toPlainText(), a, b, c, d, False)
     
     @pyqtSlot()
     def on_action_Edit_Drive_Shaft_triggered(self):
@@ -406,7 +410,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     dlg.show()
                     if dlg.exec_(): self.on_action_Set_Drive_Shaft_triggered()
                 else:
-                    Shaft_edit(table2, dlg.Shaft.currentText(), a, b, c, d)
+                    Shaft_list(table2, dlg.Shaft.currentText(), a, b, c, d, True)
     
     @pyqtSlot()
     def on_action_Set_Slider_triggered(self):
@@ -438,7 +442,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     dlg.show()
                     if dlg.exec_(): self.on_action_Set_Slider_triggered()
                 else:
-                    Slider_add(table3, dlg.Slider_num.toPlainText(), a, b)
+                    Slider_list(table3, dlg.Slider_num.toPlainText(), a, b, False)
     
     @pyqtSlot()
     def on_action_Edit_Slider_triggered(self):
@@ -473,7 +477,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     dlg.show()
                     if dlg.exec_(): self.on_action_Edit_Slider_triggered()
                 else:
-                    Slider_edit(table3, dlg.Slider.currentText(), a, b)
+                    Slider_list(table3, dlg.Slider.currentText(), a, b, True)
     
     @pyqtSlot()
     def on_action_New_Line_triggered(self):
@@ -703,6 +707,31 @@ def Chain_list(table, name, p1, p2, p3, a, b, c, edit):
     else: print("Edit a Triangle Chain, Line "+str(rowPosition)+".")
     Reload_Canvas()
 
+
+def Shaft_list(table, name, center, references, start, end, edit):
+    rowPosition = int(name.replace("Shaft", ""))
+    name_set = QTableWidgetItem(name)
+    name_set.setFlags(Qt.ItemIsEnabled)
+    if not edit: table.insertRow(rowPosition)
+    table.setItem(rowPosition, 0, name_set)
+    table.setItem(rowPosition, 1, QTableWidgetItem(center))
+    table.setItem(rowPosition, 2, QTableWidgetItem(references))
+    table.setItem(rowPosition, 3, QTableWidgetItem(start))
+    table.setItem(rowPosition, 4, QTableWidgetItem(end))
+    if not edit: print("Set the Point to new Shaft.")
+    else: print("Set the Point to selected Shaft.")
+
+def Slider_list(table, name, center, references, edit):
+    rowPosition = int(name.replace("Slider", ""))
+    name_set = QTableWidgetItem(name)
+    name_set.setFlags(Qt.ItemIsEnabled)
+    if not edit: table.insertRow(rowPosition)
+    table.setItem(rowPosition, 0, name_set)
+    table.setItem(rowPosition, 1, QTableWidgetItem(center))
+    table.setItem(rowPosition, 2, QTableWidgetItem(references))
+    if not edit: print("Set the Point to new Slider.")
+    else: print("Set the Point to selected Slider.")
+
 def Points_style_add(table, name, color, ringsize, ringcolor):
     rowPosition = table.rowCount()
     table.insertRow(rowPosition)
@@ -742,44 +771,6 @@ def One_list_delete(table, name, dlg):
             for j in range(i, table.rowCount()): table.setItem(j, 0, QTableWidgetItem(name+str(j)))
             break
     Reload_Canvas()
-
-def Shaft_add(table, name, center, references, start, end):
-    rowPosition = int(name.replace("Shaft", ""))
-    name_set = QTableWidgetItem(name)
-    name_set.setFlags(Qt.ItemIsEnabled)
-    table.insertRow(rowPosition)
-    table.setItem(rowPosition, 0, name_set)
-    table.setItem(rowPosition, 1, QTableWidgetItem(center))
-    table.setItem(rowPosition, 2, QTableWidgetItem(references))
-    table.setItem(rowPosition, 3, QTableWidgetItem(start))
-    table.setItem(rowPosition, 4, QTableWidgetItem(end))
-
-def Shaft_edit(table, name, center, references, start, end):
-    rowPosition = int(name.replace("Shaft", ""))
-    name_set = QTableWidgetItem(name)
-    name_set.setFlags(Qt.ItemIsEnabled)
-    table.setItem(rowPosition, 0, name_set)
-    table.setItem(rowPosition, 1, QTableWidgetItem(center))
-    table.setItem(rowPosition, 2, QTableWidgetItem(references))
-    table.setItem(rowPosition, 3, QTableWidgetItem(start))
-    table.setItem(rowPosition, 4, QTableWidgetItem(end))
-
-def Slider_add(table, name, center, references):
-    rowPosition = int(name.replace("Slider", ""))
-    name_set = QTableWidgetItem(name)
-    name_set.setFlags(Qt.ItemIsEnabled)
-    table.insertRow(rowPosition)
-    table.setItem(rowPosition, 0, name_set)
-    table.setItem(rowPosition, 1, QTableWidgetItem(center))
-    table.setItem(rowPosition, 2, QTableWidgetItem(references))
-
-def Slider_edit(table, name, center, references):
-    rowPosition = int(name.replace("Slider", ""))
-    name_set = QTableWidgetItem(name)
-    name_set.setFlags(Qt.ItemIsEnabled)
-    table.setItem(rowPosition, 0, name_set)
-    table.setItem(rowPosition, 1, QTableWidgetItem(center))
-    table.setItem(rowPosition, 2, QTableWidgetItem(references))
 
 def Reset_notebook(table, k):
     for i in reversed(range(k, table.rowCount())): table.removeRow(i)

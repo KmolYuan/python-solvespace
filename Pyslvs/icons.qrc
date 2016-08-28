@@ -16,9 +16,13 @@
     <file>icons/delete.png</file>
     <file>icons/deletechain.png</file>
     <file>icons/deleteline.png</file>
+    <file>icons/deleteshaft.png</file>
+    <file>icons/deleteslider.png</file>
     <file>icons/edges.png</file>
     <file>icons/editchain.png</file>
     <file>icons/editpoint.png</file>
+    <file>icons/editshaft.png</file>
+    <file>icons/editslider.png</file>
     <file>icons/equal.png</file>
     <file>icons/exit.png</file>
     <file>icons/extrude.png</file>
