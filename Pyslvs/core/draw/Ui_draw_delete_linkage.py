@@ -20,7 +20,7 @@ class Ui_Dialog(object):
         Dialog.setSizeGripEnabled(True)
         Dialog.setModal(True)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.buttonBox.setGeometry(QtCore.QRect(290, 20, 81, 61))
+        self.buttonBox.setGeometry(QtCore.QRect(290, 20, 81, 71))
         self.buttonBox.setOrientation(QtCore.Qt.Vertical)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")

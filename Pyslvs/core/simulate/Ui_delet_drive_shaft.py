@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/ahshoe/Desktop/Pyslvs/core/draw/draw_delete_point.ui'
+# Form implementation generated from reading ui file '/home/ahshoe/Desktop/Pyslvs/core/simulate/delet_drive_shaft.ui'
 #
 # Created by: PyQt5 UI code generator 5.7
 #
@@ -25,14 +25,14 @@ class Ui_Dialog(object):
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.label_3 = QtWidgets.QLabel(Dialog)
-        self.label_3.setGeometry(QtCore.QRect(10, 10, 271, 111))
+        self.label_3.setGeometry(QtCore.QRect(10, 10, 271, 121))
         self.label_3.setTextFormat(QtCore.Qt.RichText)
         self.label_3.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.label_3.setWordWrap(True)
         self.label_3.setObjectName("label_3")
-        self.Point = QtWidgets.QComboBox(Dialog)
-        self.Point.setGeometry(QtCore.QRect(10, 140, 131, 25))
-        self.Point.setObjectName("Point")
+        self.Shaft = QtWidgets.QComboBox(Dialog)
+        self.Shaft.setGeometry(QtCore.QRect(10, 140, 131, 25))
+        self.Shaft.setObjectName("Shaft")
 
         self.retranslateUi(Dialog)
         self.buttonBox.accepted.connect(Dialog.accept)
@@ -41,8 +41,8 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Delete Point"))
-        self.label_3.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Choose the Point that want to delete.</span></p><p><span style=\" font-size:12pt;\">If you remove a Point, it\'s Subordinate Entity will remove too.</span></p></body></html>"))
+        Dialog.setWindowTitle(_translate("Dialog", "Delete Shaft"))
+        self.label_3.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Choose the Shaft that want to delete.</span></p><p><span style=\" font-size:12pt;\">If you remove a Shaft, it\'s associated points won\'t be remove.</span></p></body></html>"))
 
 import icons_rc
 

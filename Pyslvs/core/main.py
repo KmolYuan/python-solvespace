@@ -22,6 +22,7 @@ from .info.help import Help_info_show
 from .warning.reset_workbook import reset_show
 from .warning.zero_value import zero_show
 from .warning.repeated_value import same_show
+from .warning.restriction_conflict import restriction_conflict_show
 #Drawing Dialog Ports
 from .draw.draw_point import New_point
 from .draw.draw_link import New_link
@@ -35,6 +36,9 @@ from .draw.draw_delete_linkage import delete_linkage_show
 from .draw.draw_delete_chain import delete_chain_show
 #Simulate Dialog Ports
 from .simulate.set_drive_shaft import shaft_show
+from .simulate.set_slider import slider_show
+from .simulate.edit_drive_shaft import edit_shaft_show
+from .simulate.edit_slider import edit_slider_show
 
 Environment_variables = "../"
 
@@ -218,27 +222,43 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             Reset_notebook(self.Entiteis_Stay_Chain, 0)
             Reset_notebook(self.Entiteis_Point_Style, 0)
             print("Reset workbook.")
-            print("Loading workbook...")
-            fileName, _ = QFileDialog.getOpenFileName(self, 'Open file...', Environment_variables, 'CSV File(*.csv)')
+            fileName, _ = QFileDialog.getOpenFileName(self, 'Open file...', Environment_variables, 'CSV File(*.csv);;Text File(*.txt)')
             print("Get:"+fileName)
             data = []
             with open(fileName, newline="") as stream:
                 reader = csv.reader(stream, delimiter=' ', quotechar='|')
                 for row in reader:
                     data += ', '.join(row).split('\t,')
+            bookmark = 0
             for i in range(4, len(data), 4):
-                name = data[i]
-                x = data[i+1]
-                y = data[i+2]
-                fix = data[i+3]
-                if fix=="Fixed": fixed = True
+                bookmark = i
+                if data[i] == 'Next_table\t': break
+                if data[i+3]=="Fixed": fixed = True
                 else: fixed = False
-                Points_list_add(table1, name, x, y, fixed)
-                Points_style_add(table4, "Point"+str(table2.rowCount()), "GREEN", "1", "GREEN")
+                Points_list(self.Entiteis_Point, data[i], data[i+1], data[i+2], fixed, False)
+            for i in range(bookmark+1, len(data), 4):
+                bookmark = i
+                if data[i] == 'Next_table\t': break
+                Points_style_add(self.Entiteis_Point_Style, data[i], data[i+1], data[i+2], data[i+3])
+            for i in range(bookmark+1, len(data), 4):
+                bookmark = i
+                if data[i] == 'Next_table\t': break
+                Links_list(self.Entiteis_Link, data[i], data[i+1], data[i+2], data[i+3], False)
+            for i in range(bookmark+1, len(data), 7):
+                bookmark = i
+                if data[i] == 'Next_table\t': break
+                Chain_list(self.Entiteis_Stay_Chain, data[i], data[i+1], data[i+2], data[i+3], data[i+4], data[i+5], data[i+6], False)
+            for i in range(bookmark+1, len(data), 5):
+                bookmark = i
+                if data[i] == 'Next_table\t': break
+                Shaft_add(self.Drive_Shaft, data[i], data[i+1], data[i+2], data[i+3], data[i+4])
+            for i in range(bookmark+1, len(data), 3):
+                bookmark = i
+                Slider_add(self.Slider, data[i], data[i+1], data[i+2])
+            print("Successful Load the workbook...")
     
     @pyqtSlot()
     def on_action_Output_Coordinate_to_Text_File_triggered(self):
-        table = self.Entiteis_Point
         print("Saving to script...")
         fileName, sub = QFileDialog.getSaveFileName(self, 'Save file...', Environment_variables, 'CSV File(*.csv);;Text File(*.txt)')
         if fileName:
@@ -248,6 +268,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if sub == "CSV File(*.csv)":
                 fileName += ".csv"
             with open(fileName, 'w', newline="") as stream:
+                table = self.Entiteis_Point
                 writer = csv.writer(stream)
                 for row in range(table.rowCount()):
                     rowdata = []
@@ -255,14 +276,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         print(row, column)
                         item = table.item(row, column)
                         if item is not None:
-                            if (item.checkState()==False) and (item.text()==""):
-                                rowdata += ["noFixed"]
+                            if (item.checkState()==False) and (item.text()==""): rowdata += ["noFixed"]
                             else:
-                                if item.text()=='':
-                                    rowdata += ["Fixed"]
-                                else:
-                                    rowdata += [item.text()+'\t']
+                                if item.text()=='': rowdata += ["Fixed"]
+                                else: rowdata += [item.text()+'\t']
                     writer.writerow(rowdata)
+                CSV_notebook(writer, self.Entiteis_Point_Style)
+                CSV_notebook(writer, self.Entiteis_Link)
+                CSV_notebook(writer, self.Entiteis_Stay_Chain)
+                CSV_notebook(writer, self.Drive_Shaft)
+                CSV_notebook(writer, self.Slider)
     
     @pyqtSlot()
     def on_action_Output_to_Script_triggered(self):
@@ -290,9 +313,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         draw_point.Point_num.insertPlainText("Point"+str(table1.rowCount()))
         draw_point.show()
         if draw_point.exec_():
-            Points_list_add(table1, draw_point.Point_num.toPlainText(),
+            Points_list(table1, draw_point.Point_num.toPlainText(),
                 draw_point.X_coordinate.text(), draw_point.Y_coordinate.text(),
-                draw_point.Fix_Point.checkState())
+                draw_point.Fix_Point.checkState(), False)
             Points_style_add(table2, draw_point.Point_num.toPlainText(), "GREEN", "1", "GREEN")
     
     @pyqtSlot()
@@ -301,7 +324,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         table2 = self.Entiteis_Point_Style
         x = self.X_coordinate.text()
         y = self.Y_coordinate.text()
-        Points_list_add(table1, "Point"+str(table1.rowCount()), x, y, False)
+        Points_list(table1, "Point"+str(table1.rowCount()), x, y, False, False)
         Points_style_add(table2, "Point"+str(table2.rowCount()), "GREEN", "1", "GREEN")
     
     @pyqtSlot()
@@ -319,9 +342,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 draw_point.Point.insertItem(i, icon, table.item(i, 0).text())
             draw_point.show()
             if draw_point.exec_():
-                Points_list_edit(table, draw_point.Point.currentText(),
+                Points_list(table, draw_point.Point.currentText(),
                     draw_point.X_coordinate.text(), draw_point.Y_coordinate.text(),
-                    draw_point.Fix_Point.checkState())
+                    draw_point.Fix_Point.checkState(), True)
     
     
     @pyqtSlot()
@@ -354,11 +377,103 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     Shaft_add(table2, dlg.Shaft_num.toPlainText(), a, b, c, d)
     
     @pyqtSlot()
+    def on_action_Edit_Drive_Shaft_triggered(self):
+        table1 = self.Entiteis_Point
+        table2 = self.Drive_Shaft
+        if (table2.rowCount() <= 0):
+            dlg = zero_show()
+            dlg.show()
+            if dlg.exec_(): pass
+        else:
+            dlg = edit_shaft_show()
+            icon1 = QIcon()
+            icon1.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
+            icon2 = QIcon()
+            icon2.addPixmap(QPixmap(":/icons/circle.png"), QIcon.Normal, QIcon.Off)
+            for i in range(table1.rowCount()):
+                dlg.Shaft_Center.insertItem(i, icon1, table1.item(i, 0).text())
+                dlg.References.insertItem(i, icon1, table1.item(i, 0).text())
+            for i in range(table2.rowCount()):
+                dlg.Shaft.insertItem(i, icon2, table2.item(i, 0).text())
+            dlg.show()
+            if dlg.exec_():
+                a = dlg.Shaft_Center.currentText()
+                b = dlg.References.currentText()
+                c = dlg.Start_Angle.text()
+                d = dlg.End_Angle.text()
+                if (a == b) or (c == d):
+                    dlg = same_show()
+                    dlg.show()
+                    if dlg.exec_(): self.on_action_Set_Drive_Shaft_triggered()
+                else:
+                    Shaft_edit(table2, dlg.Shaft.currentText(), a, b, c, d)
+    
+    @pyqtSlot()
     def on_action_Set_Slider_triggered(self):
-        """
-        Slot documentation goes here.
-        """
-        # TODO: not implemented yet
+        table1 = self.Entiteis_Point
+        table2 = self.Entiteis_Link
+        table3 = self.Slider
+        if (table2.rowCount() <= 0) and (table1.rowCount() <= 2):
+            dlg = zero_show()
+            dlg.show()
+            if dlg.exec_(): pass
+        else:
+            dlg = slider_show()
+            icon1 = QIcon()
+            icon1.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
+            icon2 = QIcon()
+            icon2.addPixmap(QPixmap(":/icons/line.png"), QIcon.Normal, QIcon.Off)
+            for i in range(table1.rowCount()):
+                dlg.Slider_Center.insertItem(i, icon1, table1.item(i, 0).text())
+            for i in range(table2.rowCount()):
+                dlg.References.insertItem(i, icon2, table2.item(i, 0).text())
+            dlg.Slider_num.insertPlainText("Slider"+str(table3.rowCount()))
+            dlg.show()
+            if dlg.exec_():
+                a = dlg.Slider_Center.currentText()
+                b = dlg.References.currentText()
+                c = dlg.References.currentIndex()
+                if (table2.item(c, 1).text()==a) or (table2.item(c, 2).text()==a):
+                    dlg = restriction_conflict_show()
+                    dlg.show()
+                    if dlg.exec_(): self.on_action_Set_Slider_triggered()
+                else:
+                    Slider_add(table3, dlg.Slider_num.toPlainText(), a, b)
+    
+    @pyqtSlot()
+    def on_action_Edit_Slider_triggered(self):
+        table1 = self.Entiteis_Point
+        table2 = self.Entiteis_Link
+        table3 = self.Slider
+        if (table3.rowCount() <= 0):
+            dlg = zero_show()
+            dlg.show()
+            if dlg.exec_(): pass
+        else:
+            dlg = edit_slider_show()
+            icon1 = QIcon()
+            icon1.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
+            icon2 = QIcon()
+            icon2.addPixmap(QPixmap(":/icons/line.png"), QIcon.Normal, QIcon.Off)
+            icon3 = QIcon()
+            icon3.addPixmap(QPixmap(":/icons/pointonx.png"), QIcon.Normal, QIcon.Off)
+            for i in range(table1.rowCount()):
+                dlg.Slider_Center.insertItem(i, icon1, table1.item(i, 0).text())
+            for i in range(table2.rowCount()):
+                dlg.References.insertItem(i, icon2, table2.item(i, 0).text())
+            for i in range(table3.rowCount()):
+                dlg.Slider.insertItem(i, icon3, table3.item(i, 0).text())
+            dlg.show()
+            if dlg.exec_():
+                a = dlg.Slider_Center.currentText()
+                b = dlg.References.currentText()
+                c = dlg.References.currentIndex()
+                if (table2.item(c, 1).text()==a) or (table2.item(c, 2).text()==a):
+                    dlg = restriction_conflict_show()
+                    dlg.show()
+                    if dlg.exec_(): self.on_action_Edit_Slider_triggered()
+                else:
+                    Slider_edit(table3, dlg.Slider.currentText(), a, b)
     
     @pyqtSlot()
     def on_action_New_Line_triggered(self):
@@ -385,9 +500,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     dlg.show()
                     if dlg.exec_(): self.on_action_New_Line_triggered()
                 else:
-                    Links_list_add(table2, draw_link.Link_num.toPlainText(),
+                    Links_list(table2, draw_link.Link_num.toPlainText(),
                         draw_link.Start_Point.currentText(), draw_link.End_Point.currentText(),
-                        draw_link.Length.text())
+                        draw_link.Length.text(), False)
     
     @pyqtSlot()
     def on_actionEdit_Linkage_triggered(self):
@@ -417,9 +532,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     dlg.show()
                     if dlg.exec_(): self.on_actionEdit_Linkage_triggered()
                 else:
-                    Links_list_edit(table2, draw_link.Link.currentText(),
+                    Links_list(table2, draw_link.Link.currentText(),
                         draw_link.Start_Point.currentText(),  draw_link.End_Point.currentText(),
-                        draw_link.Length.text())
+                        draw_link.Length.text(), True)
     
     @pyqtSlot()
     def on_action_New_Stay_Chain_triggered(self):
@@ -448,11 +563,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     dlg.show()
                     if dlg.exec_(): self.on_action_New_Stay_Chain_triggered()
                 else:
-                    Chain_list_add(table2, New_stay_chain.Chain_num.toPlainText(),
+                    Chain_list(table2, New_stay_chain.Chain_num.toPlainText(),
                         p1, p2, p3,
                         New_stay_chain.p1_p2.text(),
                         New_stay_chain.p2_p3.text(),
-                        New_stay_chain.p1_p3.text())
+                        New_stay_chain.p1_p3.text(), False)
     
     @pyqtSlot()
     def on_actionEdit_Stay_Chain_triggered(self):
@@ -484,10 +599,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     dlg.show()
                     if dlg.exec_(): self.on_actionEdit_Stay_Chain_triggered()
                 else:
-                    Chain_list_edit(table2, New_stay_chain.Chain.currentText(), p1, p2, p3,
+                    Chain_list(table2, New_stay_chain.Chain.currentText(), p1, p2, p3,
                         New_stay_chain.p1_p2.text(),
                         New_stay_chain.p2_p3.text(),
-                        New_stay_chain.p1_p3.text())
+                        New_stay_chain.p1_p3.text(), True)
     
     @pyqtSlot()
     def on_actionDelete_Point_triggered(self):
@@ -541,155 +656,145 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if dlg.exec_(): One_list_delete(table, "Chain", dlg)
     
     @pyqtSlot()
-    def on_Repaint_clicked(self):
-        Repaint()
+    def on_Reload_Canvas_clicked(self): Reload_Canvas()
 
-def Points_list_add(table, name, x, y, fixed):
-    rowPosition = table.rowCount()
-    table.insertRow(rowPosition)
+def Points_list(table, name, x, y, fixed, edit):
+    rowPosition = int(name.replace("Point", ""))
+    if not edit: table.insertRow(rowPosition)
     name_set = QTableWidgetItem(name)
     name_set.setFlags(Qt.ItemIsEnabled)
-    table.setItem(rowPosition , 0, name_set)
-    table.setItem(rowPosition , 1, QTableWidgetItem(x))
-    table.setItem(rowPosition , 2, QTableWidgetItem(y))
+    table.setItem(rowPosition, 0, name_set)
+    table.setItem(rowPosition, 1, QTableWidgetItem(x))
+    table.setItem(rowPosition, 2, QTableWidgetItem(y))
     checkbox = QTableWidgetItem("")
     checkbox.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-    if fixed:
-        checkbox.setCheckState(Qt.Checked)
-    else:
-        checkbox.setCheckState(Qt.Unchecked)
-    table.setItem(rowPosition , 3, checkbox)
-    print("Add Point"+str(rowPosition)+".")
+    if fixed: checkbox.setCheckState(Qt.Checked)
+    else: checkbox.setCheckState(Qt.Unchecked)
+    table.setItem(rowPosition, 3, checkbox)
+    if not edit: print("Add Point"+str(rowPosition)+".")
+    else: print("Edit Point"+str(rowPosition)+".")
 
-def Links_list_add(table, name, start, end, l):
-    rowPosition = table.rowCount()
-    table.insertRow(rowPosition)
+def Links_list(table, name, start, end, l, edit):
+    rowPosition = int(name.replace("Line", ""))
+    if not edit: table.insertRow(rowPosition)
     name_set = QTableWidgetItem(name)
     name_set.setFlags(Qt.ItemIsEnabled)
-    table.setItem(rowPosition , 0, name_set)
-    table.setItem(rowPosition , 1, QTableWidgetItem(start))
-    table.setItem(rowPosition , 2, QTableWidgetItem(end))
-    table.setItem(rowPosition , 3, QTableWidgetItem(l))
-    print("Add a link, Line "+str(rowPosition)+".")
-    Repaint()
+    table.setItem(rowPosition, 0, name_set)
+    table.setItem(rowPosition, 1, QTableWidgetItem(start))
+    table.setItem(rowPosition, 2, QTableWidgetItem(end))
+    table.setItem(rowPosition, 3, QTableWidgetItem(l))
+    if not edit: print("Add a link, Line "+str(rowPosition)+".")
+    else: print("Edit a link, Line "+str(rowPosition)+".")
+    Reload_Canvas()
 
-def Chain_list_add(table, name, p1, p2, p3, a, b, c):
-    rowPosition = table.rowCount()
-    table.insertRow(rowPosition)
+def Chain_list(table, name, p1, p2, p3, a, b, c, edit):
+    rowPosition = int(name.replace("Chain", ""))
+    if not edit: table.insertRow(rowPosition)
     name_set = QTableWidgetItem(name)
     name_set.setFlags(Qt.ItemIsEnabled)
-    table.setItem(rowPosition , 0, name_set)
-    table.setItem(rowPosition , 1, QTableWidgetItem(p1))
-    table.setItem(rowPosition , 2, QTableWidgetItem(p2))
-    table.setItem(rowPosition , 3, QTableWidgetItem(p3))
-    table.setItem(rowPosition , 4, QTableWidgetItem(a))
-    table.setItem(rowPosition , 5, QTableWidgetItem(b))
-    table.setItem(rowPosition , 6, QTableWidgetItem(c))
-    print("Add a Triangle Chain, Line "+str(rowPosition)+".")
-    Repaint()
+    table.setItem(rowPosition, 0, name_set)
+    table.setItem(rowPosition, 1, QTableWidgetItem(p1))
+    table.setItem(rowPosition, 2, QTableWidgetItem(p2))
+    table.setItem(rowPosition, 3, QTableWidgetItem(p3))
+    table.setItem(rowPosition, 4, QTableWidgetItem(a))
+    table.setItem(rowPosition, 5, QTableWidgetItem(b))
+    table.setItem(rowPosition, 6, QTableWidgetItem(c))
+    if not edit: print("Add a Triangle Chain, Line "+str(rowPosition)+".")
+    else: print("Edit a Triangle Chain, Line "+str(rowPosition)+".")
+    Reload_Canvas()
 
 def Points_style_add(table, name, color, ringsize, ringcolor):
     rowPosition = table.rowCount()
     table.insertRow(rowPosition)
     name_set = QTableWidgetItem(name)
     name_set.setFlags(Qt.ItemIsEnabled)
-    table.setItem(rowPosition , 0, name_set)
-    table.setItem(rowPosition , 1, QTableWidgetItem(color))
-    table.setItem(rowPosition , 2, QTableWidgetItem(ringsize))
-    table.setItem(rowPosition , 3, QTableWidgetItem(ringcolor))
+    table.setItem(rowPosition, 0, name_set)
+    table.setItem(rowPosition, 1, QTableWidgetItem(color))
+    table.setItem(rowPosition, 2, QTableWidgetItem(ringsize))
+    table.setItem(rowPosition, 3, QTableWidgetItem(ringcolor))
     print("Add Point Style for Point"+str(rowPosition)+".")
-    Repaint()
-
-def Points_list_edit(table, name, x, y, fixed):
-    rowPosition = int(name.replace("Point", ""))
-    name_set = QTableWidgetItem(name)
-    name_set.setFlags(Qt.ItemIsEnabled)
-    table.setItem(rowPosition , 0, name_set)
-    table.setItem(rowPosition , 1, QTableWidgetItem(x))
-    table.setItem(rowPosition , 2, QTableWidgetItem(y))
-    checkbox = QTableWidgetItem("")
-    checkbox.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-    if fixed:
-        checkbox.setCheckState(Qt.Checked)
-    else:
-        checkbox.setCheckState(Qt.Unchecked)
-    table.setItem(rowPosition , 3, checkbox)
-    print("Edit Point"+str(rowPosition)+".")
-    Repaint()
-
-def Links_list_edit(table, name, start, end, l):
-    rowPosition = int(name.replace("Line", ""))
-    name_set = QTableWidgetItem(name)
-    name_set.setFlags(Qt.ItemIsEnabled)
-    table.setItem(rowPosition , 0, name_set)
-    table.setItem(rowPosition , 1, QTableWidgetItem(start))
-    table.setItem(rowPosition , 2, QTableWidgetItem(end))
-    table.setItem(rowPosition , 3, QTableWidgetItem(l))
-    print("Edit a link, Line "+str(rowPosition)+".")
-    Repaint()
-
-def Chain_list_edit(table, name, p1, p2, p3, a, b, c):
-    rowPosition = int(name.replace("Chain", ""))
-    name_set = QTableWidgetItem(name)
-    name_set.setFlags(Qt.ItemIsEnabled)
-    table.setItem(rowPosition , 0, name_set)
-    table.setItem(rowPosition , 1, QTableWidgetItem(p1))
-    table.setItem(rowPosition , 2, QTableWidgetItem(p2))
-    table.setItem(rowPosition , 3, QTableWidgetItem(p3))
-    table.setItem(rowPosition , 4, QTableWidgetItem(a))
-    table.setItem(rowPosition , 5, QTableWidgetItem(b))
-    table.setItem(rowPosition , 6, QTableWidgetItem(c))
-    print("Edit a Triangle Chain, Line "+str(rowPosition)+".")
-    Repaint()
+    Reload_Canvas()
 
 def Point_list_delete(table1, table2, table3, table4, dlg):
     for i in range(table3.rowCount()):
         if (dlg.Point.currentText() == table3.item(i, 1).text()) or (dlg.Point.currentText() == table3.item(i, 2).text()):
             table3.removeRow(i)
-            for j in range(i, table3.rowCount()):
-                table3.setItem(j, 0, QTableWidgetItem("Line"+str(j)))
+            for j in range(i, table3.rowCount()): table3.setItem(j, 0, QTableWidgetItem("Line"+str(j)))
             break
     for i in range(table4.rowCount()):
         if (dlg.Point.currentText() == table4.item(i, 1).text()) or (dlg.Point.currentText() == table4.item(i, 2).text()):
             table4.removeRow(i)
-            for j in range(i, table4.rowCount):
-                table4.setItem(j, 0, QTableWidgetItem("Chain"+str(j)))
+            for j in range(i, table4.rowCount): table4.setItem(j, 0, QTableWidgetItem("Chain"+str(j)))
             break
     for i in range(1, table1.rowCount()):
         if (dlg.Point.currentText() == table1.item(i, 0).text()):
             table1.removeRow(i)
             table2.removeRow(i)
-            for j in range(i, table1.rowCount()):
-                table1.setItem(j , 0, QTableWidgetItem("Point"+str(j)))
-            for j in range(i, table1.rowCount()):
-                table2.setItem(j , 0, QTableWidgetItem("Point"+str(j)))
+            for j in range(i, table1.rowCount()): table1.setItem(j, 0, QTableWidgetItem("Point"+str(j)))
+            for j in range(i, table1.rowCount()): table2.setItem(j, 0, QTableWidgetItem("Point"+str(j)))
             break
-    Repaint()
+    Reload_Canvas()
 
 def One_list_delete(table, name, dlg):
     for i in range(table.rowCount()):
         if (dlg.Entity.currentText() == table.item(i, 0).text()):
             table.removeRow(i)
-            for j in range(i, table.rowCount()):
-                table.setItem(j , 0, QTableWidgetItem(name+str(j)))
+            for j in range(i, table.rowCount()): table.setItem(j, 0, QTableWidgetItem(name+str(j)))
             break
-    Repaint()
+    Reload_Canvas()
 
 def Shaft_add(table, name, center, references, start, end):
     rowPosition = int(name.replace("Shaft", ""))
     name_set = QTableWidgetItem(name)
     name_set.setFlags(Qt.ItemIsEnabled)
     table.insertRow(rowPosition)
-    table.setItem(rowPosition , 0, name_set)
-    table.setItem(rowPosition , 1, QTableWidgetItem(center))
-    table.setItem(rowPosition , 2, QTableWidgetItem(references))
-    table.setItem(rowPosition , 3, QTableWidgetItem(start))
-    table.setItem(rowPosition , 4, QTableWidgetItem(end))
+    table.setItem(rowPosition, 0, name_set)
+    table.setItem(rowPosition, 1, QTableWidgetItem(center))
+    table.setItem(rowPosition, 2, QTableWidgetItem(references))
+    table.setItem(rowPosition, 3, QTableWidgetItem(start))
+    table.setItem(rowPosition, 4, QTableWidgetItem(end))
+
+def Shaft_edit(table, name, center, references, start, end):
+    rowPosition = int(name.replace("Shaft", ""))
+    name_set = QTableWidgetItem(name)
+    name_set.setFlags(Qt.ItemIsEnabled)
+    table.setItem(rowPosition, 0, name_set)
+    table.setItem(rowPosition, 1, QTableWidgetItem(center))
+    table.setItem(rowPosition, 2, QTableWidgetItem(references))
+    table.setItem(rowPosition, 3, QTableWidgetItem(start))
+    table.setItem(rowPosition, 4, QTableWidgetItem(end))
+
+def Slider_add(table, name, center, references):
+    rowPosition = int(name.replace("Slider", ""))
+    name_set = QTableWidgetItem(name)
+    name_set.setFlags(Qt.ItemIsEnabled)
+    table.insertRow(rowPosition)
+    table.setItem(rowPosition, 0, name_set)
+    table.setItem(rowPosition, 1, QTableWidgetItem(center))
+    table.setItem(rowPosition, 2, QTableWidgetItem(references))
+
+def Slider_edit(table, name, center, references):
+    rowPosition = int(name.replace("Slider", ""))
+    name_set = QTableWidgetItem(name)
+    name_set.setFlags(Qt.ItemIsEnabled)
+    table.setItem(rowPosition, 0, name_set)
+    table.setItem(rowPosition, 1, QTableWidgetItem(center))
+    table.setItem(rowPosition, 2, QTableWidgetItem(references))
 
 def Reset_notebook(table, k):
-    for i in reversed(range(k, table.rowCount())):
-        table.removeRow(i)
+    for i in reversed(range(k, table.rowCount())): table.removeRow(i)
 
-def Repaint():
-    #TODO: Repaint
-    print("Rebuild the cavance.")
+def CSV_notebook(writer, table):
+    writer.writerow(["Next_table\t"])
+    for row in range(table.rowCount()):
+        rowdata = []
+        for column in range(table.columnCount()):
+            print(row, column)
+            item = table.item(row, column)
+            if item is not None:
+                rowdata += [item.text()+'\t']
+        writer.writerow(rowdata)
+
+def Reload_Canvas():
+    #TODO: Reload Canvas
+    print("Rebuild the cavanc.")
