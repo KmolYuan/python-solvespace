@@ -13,6 +13,7 @@
     <file>icons/circle.png</file>
     <file>icons/constraint.png</file>
     <file>icons/construction.png</file>
+    <file>icons/CSV.png</file>
     <file>icons/delete.png</file>
     <file>icons/deletechain.png</file>
     <file>icons/deleteline.png</file>
@@ -52,6 +53,8 @@
     <file>icons/shaded.png</file>
     <file>icons/sketch-in-3d.png</file>
     <file>icons/sketch-in-plane.png</file>
+    <file>icons/spring.png</file>
+    <file>icons/SQL_icon.png</file>
     <file>icons/step-rotate.png</file>
     <file>icons/step-translate.png</file>
     <file>icons/symmetric.png</file>
