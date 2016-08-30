@@ -24,6 +24,7 @@ from .warning.reset_workbook import reset_show
 from .warning.zero_value import zero_show
 from .warning.repeated_value import same_show
 from .warning.restriction_conflict import restriction_conflict_show
+from .warning.kill_origin import kill_origin_show
 #Drawing Dialog Ports
 from .draw.draw_point import New_point
 from .draw.draw_link import New_link
@@ -740,7 +741,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         table3 = self.Entiteis_Link
         table4 = self.Entiteis_Stay_Chain
         if table1.rowCount() <= 1:
-            dlg = zero_show()
+            dlg = kill_origin_show()
             dlg.show()
             if dlg.exec_(): pass
         else:
