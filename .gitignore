@@ -21,3 +21,6 @@
 *.e4q
 *.e6t
 *.ui
+
+/Ubuntu/example_*
+/Windows/example_*
