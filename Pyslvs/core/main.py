@@ -37,12 +37,14 @@ from .draw.draw_delete_linkage import delete_linkage_show
 from .draw.draw_delete_chain import delete_chain_show
 from .simulate.delete_drive_shaft import delete_shaft_show
 from .simulate.delete_slider import delete_slider_show
+from .simulate.delete_rod import delete_rod_show
 #Simulate Dialog Ports
 from .simulate.set_drive_shaft import shaft_show
 from .simulate.set_slider import slider_show
 from .simulate.set_rod import rod_show
 from .simulate.edit_drive_shaft import edit_shaft_show
 from .simulate.edit_slider import edit_slider_show
+from .simulate.edit_rod import edit_rod_show
 
 Environment_variables = "../"
 
@@ -105,6 +107,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.popMenu_slider.addSeparator()
         self.action_slider_right_click_menu_delete = QAction("Delete a Slider", self)
         self.popMenu_slider.addAction(self.action_slider_right_click_menu_delete) 
+        #Rod Right-click menu
+        self.Rod.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.Rod.customContextMenuRequested.connect(self.on_rod_context_menu)
+        self.popMenu_rod = QMenu(self)
+        self.action_rod_right_click_menu_add = QAction("Add a Rod", self)
+        self.popMenu_rod.addAction(self.action_rod_right_click_menu_add)
+        self.action_rod_right_click_menu_edit = QAction("Edit a Rod", self)
+        self.popMenu_rod.addAction(self.action_rod_right_click_menu_edit)
+        self.popMenu_rod.addSeparator()
+        self.action_rod_right_click_menu_delete = QAction("Delete a Rod", self)
+        self.popMenu_rod.addAction(self.action_rod_right_click_menu_delete) 
     
     #TODO: Right-click menu event
     def on_point_context_menu(self, point):
@@ -136,6 +149,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if action == self.action_slider_right_click_menu_add: self.on_action_Set_Slider_triggered()
         elif action == self.action_slider_right_click_menu_edit: self.on_action_Edit_Slider_triggered()
         elif action == self.action_slider_right_click_menu_delete: self.on_actionDelete_Slider_triggered()
+    
+    def on_rod_context_menu(self, point):
+        action = self.popMenu_rod.exec_(self.Rod.mapToGlobal(point))
+        if action == self.action_rod_right_click_menu_add: self.on_action_Set_Rod_triggered()
+        elif action == self.action_rod_right_click_menu_edit: self.on_action_Edit_Piston_Spring_triggered()
+        elif action == self.action_rod_right_click_menu_delete: self.on_actionDelete_Piston_Spring_triggered()
     
     #Close Event
     def closeEvent(self, event):
@@ -269,6 +288,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             for i in range(bookmark+1, len(data), 3):
                 bookmark = i
                 Slider_list(self.Slider, data[i], data[i+1], data[i+2], False)
+            for i in range(bookmark+1, len(data), 5):
+                Rod_list(self.Slider, data[i], data[i+1], data[i+2], data[i+3], data[i+4], False)
             print("Successful Load the workbook...")
     
     @pyqtSlot()
@@ -277,10 +298,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         fileName, sub = QFileDialog.getSaveFileName(self, 'Save file...', Environment_variables, 'Spreadsheet(*.csv);;Text File(*.txt)')
         if fileName:
             fileName = fileName.replace(".txt", "").replace(".csv", "")
-            if sub == "Text File(*.txt)":
-                fileName += ".txt"
-            if sub == "CSV File(*.csv)":
-                fileName += ".csv"
+            if sub == "Text File(*.txt)": fileName += ".txt"
+            if sub == "CSV File(*.csv)": fileName += ".csv"
             with open(fileName, 'w', newline="") as stream:
                 table = self.Entiteis_Point
                 writer = csv.writer(stream)
@@ -300,6 +319,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 CSV_notebook(writer, self.Entiteis_Stay_Chain)
                 CSV_notebook(writer, self.Drive_Shaft)
                 CSV_notebook(writer, self.Slider)
+                CSV_notebook(writer, self.Rod)
     
     @pyqtSlot()
     def on_action_Output_to_S_QLite_Data_Base_triggered(self):
@@ -657,14 +677,44 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if dlg.exec_():
                 a = dlg.Start.currentText()
                 b = dlg.End.currentText()
-                c = str(min(float(dlg.Min.text()), float(dlg.Max.text())))
-                d = str(max(float(dlg.Min.text()), float(dlg.Max.text())))
+                c = str(min(float(dlg.len1.text()), float(dlg.len2.text())))
+                d = str(max(float(dlg.len1.text()), float(dlg.len2.text())))
                 if a == b:
                     dlg = same_show()
                     dlg.show()
                     if dlg.exec_(): self.on_action_Set_Drive_Shaft_triggered()
                 else:
-                    Rod_list(table2, dlg.Slider_num.toPlainText(), a, b, c, d, False)
+                    Rod_list(table2, dlg.Rod_num.toPlainText(), a, b, c, d, False)
+    
+    @pyqtSlot()
+    def on_action_Edit_Piston_Spring_triggered(self):
+        table1 = self.Entiteis_Point
+        table2 = self.Rod
+        if (table1.rowCount() <= 1):
+            dlg = zero_show()
+            dlg.show()
+            if dlg.exec_(): pass
+        else:
+            dlg = edit_rod_show()
+            icon = QIcon()
+            icon.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
+            for i in range(table1.rowCount()):
+                dlg.Start.insertItem(i, icon, table1.item(i, 0).text())
+                dlg.End.insertItem(i, icon, table1.item(i, 0).text())
+            for i in range(table2.rowCount()):
+                dlg.Rod.insertItem(i, icon, table2.item(i, 0).text())
+            dlg.show()
+            if dlg.exec_():
+                a = dlg.Start.currentText()
+                b = dlg.End.currentText()
+                c = str(min(float(dlg.len1.text()), float(dlg.len2.text())))
+                d = str(max(float(dlg.len1.text()), float(dlg.len2.text())))
+                if a == b:
+                    dlg = same_show()
+                    dlg.show()
+                    if dlg.exec_(): self.on_action_Set_Drive_Shaft_triggered()
+                else:
+                    Rod_list(table2, dlg.Rod.currentText(), a, b, c, d, True)
     
     @pyqtSlot()
     def on_actionDelete_Point_triggered(self):
@@ -708,6 +758,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         icon = QIcon()
         icon.addPixmap(QPixmap(":/icons/pointonx.png"), QIcon.Normal, QIcon.Off)
         Delete_dlg_set(self.Slider, icon, delete_slider_show(), "Slider")
+    
+    @pyqtSlot()
+    def on_actionDelete_Piston_Spring_triggered(self):
+        icon = QIcon()
+        icon.addPixmap(QPixmap(":/icons/spring.png"), QIcon.Normal, QIcon.Off)
+        Delete_dlg_set(self.Rod, icon, delete_rod_show(), "Rod")
     
     @pyqtSlot()
     def on_Reload_Canvas_clicked(self): Reload_Canvas()

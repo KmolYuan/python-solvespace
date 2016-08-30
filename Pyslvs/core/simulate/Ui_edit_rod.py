@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/ahshoe/Desktop/Pyslvs/core/simulate/set_rod.ui'
+# Form implementation generated from reading ui file '/home/ahshoe/Desktop/Pyslvs/core/simulate/edit_rod.ui'
 #
 # Created by: PyQt5 UI code generator 5.7
 #
@@ -44,9 +44,6 @@ class Ui_Dialog(object):
         self.End.setObjectName("End")
         self.len1 = QtWidgets.QDoubleSpinBox(Dialog)
         self.len1.setGeometry(QtCore.QRect(30, 180, 91, 26))
-        self.len1.setFrame(True)
-        self.len1.setKeyboardTracking(True)
-        self.len1.setProperty("showGroupSeparator", False)
         self.len1.setMinimum(0.0)
         self.len1.setMaximum(360.0)
         self.len1.setProperty("value", 0.0)
@@ -54,13 +51,9 @@ class Ui_Dialog(object):
         self.label_5 = QtWidgets.QLabel(Dialog)
         self.label_5.setGeometry(QtCore.QRect(30, 80, 131, 21))
         self.label_5.setObjectName("label_5")
-        self.Rod_num = QtWidgets.QTextBrowser(Dialog)
-        self.Rod_num.setGeometry(QtCore.QRect(30, 110, 211, 31))
-        self.Rod_num.setObjectName("Rod_num")
         self.len2 = QtWidgets.QDoubleSpinBox(Dialog)
         self.len2.setGeometry(QtCore.QRect(250, 180, 91, 26))
-        self.len2.setKeyboardTracking(True)
-        self.len2.setMinimum(0.0)
+        self.len2.setMinimum(0.01)
         self.len2.setMaximum(100000.0)
         self.len2.setProperty("value", 50.0)
         self.len2.setObjectName("len2")
@@ -73,6 +66,9 @@ class Ui_Dialog(object):
         self.label_4.setGeometry(QtCore.QRect(120, 161, 131, 31))
         self.label_4.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
         self.label_4.setObjectName("label_4")
+        self.Rod = QtWidgets.QComboBox(Dialog)
+        self.Rod.setGeometry(QtCore.QRect(30, 110, 191, 26))
+        self.Rod.setObjectName("Rod")
         self.buttonBox.raise_()
         self.label.raise_()
         self.label_2.raise_()
@@ -80,11 +76,11 @@ class Ui_Dialog(object):
         self.Start.raise_()
         self.End.raise_()
         self.label_5.raise_()
-        self.Rod_num.raise_()
         self.line.raise_()
         self.len2.raise_()
         self.len1.raise_()
         self.label_4.raise_()
+        self.Rod.raise_()
 
         self.retranslateUi(Dialog)
         self.buttonBox.accepted.connect(Dialog.accept)
@@ -93,7 +89,7 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "New Piston / Spring"))
+        Dialog.setWindowTitle(_translate("Dialog", "Edit Piston / Spring"))
         self.label.setText(_translate("Dialog", "Start point"))
         self.label_2.setText(_translate("Dialog", "End point"))
         self.label_3.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Setting two Points for the New Rod.</span></p></body></html>"))
