@@ -45,6 +45,8 @@ from .simulate.set_rod import rod_show
 from .simulate.edit_drive_shaft import edit_shaft_show
 from .simulate.edit_slider import edit_slider_show
 from .simulate.edit_rod import edit_rod_show
+#Solve
+from .calculation import table_process
 
 Environment_variables = "../"
 
@@ -172,6 +174,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.canvas.draw()
         #TODO: addmpl
     
+    def Reload_Canvas(self):
+        result = []
+        result = table_process(self.Entiteis_Point, self.Entiteis_Link,
+            self.Entiteis_Stay_Chain, self.Drive_Shaft,
+            self.Slider, self.Rod)
+        if result==[]:
+            print("Rebuild the cavanc falled.")
+        else:
+            print("Rebuild the cavanc.")
+        print(result)
+    
     #Start @pyqtSlot()
     @pyqtSlot()
     def on_actionMi_nimized_triggered(self): print("Minmized Windows.")
@@ -241,6 +254,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             Reset_notebook(self.Entiteis_Point_Style, 0)
             Reset_notebook(self.Drive_Shaft, 0)
             Reset_notebook(self.Slider, 0)
+            Reload_Canvas(self)
             print("Reset the workbook.")
     
     @pyqtSlot()
@@ -254,6 +268,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             Reset_notebook(self.Entiteis_Point_Style, 0)
             Reset_notebook(self.Drive_Shaft, 0)
             Reset_notebook(self.Slider, 0)
+            self.Reload_Canvas()
             print("Reset workbook.")
             fileName, _ = QFileDialog.getOpenFileName(self, 'Open file...', Environment_variables, 'CSV File(*.csv);;Text File(*.txt)')
             print("Get:"+fileName)
@@ -309,7 +324,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         print(row, column)
                         item = table.item(row, column)
                         if item is not None:
-                            if (item.checkState()==False) and (item.text()==""): rowdata += ["noFixed"]
+                            if (item.checkState()==False) and (item.text()==''): rowdata += ["noFixed"]
                             else:
                                 if item.text()=='': rowdata += ["Fixed"]
                                 else: rowdata += [item.text()+'\t']
@@ -766,7 +781,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Delete_dlg_set(self.Rod, icon, delete_rod_show(), "Rod")
     
     @pyqtSlot()
-    def on_Reload_Canvas_clicked(self): Reload_Canvas()
+    def on_Reload_Button_clicked(self): self.Reload_Canvas()
+    
+    @pyqtSlot()
+    def on_actionReload_Drawing_triggered(self): self.Reload_Canvas()
 
 def Points_list(table, name, x, y, fixed, edit):
     rowPosition = int(name.replace("Point", ""))
@@ -784,7 +802,7 @@ def Points_list(table, name, x, y, fixed, edit):
     if not edit: print("Add Point"+str(rowPosition)+".")
     else: print("Edit Point"+str(rowPosition)+".")
 
-def Links_list(table, name, start, end, l, edit):
+def Links_list(table, name, start, end, l, edit, ):
     rowPosition = int(name.replace("Line", ""))
     if not edit: table.insertRow(rowPosition)
     name_set = QTableWidgetItem(name)
@@ -795,9 +813,8 @@ def Links_list(table, name, start, end, l, edit):
     table.setItem(rowPosition, 3, QTableWidgetItem(l))
     if not edit: print("Add a link, Line "+str(rowPosition)+".")
     else: print("Edit a link, Line "+str(rowPosition)+".")
-    Reload_Canvas()
 
-def Chain_list(table, name, p1, p2, p3, a, b, c, edit):
+def Chain_list(table, name, p1, p2, p3, a, b, c, edit, ):
     rowPosition = int(name.replace("Chain", ""))
     if not edit: table.insertRow(rowPosition)
     name_set = QTableWidgetItem(name)
@@ -811,10 +828,8 @@ def Chain_list(table, name, p1, p2, p3, a, b, c, edit):
     table.setItem(rowPosition, 6, QTableWidgetItem(c))
     if not edit: print("Add a Triangle Chain, Line "+str(rowPosition)+".")
     else: print("Edit a Triangle Chain, Line "+str(rowPosition)+".")
-    Reload_Canvas()
 
-
-def Shaft_list(table, name, center, references, start, end, edit):
+def Shaft_list(table, name, center, references, start, end, edit, ):
     rowPosition = int(name.replace("Shaft", ""))
     name_set = QTableWidgetItem(name)
     name_set.setFlags(Qt.ItemIsEnabled)
@@ -827,7 +842,7 @@ def Shaft_list(table, name, center, references, start, end, edit):
     if not edit: print("Set the Point to new Shaft.")
     else: print("Set the Point to selected Shaft.")
 
-def Slider_list(table, name, center, references, edit):
+def Slider_list(table, name, center, references, edit, ):
     rowPosition = int(name.replace("Slider", ""))
     name_set = QTableWidgetItem(name)
     name_set.setFlags(Qt.ItemIsEnabled)
@@ -838,7 +853,7 @@ def Slider_list(table, name, center, references, edit):
     if not edit: print("Set the Point to new Slider.")
     else: print("Set the Point to selected Slider.")
 
-def Rod_list(table, name, start, end, min, max, edit):
+def Rod_list(table, name, start, end, min, max, edit, ):
     rowPosition = int(name.replace("Rod", ""))
     name_set = QTableWidgetItem(name)
     name_set.setFlags(Qt.ItemIsEnabled)
@@ -851,7 +866,7 @@ def Rod_list(table, name, start, end, min, max, edit):
     if not edit: print("Set the Point to new Rod.")
     else: print("Set the Point to selected Rod.")
 
-def Points_style_add(table, name, color, ringsize, ringcolor):
+def Points_style_add(table, name, color, ringsize, ringcolor, ):
     rowPosition = table.rowCount()
     table.insertRow(rowPosition)
     name_set = QTableWidgetItem(name)
@@ -861,9 +876,8 @@ def Points_style_add(table, name, color, ringsize, ringcolor):
     table.setItem(rowPosition, 2, QTableWidgetItem(ringsize))
     table.setItem(rowPosition, 3, QTableWidgetItem(ringcolor))
     print("Add Point Style for Point"+str(rowPosition)+".")
-    Reload_Canvas()
 
-def Point_list_delete(table1, table2, table3, table4, dlg):
+def Point_list_delete(table1, table2, table3, table4, dlg, ):
     for i in range(table3.rowCount()):
         if (dlg.Point.currentText() == table3.item(i, 1).text()) or (dlg.Point.currentText() == table3.item(i, 2).text()):
             table3.removeRow(i)
@@ -881,15 +895,13 @@ def Point_list_delete(table1, table2, table3, table4, dlg):
             for j in range(i, table1.rowCount()): table1.setItem(j, 0, QTableWidgetItem("Point"+str(j)))
             for j in range(i, table1.rowCount()): table2.setItem(j, 0, QTableWidgetItem("Point"+str(j)))
             break
-    Reload_Canvas()
 
-def One_list_delete(table, name, dlg):
+def One_list_delete(table, name, dlg, ):
     for i in range(table.rowCount()):
         if (dlg.Entity.currentText() == table.item(i, 0).text()):
             table.removeRow(i)
             for j in range(i, table.rowCount()): table.setItem(j, 0, QTableWidgetItem(name+str(j)))
             break
-    Reload_Canvas()
 
 def Delete_dlg_set(table, icon, dlg, name):
     if table.rowCount() <= 0:
@@ -915,7 +927,3 @@ def CSV_notebook(writer, table):
             if item is not None:
                 rowdata += [item.text()+'\t']
         writer.writerow(rowdata)
-
-def Reload_Canvas():
-    #TODO: Reload Canvas
-    print("Rebuild the cavanc.")
