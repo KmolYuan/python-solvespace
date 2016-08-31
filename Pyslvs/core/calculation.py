@@ -30,11 +30,35 @@ def table_process(table_point, table_line, table_chain, table_shaft, table_slide
         if not(table_point.item(i, 3).checkState()==False):
             Constraint.dragged(Workplane1, p)
     for i in range(table_line.rowCount()):
-        print(table_line.item(i, 1).text(), table_line.item(i, 2).text(), table_line.item(i, 3).text())
         start = int(table_line.item(i, 1).text().replace("Point", ""))
         end = int(table_line.item(i, 2).text().replace("Point", ""))
         len = float(table_line.item(i, 3).text())
         Constraint.distance(len, Workplane1, Point[start], Point[end])
+    for i in range(table_chain.rowCount()):
+        pa = int(table_chain.item(i, 1).text().replace("Point", ""))
+        pb = int(table_chain.item(i, 2).text().replace("Point", ""))
+        pc = int(table_chain.item(i, 3).text().replace("Point", ""))
+        lenab = float(table_chain.item(i, 4).text().replace("Point", ""))
+        lenbc = float(table_chain.item(i, 5).text().replace("Point", ""))
+        lenac = float(table_chain.item(i, 6).text().replace("Point", ""))
+        Constraint.distance(lenab, Workplane1, Point[pa], Point[pb])
+        Constraint.distance(lenbc, Workplane1, Point[pb], Point[pc])
+        Constraint.distance(lenac, Workplane1, Point[pa], Point[pc])
+    for i in range(table_shaft.rowCount()):
+        start = int(table_shaft.item(i, 1).text().replace("Point", ""))
+        end = int(table_shaft.item(i, 2).text().replace("Point", ""))
+    pN = sys.add_param(10)
+    pNN = sys.add_param(0.0)
+    PointN = Point2d(Workplane1, pN, pNN)
+    Point += [PointN]
+    Constraint.dragged(Workplane1, Point[-1])
+    Line0 = LineSegment2d(Workplane1, Point[1], Point[-1])
+    for i in range(table_shaft.rowCount()):
+        center = int(table_shaft.item(i, 1).text().replace("Point", ""))
+        reference = int(table_shaft.item(i, 2).text().replace("Point", ""))
+        angle = float(table_shaft.item(i, 3).text())
+        line = LineSegment2d(Workplane1, Point[center], Point[reference])
+        Constraint.angle(Workplane1, angle, line, Line0, False)
     #TODO: to be continue...
     
     sys.solve()

@@ -176,15 +176,47 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #TODO: addmpl
     
     def Reload_Canvas(self):
+        table_point = self.Entiteis_Point
+        table_line = self.Entiteis_Link
+        table_chain = self.Entiteis_Stay_Chain
+        table_shaft = self.Drive_Shaft
+        table_slider = self.Slider
+        table_rod = self.Rod
+        #TODO: Reload Check
+        for i in range(table_line.rowCount()):
+            a = int(table_line.item(i, 1).text().replace("Point", ""))
+            b = int(table_line.item(i, 2).text().replace("Point", ""))
+            if (table_point.item(a, 1).text()==table_point.item(b, 1).text())and(table_point.item(a, 2).text()==table_point.item(b, 2).text()):
+                if b == 0: table_point.setItem(a, 1, QTableWidgetItem(str(float(table_point.item(a, 1).text())+0.01)))
+                else: table_point.setItem(b, 1, QTableWidgetItem(str(float(table_point.item(b, 1).text())+0.01)))
+        for i in range(table_chain.rowCount()):
+            a = int(table_chain.item(i, 1).text().replace("Point", ""))
+            b = int(table_chain.item(i, 2).text().replace("Point", ""))
+            c = int(table_chain.item(i, 3).text().replace("Point", ""))
+            case1 = (table_point.item(a, 1).text()==table_point.item(b, 1).text())
+            case2 = (table_point.item(a, 2).text()==table_point.item(b, 2).text())
+            case3 = (table_point.item(b, 1).text()==table_point.item(c, 1).text())
+            case4 = (table_point.item(b, 2).text()==table_point.item(c, 2).text())
+            case5 = (table_point.item(a, 1).text()==table_point.item(c, 1).text())
+            case6 = (table_point.item(a, 2).text()==table_point.item(c, 2).text())
+            if case1 and case2:
+                if b ==0: table_point.setItem(a, 1, QTableWidgetItem(str(float(table_point.item(a, 1).text())+0.01)))
+                else: table_point.setItem(b, 1, QTableWidgetItem(str(float(table_point.item(b, 1).text())+0.01)))
+            if case3 and case4:
+                if c ==0: table_point.setItem(b, 2, QTableWidgetItem(str(float(table_point.item(b, 2).text())+0.01)))
+                else: table_point.setItem(c, 2, QTableWidgetItem(str(float(table_point.item(c, 2).text())+0.01)))
+            elif case5 and case6:
+                if c ==0: table_point.setItem(a, 2, QTableWidgetItem(str(float(table_point.item(a, 2).text())+0.01)))
+                else: table_point.setItem(c, 2, QTableWidgetItem(str(float(table_point.item(c, 2).text())+0.01)))
+        #Solve
         result = []
-        result = table_process(self.Entiteis_Point, self.Entiteis_Link,
-            self.Entiteis_Stay_Chain, self.Drive_Shaft,
-            self.Slider, self.Rod)
+        result = table_process(table_point, table_line, table_chain, table_shaft, table_slider, table_rod)
         if result==[]:
             print("Rebuild the cavanc falled.")
         else:
             print("Rebuild the cavanc.")
         print(result)
+        #TODO: Reload
     
     #Start @pyqtSlot()
     @pyqtSlot()
