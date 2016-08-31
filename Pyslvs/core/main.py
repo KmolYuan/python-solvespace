@@ -3,9 +3,12 @@
 import csv
 from peewee import *
 #Matplotlib
+import matplotlib
+matplotlib.use("Qt5Agg")
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 #PyQt5
+from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox, QMenu, QAction
 from PyQt5.QtGui import QPixmap, QIcon
@@ -51,10 +54,64 @@ from .calculation import table_process
 
 Environment_variables = "../"
 
+class DynamicMplCanvas(FigureCanvas):
+    """A canvas that updates itself every second with a new plot."""
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        # We want the axes cleared every time plot() is called
+        self.axes.hold(True)
+        self.compute_initial_figure()
+        FigureCanvas.__init__(self, fig)
+        self.setParent(parent)
+        FigureCanvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
+    
+    def compute_initial_figure(self):
+        self.axes.plot([0, 0], [-10, 10], 'b')
+        self.axes.plot([-10, 10], [0, 0], 'b')
+        self.axes.plot([0], [0], 'ro')
+    
+    def clear_figure(self):
+        self.axes.clear()
+    
+    def update_figure(self, table_point, table_line, table_chain):
+        Xval = []
+        Yval = []
+        for i in range(table_point.rowCount()):
+            Xval += [float(table_point.item(i, 1).text())]
+            Yval += [float(table_point.item(i, 2).text())]
+        self.axes.plot(Xval, Yval, 'go')
+        for i in range(table_line.rowCount()):
+            startX = float(table_point.item(int(table_line.item(i, 1).text().replace("Point", "")), 1).text())
+            startY = float(table_point.item(int(table_line.item(i, 1).text().replace("Point", "")), 2).text())
+            endX = float(table_point.item(int(table_line.item(i, 2).text().replace("Point", "")), 1).text())
+            endY = float(table_point.item(int(table_line.item(i, 2).text().replace("Point", "")), 2).text())
+            self.axes.plot([startX, endX], [startY, endY], 'r')
+        for i in range(table_chain.rowCount()):
+            paX = float(table_point.item(int(table_chain.item(i, 1).text().replace("Point", "")), 1).text())
+            paY = float(table_point.item(int(table_chain.item(i, 1).text().replace("Point", "")), 2).text())
+            pbX = float(table_point.item(int(table_chain.item(i, 2).text().replace("Point", "")), 1).text())
+            pbY = float(table_point.item(int(table_chain.item(i, 2).text().replace("Point", "")), 2).text())
+            pcX = float(table_point.item(int(table_chain.item(i, 3).text().replace("Point", "")), 1).text())
+            pcY = float(table_point.item(int(table_chain.item(i, 3).text().replace("Point", "")), 2).text())
+            self.axes.plot([paX, pbX, pcX, paX], [paY, pbY, pcY, paY], 'r')
+        self.axes.plot([0], [0], 'ro')
+        self.draw()
+        self.axes.set_xlabel("X Coordinate", fontsize=12)
+        self.axes.set_ylabel("Y Coordinate", fontsize=12)
+        a = max(max(Xval), max(Yval))+10
+        b = min(min(Xval), min(Yval))-10
+        self.axes.set_xlim([b, a])
+        self.axes.set_ylim([b, a])
+
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
+        #mpl Window
+        self.mplWindow = DynamicMplCanvas()
+        self.mplLayout.addWidget(self.mplWindow)
         #Entiteis_Point Right-click menu
         self.Entiteis_Point.setContextMenuPolicy(Qt.CustomContextMenu)
         self.Entiteis_Point.customContextMenuRequested.connect(self.on_point_context_menu)
@@ -205,17 +262,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if case3 and case4:
                 if c ==0: table_point.setItem(b, 2, QTableWidgetItem(str(float(table_point.item(b, 2).text())+0.01)))
                 else: table_point.setItem(c, 2, QTableWidgetItem(str(float(table_point.item(c, 2).text())+0.01)))
-            elif case5 and case6:
+            if case5 and case6:
                 if c ==0: table_point.setItem(a, 2, QTableWidgetItem(str(float(table_point.item(a, 2).text())+0.01)))
                 else: table_point.setItem(c, 2, QTableWidgetItem(str(float(table_point.item(c, 2).text())+0.01)))
         #Solve
         result = []
         result = table_process(table_point, table_line, table_chain, table_shaft, table_slider, table_rod)
+        print(result)
         if result==[]:
             print("Rebuild the cavanc falled.")
         else:
+            for i in range(1, table_point.rowCount()):
+                Points_list(table_point, "Point"+str(i), str(result[i*2]), str(result[i*2+1]), not(table_point.item(i, 3).checkState()==False), True)
+            self.mplWindow.clear_figure()
+            self.mplWindow.update_figure(table_point, table_line, table_chain)
             print("Rebuild the cavanc.")
-        print(result)
         #TODO: Reload
     
     #Start @pyqtSlot()
@@ -287,7 +348,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             Reset_notebook(self.Entiteis_Point_Style, 0)
             Reset_notebook(self.Drive_Shaft, 0)
             Reset_notebook(self.Slider, 0)
-            Reload_Canvas(self)
+            self.Reload_Canvas()
             print("Reset the workbook.")
     
     @pyqtSlot()

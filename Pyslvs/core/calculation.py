@@ -29,21 +29,24 @@ def table_process(table_point, table_line, table_chain, table_shaft, table_slide
         Point += [p]
         if not(table_point.item(i, 3).checkState()==False):
             Constraint.dragged(Workplane1, p)
-    for i in range(table_line.rowCount()):
-        start = int(table_line.item(i, 1).text().replace("Point", ""))
-        end = int(table_line.item(i, 2).text().replace("Point", ""))
-        len = float(table_line.item(i, 3).text())
-        Constraint.distance(len, Workplane1, Point[start], Point[end])
     for i in range(table_chain.rowCount()):
         pa = int(table_chain.item(i, 1).text().replace("Point", ""))
         pb = int(table_chain.item(i, 2).text().replace("Point", ""))
         pc = int(table_chain.item(i, 3).text().replace("Point", ""))
-        lenab = float(table_chain.item(i, 4).text().replace("Point", ""))
-        lenbc = float(table_chain.item(i, 5).text().replace("Point", ""))
-        lenac = float(table_chain.item(i, 6).text().replace("Point", ""))
+        print(pa, pb, pc)
+        lenab = float(table_chain.item(i, 4).text())
+        lenbc = float(table_chain.item(i, 5).text())
+        lenac = float(table_chain.item(i, 6).text())
+        print(lenab, lenbc, lenac)
         Constraint.distance(lenab, Workplane1, Point[pa], Point[pb])
         Constraint.distance(lenbc, Workplane1, Point[pb], Point[pc])
         Constraint.distance(lenac, Workplane1, Point[pa], Point[pc])
+    for i in range(table_line.rowCount()):
+        start = int(table_line.item(i, 1).text().replace("Point", ""))
+        end = int(table_line.item(i, 2).text().replace("Point", ""))
+        len = float(table_line.item(i, 3).text())
+        print(len)
+        Constraint.distance(len, Workplane1, Point[start], Point[end])
     for i in range(table_shaft.rowCount()):
         start = int(table_shaft.item(i, 1).text().replace("Point", ""))
         end = int(table_shaft.item(i, 2).text().replace("Point", ""))
