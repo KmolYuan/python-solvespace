@@ -59,7 +59,6 @@ class DynamicMplCanvas(FigureCanvas):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = fig.add_subplot(111)
-        # We want the axes cleared every time plot() is called
         self.axes.hold(True)
         self.compute_initial_figure()
         FigureCanvas.__init__(self, fig)
@@ -179,37 +178,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.action_rod_right_click_menu_delete = QAction("Delete a Rod", self)
         self.popMenu_rod.addAction(self.action_rod_right_click_menu_delete) 
     
-    #TODO: Right-click menu event
+    #Right-click menu event
     def on_point_context_menu(self, point):
         action = self.popMenu_point.exec_(self.Entiteis_Point.mapToGlobal(point))
         if action == self.action_point_right_click_menu_add: self.on_action_New_Point_triggered()
         elif action == self.action_point_right_click_menu_edit: self.on_actionEdit_Point_triggered()
         elif action == self.action_point_right_click_menu_delete: self.on_actionDelete_Point_triggered()
-    
     def on_link_context_menu(self, point):
         action = self.popMenu_link.exec_(self.Entiteis_Link.mapToGlobal(point))
         if action == self.action_link_right_click_menu_add: self.on_action_New_Line_triggered()
         elif action == self.action_link_right_click_menu_edit: self.on_actionEdit_Linkage_triggered()
         elif action == self.action_link_right_click_menu_delete: self.on_actionDelete_Linkage_triggered()
-    
     def on_chain_context_menu(self, point):
         action = self.popMenu_chain.exec_(self.Entiteis_Stay_Chain.mapToGlobal(point))
         if action == self.action_chain_right_click_menu_add: self.on_action_New_Stay_Chain_triggered()
         elif action == self.action_chain_right_click_menu_edit: self.on_actionEdit_Stay_Chain_triggered()
         elif action == self.action_chain_right_click_menu_delete: self.on_actionDelete_Stay_Chain_triggered()
-    
     def on_shaft_context_menu(self, point):
         action = self.popMenu_shaft.exec_(self.Drive_Shaft.mapToGlobal(point))
         if action == self.action_shaft_right_click_menu_add: self.on_action_Set_Drive_Shaft_triggered()
         elif action == self.action_shaft_right_click_menu_edit: self.on_action_Edit_Drive_Shaft_triggered()
         elif action == self.action_shaft_right_click_menu_delete: self.on_actionDelete_Drive_Shaft_triggered()
-    
     def on_slider_context_menu(self, point):
         action = self.popMenu_slider.exec_(self.Slider.mapToGlobal(point))
         if action == self.action_slider_right_click_menu_add: self.on_action_Set_Slider_triggered()
         elif action == self.action_slider_right_click_menu_edit: self.on_action_Edit_Slider_triggered()
         elif action == self.action_slider_right_click_menu_delete: self.on_actionDelete_Slider_triggered()
-    
     def on_rod_context_menu(self, point):
         action = self.popMenu_rod.exec_(self.Rod.mapToGlobal(point))
         if action == self.action_rod_right_click_menu_add: self.on_action_Set_Rod_triggered()
@@ -226,12 +220,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             event.accept()
         else: event.ignore()
     
-    def addmpl(self, fig):
-        self.canvas = FigureCanvas(fig)
-        self.mplLayout.addWidget(self.canvas)
-        self.canvas.draw()
-        #TODO: addmpl
-    
+    #Reload Canvas
     def Reload_Canvas(self):
         table_point = self.Entiteis_Point
         table_line = self.Entiteis_Link
@@ -282,13 +271,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     #Start @pyqtSlot()
     @pyqtSlot()
     def on_actionMi_nimized_triggered(self): print("Minmized Windows.")
-    
     @pyqtSlot()
     def on_actionM_axmized_triggered(self): print("Maxmized Windows.")
-    
     @pyqtSlot()
     def on_action_Full_Screen_triggered(self): print("Full Screen.")
-    
     @pyqtSlot()
     def on_actionNormalmized_triggered(self): print("Normal Screen.")
     
@@ -465,8 +451,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if fileName:
             fileName = fileName.replace(".png", "")
             if sub == "PNG file(*.png)": fileName += ".png"
+            pixmap = self.mplWindow.grab()
+            pixmap.save(fileName)
             print("Saved to:"+str(fileName))
-            # TODO: Output_to_Picture
     
     @pyqtSlot()
     def on_action_New_Point_triggered(self):
