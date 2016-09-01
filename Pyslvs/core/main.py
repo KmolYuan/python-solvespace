@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #CSV & SQLite
-import csv
+import csv, sys
 from peewee import *
 #Matplotlib
 import matplotlib
@@ -10,7 +10,7 @@ from matplotlib.figure import Figure
 #PyQt5
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot, Qt, QCoreApplication
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox, QMenu, QAction
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox, QMenu, QAction, QWidget
 from PyQt5.QtGui import QPixmap, QIcon
 _translate = QCoreApplication.translate
 #UI Ports
@@ -29,6 +29,7 @@ from .warning.zero_value import zero_show
 from .warning.repeated_value import same_show
 from .warning.restriction_conflict import restriction_conflict_show
 from .warning.kill_origin import kill_origin_show
+from .warning.resolution_fail import resolution_fail_show
 #Drawing Dialog Ports
 from .draw.draw_point import New_point
 from .draw.draw_link import New_link
@@ -55,55 +56,75 @@ from .calculation import table_process
 
 Environment_variables = "../"
 
-class DynamicMplCanvas(FigureCanvas):
-    """A canvas that updates itself every second with a new plot."""
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
-        self.axes.hold(True)
-        self.compute_initial_figure()
-        FigureCanvas.__init__(self, fig)
-        self.setParent(parent)
-        FigureCanvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
-    
-    def compute_initial_figure(self):
-        self.axes.plot([0, 0], [-10, 10], 'b')
-        self.axes.plot([-10, 10], [0, 0], 'b')
-        self.axes.plot([0], [0], 'ro')
-    
-    def clear_figure(self):
-        self.axes.clear()
-    
-    def update_figure(self, table_point, table_line, table_chain):
-        Xval = []
-        Yval = []
-        for i in range(table_point.rowCount()):
-            Xval += [float(table_point.item(i, 1).text())]
-            Yval += [float(table_point.item(i, 2).text())]
-        self.axes.plot(Xval, Yval, 'go')
-        for i in range(table_line.rowCount()):
-            startX = float(table_point.item(int(table_line.item(i, 1).text().replace("Point", "")), 1).text())
-            startY = float(table_point.item(int(table_line.item(i, 1).text().replace("Point", "")), 2).text())
-            endX = float(table_point.item(int(table_line.item(i, 2).text().replace("Point", "")), 1).text())
-            endY = float(table_point.item(int(table_line.item(i, 2).text().replace("Point", "")), 2).text())
-            self.axes.plot([startX, endX], [startY, endY], 'r')
-        for i in range(table_chain.rowCount()):
-            paX = float(table_point.item(int(table_chain.item(i, 1).text().replace("Point", "")), 1).text())
-            paY = float(table_point.item(int(table_chain.item(i, 1).text().replace("Point", "")), 2).text())
-            pbX = float(table_point.item(int(table_chain.item(i, 2).text().replace("Point", "")), 1).text())
-            pbY = float(table_point.item(int(table_chain.item(i, 2).text().replace("Point", "")), 2).text())
-            pcX = float(table_point.item(int(table_chain.item(i, 3).text().replace("Point", "")), 1).text())
-            pcY = float(table_point.item(int(table_chain.item(i, 3).text().replace("Point", "")), 2).text())
-            self.axes.plot([paX, pbX, pcX, paX], [paY, pbY, pcY, paY], 'r')
-        self.axes.plot([0], [0], 'ro')
-        self.draw()
-        self.axes.set_xlabel("X Coordinate", fontsize=12)
-        self.axes.set_ylabel("Y Coordinate", fontsize=12)
-        a = max(max(Xval), max(Yval))+10
-        b = min(min(Xval), min(Yval))-10
-        self.axes.set_xlim([b, a])
-        self.axes.set_ylim([b, a])
+if "-mpl" in sys.argv:
+    class DynamicMplCanvas(FigureCanvas):
+        def __init__(self, parent=None, width=5, height=4, dpi=100):
+            fig = Figure(figsize=(width, height), dpi=dpi)
+            self.axes = fig.add_subplot(111)
+            self.axes.hold(True)
+            self.compute_initial_figure()
+            FigureCanvas.__init__(self, fig)
+            self.setParent(parent)
+            FigureCanvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+            FigureCanvas.updateGeometry(self)
+        
+        def compute_initial_figure(self):
+            self.axes.plot([0, 0], [-10, 10], 'b')
+            self.axes.plot([-10, 10], [0, 0], 'b')
+            self.axes.plot([0], [0], 'ro')
+        
+        def clear_figure(self):
+            self.axes.clear()
+        
+        def update_figure(self, table_point, table_line, table_chain, table_shaft, table_slider, table_rod, table_style):
+            Xval = []
+            Yval = []
+            for i in range(table_point.rowCount()):
+                Xval += [float(table_point.item(i, 1).text())]
+                Yval += [float(table_point.item(i, 2).text())]
+            for i in range(table_line.rowCount()):
+                startX = float(table_point.item(int(table_line.item(i, 1).text().replace("Point", "")), 1).text())
+                startY = float(table_point.item(int(table_line.item(i, 1).text().replace("Point", "")), 2).text())
+                endX = float(table_point.item(int(table_line.item(i, 2).text().replace("Point", "")), 1).text())
+                endY = float(table_point.item(int(table_line.item(i, 2).text().replace("Point", "")), 2).text())
+                self.axes.plot([startX, endX], [startY, endY], 'r')
+            for i in range(table_chain.rowCount()):
+                paX = float(table_point.item(int(table_chain.item(i, 1).text().replace("Point", "")), 1).text())
+                paY = float(table_point.item(int(table_chain.item(i, 1).text().replace("Point", "")), 2).text())
+                pbX = float(table_point.item(int(table_chain.item(i, 2).text().replace("Point", "")), 1).text())
+                pbY = float(table_point.item(int(table_chain.item(i, 2).text().replace("Point", "")), 2).text())
+                pcX = float(table_point.item(int(table_chain.item(i, 3).text().replace("Point", "")), 1).text())
+                pcY = float(table_point.item(int(table_chain.item(i, 3).text().replace("Point", "")), 2).text())
+                self.axes.plot([paX, pbX, pcX, paX], [paY, pbY, pcY, paY], 'r')
+            for i in range(table_style.rowCount()):
+                paX = float(table_point.item(int(table_style.item(i, 0).text().replace("Point", "")), 1).text())
+                paY = float(table_point.item(int(table_style.item(i, 0).text().replace("Point", "")), 2).text())
+                if table_style.item(i, 1).text()=="RED": self.axes.plot(paX, paY, 'ro')
+                if table_style.item(i, 1).text()=="GREEN": self.axes.plot(paX, paY, 'go')
+                if table_style.item(i, 1).text()=="BLUE": self.axes.plot(paX, paY, 'bo')
+            self.axes.plot([0], [0], 'ro')
+            self.draw()
+            self.axes.set_xlabel("X Coordinate", fontsize=12)
+            self.axes.set_ylabel("Y Coordinate", fontsize=12)
+            a = max(max(Xval), max(Yval))+10
+            b = min(min(Xval), min(Yval))-10
+            self.axes.set_xlim([b, a])
+            self.axes.set_ylim([b, a])
+else:
+    class DynamicMplCanvas(QWidget):
+        def __init__(self, parent=None):
+            QWidget.__init__(self, parent)
+            self.compute_initial_figure()
+            self.setParent(parent)
+        
+        def compute_initial_figure(self):
+            """initFigure"""
+        
+        def clear_figure(self):
+            """clearFigure"""
+        
+        def update_figure(self, table_point, table_line, table_chain, table_shaft, table_slider, table_rod, table_style):
+            print("paint")
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
@@ -111,8 +132,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         #mpl Window
         self.mplWindow = DynamicMplCanvas()
-        self.mplWindow.setStatusTip("This is the Matplotlib Canvas.")
-        self.mplLayout.addWidget(self.mplWindow)
+        self.mplWindow.setStatusTip("This is the Graph Canvas.")
+        self.mplLayout.insertWidget(0, self.mplWindow)
+        #Zoom Text
+        self.ZoomText.setPlainText("50%")
         #Entiteis_Point Right-click menu
         self.Entiteis_Point.setContextMenuPolicy(Qt.CustomContextMenu)
         self.Entiteis_Point.customContextMenuRequested.connect(self.on_point_context_menu)
@@ -222,8 +245,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             event.accept()
         else: event.ignore()
     
-    #Reload Canvas
-    def Reload_Canvas(self):
+    def resizeEvent(self, event):
+        self.Reload_Canvas()
+    
+    #Resolve
+    def Resolve(self):
         table_point = self.Entiteis_Point
         table_line = self.Entiteis_Link
         table_chain = self.Entiteis_Stay_Chain
@@ -259,22 +285,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #Solve
         result = []
         result = table_process(table_point, table_line, table_chain, table_shaft, table_slider, table_rod)
-        print(result)
         if result==[]:
             print("Rebuild the cavanc falled.")
+            dlg = resolution_fail_show()
+            dlg.show()
+            if dlg.exec_(): pass
         else:
             for i in range(1, table_point.rowCount()):
                 Points_list(table_point, "Point"+str(i), str(result[i*2]), str(result[i*2+1]), not(table_point.item(i, 3).checkState()==False), True)
-            self.mplWindow.clear_figure()
-            self.mplWindow.update_figure(table_point, table_line, table_chain)
-            print("Rebuild the cavanc.")
+            self.Reload_Canvas()
+        print("Rebuild the cavanc.")
+    
+    #Reload Canvas
+    def Reload_Canvas(self):
+        self.mplWindow.clear_figure()
+        self.mplWindow.update_figure(self.Entiteis_Point, self.Entiteis_Link,
+            self.Entiteis_Stay_Chain, self.Drive_Shaft,
+            self.Slider, self.Rod, self.Entiteis_Point_Style)
         #TODO: Reload
     
     #Start @pyqtSlot()
-    @pyqtSlot()
-    def on_actionMi_nimized_triggered(self): print("Minmized Windows.")
-    @pyqtSlot()
-    def on_actionM_axmized_triggered(self): print("Maxmized Windows.")
     @pyqtSlot()
     def on_action_Full_Screen_triggered(self): print("Full Screen.")
     @pyqtSlot()
@@ -336,7 +366,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             Reset_notebook(self.Entiteis_Point_Style, 0)
             Reset_notebook(self.Drive_Shaft, 0)
             Reset_notebook(self.Slider, 0)
-            self.Reload_Canvas()
+            self.Resolve()
             print("Reset the workbook.")
             self.setWindowTitle(_translate("MainWindow", "Pyslvs - New Workbook"))
     
@@ -351,7 +381,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             Reset_notebook(self.Entiteis_Point_Style, 0)
             Reset_notebook(self.Drive_Shaft, 0)
             Reset_notebook(self.Slider, 0)
-            self.Reload_Canvas()
+            self.Resolve()
             print("Reset workbook.")
             fileName, _ = QFileDialog.getOpenFileName(self, 'Open file...', Environment_variables, 'CSV File(*.csv);;Text File(*.txt)')
             print("Get:"+fileName)
@@ -390,7 +420,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             for i in range(bookmark+1, len(data), 5):
                 bookmark = i
                 Rod_list(self.Slider, data[i], data[i+1], data[i+2], data[i+3], data[i+4], False)
-            self.Reload_Canvas()
+            self.Resolve()
             print("Successful Load the workbook...")
             self.setWindowTitle(_translate("MainWindow", "Pyslvs - "+fileName))
     
@@ -887,7 +917,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_Reload_Button_clicked(self): self.Reload_Canvas()
     
     @pyqtSlot()
-    def on_actionReload_Drawing_triggered(self): self.Reload_Canvas()
+    def on_actionReload_Drawing_triggered(self): self.Resolve()
+    
+    @pyqtSlot(int)
+    def on_ZoomBar_valueChanged(self, value): self.ZoomText.setPlainText(str(value)+"%")
 
 def Points_list(table, name, x, y, fixed, edit):
     rowPosition = int(name.replace("Point", ""))
