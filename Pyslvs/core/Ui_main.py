@@ -421,8 +421,8 @@ class Ui_MainWindow(object):
         self.action_Highlight_Drive_Shaft_Point.setCheckable(True)
         self.action_Highlight_Drive_Shaft_Point.setChecked(True)
         icon18 = QtGui.QIcon()
-        icon18.addPixmap(QtGui.QPixmap(":/icons/char-0-check-false.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         icon18.addPixmap(QtGui.QPixmap(":/icons/char-1-check-true.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon18.addPixmap(QtGui.QPixmap(":/icons/char-0-check-false.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.action_Highlight_Drive_Shaft_Point.setIcon(icon18)
         self.action_Highlight_Drive_Shaft_Point.setObjectName("action_Highlight_Drive_Shaft_Point")
         self.actionMi_nimized = QtWidgets.QAction(MainWindow)
@@ -661,7 +661,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Pyslvs"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Pyslvs - New Workbook"))
         self.Entiteis_Point.setStatusTip(_translate("MainWindow", "All Points in this workbook."))
         item = self.Entiteis_Point.verticalHeaderItem(0)
         item.setText(_translate("MainWindow", "Origin"))
@@ -779,7 +779,7 @@ class Ui_MainWindow(object):
         self.menu_Options.setTitle(_translate("MainWindow", "&Options"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menu_Simulation.setTitle(_translate("MainWindow", "&Simulation"))
-        self.action_New_Workbook.setText(_translate("MainWindow", "&New Workbook"))
+        self.action_New_Workbook.setText(_translate("MainWindow", "&Clear Workbook"))
         self.action_New_Workbook.setStatusTip(_translate("MainWindow", "Reset to a new wrokbook."))
         self.action_New_Workbook.setShortcut(_translate("MainWindow", "Ctrl+N"))
         self.action_Load_Workbook.setText(_translate("MainWindow", "&Load Workbook (*.csv)"))

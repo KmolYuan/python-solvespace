@@ -9,9 +9,10 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 #PyQt5
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import pyqtSlot, Qt
+from PyQt5.QtCore import pyqtSlot, Qt, QCoreApplication
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox, QMenu, QAction
 from PyQt5.QtGui import QPixmap, QIcon
+_translate = QCoreApplication.translate
 #UI Ports
 from core.Ui_main import Ui_MainWindow
 import webbrowser
@@ -110,6 +111,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         #mpl Window
         self.mplWindow = DynamicMplCanvas()
+        self.mplWindow.setStatusTip("This is the Matplotlib Canvas.")
         self.mplLayout.addWidget(self.mplWindow)
         #Entiteis_Point Right-click menu
         self.Entiteis_Point.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -336,6 +338,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             Reset_notebook(self.Slider, 0)
             self.Reload_Canvas()
             print("Reset the workbook.")
+            self.setWindowTitle(_translate("MainWindow", "Pyslvs - New Workbook"))
     
     @pyqtSlot()
     def on_action_Load_Workbook_triggered(self):
@@ -382,10 +385,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 Shaft_list(self.Drive_Shaft, data[i], data[i+1], data[i+2], data[i+3], data[i+4], False)
             for i in range(bookmark+1, len(data), 3):
                 bookmark = i
+                if data[i] == 'Next_table\t': break
                 Slider_list(self.Slider, data[i], data[i+1], data[i+2], False)
             for i in range(bookmark+1, len(data), 5):
+                bookmark = i
                 Rod_list(self.Slider, data[i], data[i+1], data[i+2], data[i+3], data[i+4], False)
+            self.Reload_Canvas()
             print("Successful Load the workbook...")
+            self.setWindowTitle(_translate("MainWindow", "Pyslvs - "+fileName))
     
     @pyqtSlot()
     def on_action_Output_Coordinate_to_Text_File_triggered(self):
@@ -393,8 +400,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         fileName, sub = QFileDialog.getSaveFileName(self, 'Save file...', Environment_variables, 'Spreadsheet(*.csv);;Text File(*.txt)')
         if fileName:
             fileName = fileName.replace(".txt", "").replace(".csv", "")
+            print(sub)
             if sub == "Text File(*.txt)": fileName += ".txt"
-            if sub == "CSV File(*.csv)": fileName += ".csv"
+            if sub == "Spreadsheet(*.csv)": fileName += ".csv"
             with open(fileName, 'w', newline="") as stream:
                 table = self.Entiteis_Point
                 writer = csv.writer(stream)
@@ -415,10 +423,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 CSV_notebook(writer, self.Drive_Shaft)
                 CSV_notebook(writer, self.Slider)
                 CSV_notebook(writer, self.Rod)
+                print("Successful Save: "+fileName)
+                self.setWindowTitle(_translate("MainWindow", "Pyslvs - "+fileName))
     
     @pyqtSlot()
     def on_action_Output_to_S_QLite_Data_Base_triggered(self):
-        print("Saving to CSV or text File...")
+        print("Saving to Data Base...")
         fileName, _ = QFileDialog.getSaveFileName(self, 'Save file...', Environment_variables, 'Data Base(*.db)')
         if fileName:
             fileName = fileName.replace(".db", "")
@@ -430,8 +440,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     X            FLOAT     NOT NULL,
                     Y            FLOAT     NOT NULL);''')
                 for row in range():
-                    conn.execute("INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY) \
-                VALUES (1, 'Paul', 32, 'California', 20000.00 )")
+                    conn.execute("INSERT INTO COMPANY (ID,NAME,X,Y) \
+                VALUES (1, 'Paul', 0.0, 0.0)")
             #TODO: SQLite
     
     @pyqtSlot()
@@ -816,26 +826,38 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_actionDelete_Point_triggered(self):
         icon = QIcon()
         icon.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
-        table1 = self.Entiteis_Point
-        table2 = self.Entiteis_Point_Style
-        table3 = self.Entiteis_Link
-        table4 = self.Entiteis_Stay_Chain
-        if table1.rowCount() <= 1:
+        table = self.Entiteis_Point
+        if table.rowCount() <= 1:
             dlg = kill_origin_show()
             dlg.show()
             if dlg.exec_(): pass
         else:
             dlg = delete_point_show()
-            for i in range(1, table1.rowCount()):
-                dlg.Point.insertItem(i, icon, table1.item(i, 0).text())
+            for i in range(1, table.rowCount()):
+                dlg.Point.insertItem(i, icon, table.item(i, 0).text())
             dlg.show()
-            if dlg.exec_(): Point_list_delete(table1, table2, table3, table4, dlg)
+            if dlg.exec_(): Point_list_delete(table,
+                self.Entiteis_Point_Style, self.Entiteis_Link,
+                self.Entiteis_Stay_Chain, self.Drive_Shaft,
+                self.Slider, self.Rod, dlg)
     
     @pyqtSlot()
     def on_actionDelete_Linkage_triggered(self):
         icon = QIcon()
         icon.addPixmap(QPixmap(":/icons/line.png"), QIcon.Normal, QIcon.Off)
-        Delete_dlg_set(self.Entiteis_Link, icon, delete_linkage_show(), "Line")
+        table1 = self.Entiteis_Link
+        table2 = self.Slider
+        if table1.rowCount() <= 0:
+            dlg = zero_show()
+            dlg.show()
+            if dlg.exec_(): pass
+        else:
+            dlg = delete_linkage_show()
+            for i in range(table1.rowCount()):
+                dlg.Entity.insertItem(i, icon, table1.item(i, 0).text())
+            dlg.show()
+            if dlg.exec_(): Link_list_delete(table1, table2, dlg)
+        #TODO: Link delete
     
     @pyqtSlot()
     def on_actionDelete_Stay_Chain_triggered(self):
@@ -883,7 +905,7 @@ def Points_list(table, name, x, y, fixed, edit):
     if not edit: print("Add Point"+str(rowPosition)+".")
     else: print("Edit Point"+str(rowPosition)+".")
 
-def Links_list(table, name, start, end, l, edit, ):
+def Links_list(table, name, start, end, l, edit):
     rowPosition = int(name.replace("Line", ""))
     if not edit: table.insertRow(rowPosition)
     name_set = QTableWidgetItem(name)
@@ -958,7 +980,7 @@ def Points_style_add(table, name, color, ringsize, ringcolor, ):
     table.setItem(rowPosition, 3, QTableWidgetItem(ringcolor))
     print("Add Point Style for Point"+str(rowPosition)+".")
 
-def Point_list_delete(table1, table2, table3, table4, dlg, ):
+def Point_list_delete(table1, table2, table3, table4, table5, table6, table7, dlg):
     for i in range(table3.rowCount()):
         if (dlg.Point.currentText() == table3.item(i, 1).text()) or (dlg.Point.currentText() == table3.item(i, 2).text()):
             table3.removeRow(i)
@@ -969,6 +991,21 @@ def Point_list_delete(table1, table2, table3, table4, dlg, ):
             table4.removeRow(i)
             for j in range(i, table4.rowCount): table4.setItem(j, 0, QTableWidgetItem("Chain"+str(j)))
             break
+    for i in range(table5.rowCount()):
+        if (dlg.Point.currentText() == table5.item(i, 1).text()) or (dlg.Point.currentText() == table5.item(i, 2).text()):
+            table5.removeRow(i)
+            for j in range(i, table5.rowCount()): table5.setItem(j, 0, QTableWidgetItem("Shaft"+str(j)))
+            break
+    for i in range(table6.rowCount()):
+        if (dlg.Point.currentText() == table6.item(i, 1).text()):
+            table6.removeRow(i)
+            for j in range(i, table6.rowCount()): table6.setItem(j, 0, QTableWidgetItem("Slider"+str(j)))
+            break
+    for i in range(table7.rowCount()):
+        if (dlg.Point.currentText() == table7.item(i, 1).text()) or (dlg.Point.currentText() == table7.item(i, 2).text()):
+            table7.removeRow(i)
+            for j in range(i, table7.rowCount()): table7.setItem(j, 0, QTableWidgetItem("Rod"+str(j)))
+            break
     for i in range(1, table1.rowCount()):
         if (dlg.Point.currentText() == table1.item(i, 0).text()):
             table1.removeRow(i)
@@ -977,7 +1014,19 @@ def Point_list_delete(table1, table2, table3, table4, dlg, ):
             for j in range(i, table1.rowCount()): table2.setItem(j, 0, QTableWidgetItem("Point"+str(j)))
             break
 
-def One_list_delete(table, name, dlg, ):
+def Link_list_delete(table1, table2, dlg):
+    for i in range(table2.rowCount()):
+        if (dlg.Entity.currentText() == table2.item(i, 2).text()):
+            table2.removeRow(i)
+            for j in range(i, table3.rowCount()): table3.setItem(j, 0, QTableWidgetItem("Slider"+str(j)))
+            break
+    for i in range(1, table1.rowCount()):
+        if (dlg.Entity.currentText() == table1.item(i, 0).text()):
+            table1.removeRow(i)
+            for j in range(i, table1.rowCount()): table1.setItem(j, 0, QTableWidgetItem("Line"+str(j)))
+            break
+
+def One_list_delete(table, name, dlg):
     for i in range(table.rowCount()):
         if (dlg.Entity.currentText() == table.item(i, 0).text()):
             table.removeRow(i)
