@@ -801,7 +801,7 @@ class Ui_MainWindow(object):
         self.Color_set.setText(_translate("MainWindow", "Color Settings"))
         self.Reload_Button.setText(_translate("MainWindow", "Apply"))
         self.Tab.setTabText(self.Tab.indexOf(self.Style), _translate("MainWindow", "Point Style"))
-        self.label_3.setText(_translate("MainWindow", "Zoom magnification"))
+        self.label_3.setText(_translate("MainWindow", "Zoom Size"))
         self.ZoomBar.setStatusTip(_translate("MainWindow", "Adjust the slider to change demo size."))
         self.ZoomText.setStatusTip(_translate("MainWindow", "The current zoom magnification."))
         self.menuFile.setTitle(_translate("MainWindow", "&File"))
