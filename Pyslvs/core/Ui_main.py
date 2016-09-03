@@ -350,8 +350,8 @@ class Ui_MainWindow(object):
         self.zoombarLayout.addWidget(self.label_3)
         self.ZoomBar = QtWidgets.QSlider(self.centralWidget)
         self.ZoomBar.setMinimum(50)
-        self.ZoomBar.setMaximum(450)
-        self.ZoomBar.setSingleStep(10)
+        self.ZoomBar.setMaximum(500)
+        self.ZoomBar.setSingleStep(50)
         self.ZoomBar.setPageStep(50)
         self.ZoomBar.setProperty("value", 100)
         self.ZoomBar.setSliderPosition(100)
@@ -613,6 +613,8 @@ class Ui_MainWindow(object):
         icon44.addPixmap(QtGui.QPixmap(":/icons/deleterod.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionDelete_Piston_Spring.setIcon(icon44)
         self.actionDelete_Piston_Spring.setObjectName("actionDelete_Piston_Spring")
+        self.actionDisplay_Dimensions = QtWidgets.QAction(MainWindow)
+        self.actionDisplay_Dimensions.setObjectName("actionDisplay_Dimensions")
         self.menuFile.addAction(self.action_New_Workbook)
         self.menuFile.addAction(self.action_Load_Workbook)
         self.menuFile.addAction(self.action_Output_to_Picture)
@@ -639,6 +641,7 @@ class Ui_MainWindow(object):
         self.menu_Draw.addAction(self.actionDelete_Stay_Chain)
         self.menu_Draw.addSeparator()
         self.menu_Draw.addAction(self.actionReload_Drawing)
+        self.menu_Options.addAction(self.actionDisplay_Dimensions)
         self.menu_Options.addAction(self.action_See_Python_Scripts)
         self.menu_Options.addSeparator()
         self.menu_Options.addAction(self.action_Appearance)
@@ -675,7 +678,7 @@ class Ui_MainWindow(object):
         self.menuBar.addAction(self.menu_Help.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.Tab.setCurrentIndex(2)
+        self.Tab.setCurrentIndex(0)
         self.Simulate_tab.setCurrentIndex(0)
         self.actionM_axmized.triggered.connect(MainWindow.showMaximized)
         self.actionMi_nimized.triggered.connect(MainWindow.showMinimized)
@@ -897,6 +900,7 @@ class Ui_MainWindow(object):
         self.action_Set_Rod.setStatusTip(_translate("MainWindow", "Add  a extendable rod between two points."))
         self.action_Edit_Piston_Spring.setText(_translate("MainWindow", "Edit Piston / Spring"))
         self.actionDelete_Piston_Spring.setText(_translate("MainWindow", "Delete Piston / Spring"))
+        self.actionDisplay_Dimensions.setText(_translate("MainWindow", "Display &Dimensions"))
 
 import icons_rc
 

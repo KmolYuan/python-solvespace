@@ -16,7 +16,6 @@ if "-mpl" not in sys.argv:
             QWidget.__init__(self, parent)
             self.setParent(parent)
             self.setMouseTracking(True)
-            self.width()
             self.Reset_Origin = False
             self.Xval = []
             self.Yval = []
