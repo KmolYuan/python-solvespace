@@ -1,17 +1,11 @@
 # -*- coding: utf-8 -*-
 #CSV & SQLite
-import csv, sys
+import csv
 from peewee import *
-#Matplotlib
-import matplotlib
-matplotlib.use("Qt5Agg")
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
 #PyQt5
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import pyqtSlot, Qt, QCoreApplication
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QTableWidgetItem, QMessageBox, QMenu, QAction, QWidget
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 _translate = QCoreApplication.translate
 #UI Ports
 from core.Ui_main import Ui_MainWindow
@@ -51,91 +45,25 @@ from .simulate.set_rod import rod_show
 from .simulate.edit_drive_shaft import edit_shaft_show
 from .simulate.edit_slider import edit_slider_show
 from .simulate.edit_rod import edit_rod_show
+#DynamicCanvas
+from .canvas import DynamicCanvas
 #Solve
 from .calculation import table_process
 
 Environment_variables = "../"
-
-if "-mpl" in sys.argv:
-    class DynamicMplCanvas(FigureCanvas):
-        def __init__(self, parent=None, width=5, height=4, dpi=100):
-            fig = Figure(figsize=(width, height), dpi=dpi)
-            self.axes = fig.add_subplot(111)
-            self.axes.hold(True)
-            self.compute_initial_figure()
-            FigureCanvas.__init__(self, fig)
-            self.setParent(parent)
-            FigureCanvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-            FigureCanvas.updateGeometry(self)
-        
-        def compute_initial_figure(self):
-            self.axes.plot([0, 0], [-10, 10], 'b')
-            self.axes.plot([-10, 10], [0, 0], 'b')
-            self.axes.plot([0], [0], 'ro')
-        
-        def clear_figure(self):
-            self.axes.clear()
-        
-        def update_figure(self, table_point, table_line, table_chain, table_shaft, table_slider, table_rod, table_style):
-            Xval = []
-            Yval = []
-            for i in range(table_point.rowCount()):
-                Xval += [float(table_point.item(i, 1).text())]
-                Yval += [float(table_point.item(i, 2).text())]
-            for i in range(table_line.rowCount()):
-                startX = float(table_point.item(int(table_line.item(i, 1).text().replace("Point", "")), 1).text())
-                startY = float(table_point.item(int(table_line.item(i, 1).text().replace("Point", "")), 2).text())
-                endX = float(table_point.item(int(table_line.item(i, 2).text().replace("Point", "")), 1).text())
-                endY = float(table_point.item(int(table_line.item(i, 2).text().replace("Point", "")), 2).text())
-                self.axes.plot([startX, endX], [startY, endY], 'r')
-            for i in range(table_chain.rowCount()):
-                paX = float(table_point.item(int(table_chain.item(i, 1).text().replace("Point", "")), 1).text())
-                paY = float(table_point.item(int(table_chain.item(i, 1).text().replace("Point", "")), 2).text())
-                pbX = float(table_point.item(int(table_chain.item(i, 2).text().replace("Point", "")), 1).text())
-                pbY = float(table_point.item(int(table_chain.item(i, 2).text().replace("Point", "")), 2).text())
-                pcX = float(table_point.item(int(table_chain.item(i, 3).text().replace("Point", "")), 1).text())
-                pcY = float(table_point.item(int(table_chain.item(i, 3).text().replace("Point", "")), 2).text())
-                self.axes.plot([paX, pbX, pcX, paX], [paY, pbY, pcY, paY], 'r')
-            for i in range(table_style.rowCount()):
-                paX = float(table_point.item(int(table_style.item(i, 0).text().replace("Point", "")), 1).text())
-                paY = float(table_point.item(int(table_style.item(i, 0).text().replace("Point", "")), 2).text())
-                if table_style.item(i, 1).text()=="RED": self.axes.plot(paX, paY, 'ro')
-                if table_style.item(i, 1).text()=="GREEN": self.axes.plot(paX, paY, 'go')
-                if table_style.item(i, 1).text()=="BLUE": self.axes.plot(paX, paY, 'bo')
-            self.axes.plot([0], [0], 'ro')
-            self.draw()
-            self.axes.set_xlabel("X Coordinate", fontsize=12)
-            self.axes.set_ylabel("Y Coordinate", fontsize=12)
-            a = max(max(Xval), max(Yval))+10
-            b = min(min(Xval), min(Yval))-10
-            self.axes.set_xlim([b, a])
-            self.axes.set_ylim([b, a])
-else:
-    class DynamicMplCanvas(QWidget):
-        def __init__(self, parent=None):
-            QWidget.__init__(self, parent)
-            self.compute_initial_figure()
-            self.setParent(parent)
-        
-        def compute_initial_figure(self):
-            """initFigure"""
-        
-        def clear_figure(self):
-            """clearFigure"""
-        
-        def update_figure(self, table_point, table_line, table_chain, table_shaft, table_slider, table_rod, table_style):
-            print("paint")
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
         #mpl Window
-        self.mplWindow = DynamicMplCanvas()
-        self.mplWindow.setStatusTip("This is the Graph Canvas.")
+        self.mplWindow = DynamicCanvas()
+        self.mplWindow.setStatusTip(_translate("MainWindow",
+            "Press Ctrl Key and use mouse to Change Origin or Zoom Size."))
         self.mplLayout.insertWidget(0, self.mplWindow)
+        self.mplWindow.show()
         #Zoom Text
-        self.ZoomText.setPlainText("50%")
+        self.ZoomText.setPlainText("100%")
         #Entiteis_Point Right-click menu
         self.Entiteis_Point.setContextMenuPolicy(Qt.CustomContextMenu)
         self.Entiteis_Point.customContextMenuRequested.connect(self.on_point_context_menu)
@@ -201,7 +129,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.popMenu_rod.addAction(self.action_rod_right_click_menu_edit)
         self.popMenu_rod.addSeparator()
         self.action_rod_right_click_menu_delete = QAction("Delete a Rod", self)
-        self.popMenu_rod.addAction(self.action_rod_right_click_menu_delete) 
+        self.popMenu_rod.addAction(self.action_rod_right_click_menu_delete)
+        self.Resolve()
     
     #Right-click menu event
     def on_point_context_menu(self, point):
@@ -245,9 +174,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             event.accept()
         else: event.ignore()
     
-    def resizeEvent(self, event):
-        self.Reload_Canvas()
-    
     #Resolve
     def Resolve(self):
         table_point = self.Entiteis_Point
@@ -274,13 +200,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             case5 = (table_point.item(a, 1).text()==table_point.item(c, 1).text())
             case6 = (table_point.item(a, 2).text()==table_point.item(c, 2).text())
             if case1 and case2:
-                if b ==0: table_point.setItem(a, 1, QTableWidgetItem(str(float(table_point.item(a, 1).text())+0.01)))
+                if b==0: table_point.setItem(a, 1, QTableWidgetItem(str(float(table_point.item(a, 1).text())+0.01)))
                 else: table_point.setItem(b, 1, QTableWidgetItem(str(float(table_point.item(b, 1).text())+0.01)))
             if case3 and case4:
-                if c ==0: table_point.setItem(b, 2, QTableWidgetItem(str(float(table_point.item(b, 2).text())+0.01)))
+                if c==0: table_point.setItem(b, 2, QTableWidgetItem(str(float(table_point.item(b, 2).text())+0.01)))
                 else: table_point.setItem(c, 2, QTableWidgetItem(str(float(table_point.item(c, 2).text())+0.01)))
             if case5 and case6:
-                if c ==0: table_point.setItem(a, 2, QTableWidgetItem(str(float(table_point.item(a, 2).text())+0.01)))
+                if c==0: table_point.setItem(a, 2, QTableWidgetItem(str(float(table_point.item(a, 2).text())+0.01)))
                 else: table_point.setItem(c, 2, QTableWidgetItem(str(float(table_point.item(c, 2).text())+0.01)))
         #Solve
         result = []
@@ -298,11 +224,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     #Reload Canvas
     def Reload_Canvas(self):
-        self.mplWindow.clear_figure()
         self.mplWindow.update_figure(self.Entiteis_Point, self.Entiteis_Link,
             self.Entiteis_Stay_Chain, self.Drive_Shaft,
-            self.Slider, self.Rod, self.Entiteis_Point_Style)
-        #TODO: Reload
+            self.Slider, self.Rod,
+            self.Entiteis_Point_Style, self.ZoomText.toPlainText())
+        #self.mplWindow.update()
     
     #Start @pyqtSlot()
     @pyqtSlot()
@@ -363,7 +289,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             Reset_notebook(self.Entiteis_Point, 1)
             Reset_notebook(self.Entiteis_Link, 0)
             Reset_notebook(self.Entiteis_Stay_Chain, 0)
-            Reset_notebook(self.Entiteis_Point_Style, 0)
+            Reset_notebook(self.Entiteis_Point_Style, 1)
             Reset_notebook(self.Drive_Shaft, 0)
             Reset_notebook(self.Slider, 0)
             self.Resolve()
@@ -378,68 +304,69 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             Reset_notebook(self.Entiteis_Point, 1)
             Reset_notebook(self.Entiteis_Link, 0)
             Reset_notebook(self.Entiteis_Stay_Chain, 0)
-            Reset_notebook(self.Entiteis_Point_Style, 0)
+            Reset_notebook(self.Entiteis_Point_Style, 1)
             Reset_notebook(self.Drive_Shaft, 0)
             Reset_notebook(self.Slider, 0)
             self.Resolve()
             print("Reset workbook.")
             fileName, _ = QFileDialog.getOpenFileName(self, 'Open file...', Environment_variables, 'CSV File(*.csv);;Text File(*.txt)')
-            print("Get:"+fileName)
-            data = []
-            with open(fileName, newline="") as stream:
-                reader = csv.reader(stream, delimiter=' ', quotechar='|')
-                for row in reader:
-                    data += ', '.join(row).split('\t,')
-            bookmark = 0
-            for i in range(4, len(data), 4):
-                bookmark = i
-                if data[i] == 'Next_table\t': break
-                if data[i+3]=="Fixed": fixed = True
-                else: fixed = False
-                Points_list(self.Entiteis_Point, data[i], data[i+1], data[i+2], fixed, False)
-            for i in range(bookmark+1, len(data), 4):
-                bookmark = i
-                if data[i] == 'Next_table\t': break
-                Points_style_add(self.Entiteis_Point_Style, data[i], data[i+1], data[i+2], data[i+3])
-            for i in range(bookmark+1, len(data), 4):
-                bookmark = i
-                if data[i] == 'Next_table\t': break
-                Links_list(self.Entiteis_Link, data[i], data[i+1], data[i+2], data[i+3], False)
-            for i in range(bookmark+1, len(data), 7):
-                bookmark = i
-                if data[i] == 'Next_table\t': break
-                Chain_list(self.Entiteis_Stay_Chain, data[i], data[i+1], data[i+2], data[i+3], data[i+4], data[i+5], data[i+6], False)
-            for i in range(bookmark+1, len(data), 5):
-                bookmark = i
-                if data[i] == 'Next_table\t': break
-                Shaft_list(self.Drive_Shaft, data[i], data[i+1], data[i+2], data[i+3], data[i+4], False)
-            for i in range(bookmark+1, len(data), 3):
-                bookmark = i
-                if data[i] == 'Next_table\t': break
-                Slider_list(self.Slider, data[i], data[i+1], data[i+2], False)
-            for i in range(bookmark+1, len(data), 5):
-                bookmark = i
-                Rod_list(self.Slider, data[i], data[i+1], data[i+2], data[i+3], data[i+4], False)
-            self.Resolve()
-            print("Successful Load the workbook...")
-            self.setWindowTitle(_translate("MainWindow", "Pyslvs - "+fileName))
+            if fileName:
+                print("Get:"+fileName)
+                data = []
+                with open(fileName, newline="") as stream:
+                    reader = csv.reader(stream, delimiter=' ', quotechar='|')
+                    for row in reader:
+                        data += ', '.join(row).split('\t,')
+                bookmark = 0
+                for i in range(4, len(data), 4):
+                    bookmark = i
+                    if data[i] == 'Next_table\t': break
+                    if data[i+3]=="Fixed": fixed = True
+                    else: fixed = False
+                    Points_list(self.Entiteis_Point, data[i], data[i+1], data[i+2], fixed, False)
+                self.Entiteis_Point_Style.removeRow(0)
+                for i in range(bookmark+1, len(data), 4):
+                    bookmark = i
+                    if data[i] == 'Next_table\t': break
+                    Points_style_add(self.Entiteis_Point_Style, data[i], data[i+1], data[i+2], data[i+3])
+                for i in range(bookmark+1, len(data), 4):
+                    bookmark = i
+                    if data[i] == 'Next_table\t': break
+                    Links_list(self.Entiteis_Link, data[i], data[i+1], data[i+2], data[i+3], False)
+                for i in range(bookmark+1, len(data), 7):
+                    bookmark = i
+                    if data[i] == 'Next_table\t': break
+                    Chain_list(self.Entiteis_Stay_Chain, data[i], data[i+1], data[i+2], data[i+3], data[i+4], data[i+5], data[i+6], False)
+                for i in range(bookmark+1, len(data), 5):
+                    bookmark = i
+                    if data[i] == 'Next_table\t': break
+                    Shaft_list(self.Drive_Shaft, data[i], data[i+1], data[i+2], data[i+3], data[i+4], False)
+                for i in range(bookmark+1, len(data), 3):
+                    bookmark = i
+                    if data[i] == 'Next_table\t': break
+                    Slider_list(self.Slider, data[i], data[i+1], data[i+2], False)
+                for i in range(bookmark+1, len(data), 5):
+                    bookmark = i
+                    Rod_list(self.Slider, data[i], data[i+1], data[i+2], data[i+3], data[i+4], False)
+                self.Resolve()
+                print("Successful Load the workbook...")
+                self.setWindowTitle(_translate("MainWindow", "Pyslvs - "+fileName))
     
     @pyqtSlot()
     def on_action_Output_Coordinate_to_Text_File_triggered(self):
         print("Saving to CSV or text File...")
-        fileName, sub = QFileDialog.getSaveFileName(self, 'Save file...', Environment_variables, 'Spreadsheet(*.csv);;Text File(*.txt)')
+        if self.windowTitle()=="Pyslvs - New Workbook":
+            fileName, sub = QFileDialog.getSaveFileName(self, 'Save file...', Environment_variables, 'Spreadsheet(*.csv)')
+        else:
+            fileName = self.windowTitle().replace("Pyslvs - ", "")
         if fileName:
-            fileName = fileName.replace(".txt", "").replace(".csv", "")
-            print(sub)
-            if sub == "Text File(*.txt)": fileName += ".txt"
-            if sub == "Spreadsheet(*.csv)": fileName += ".csv"
+            fileName = fileName.replace(".csv", "")+".csv"
             with open(fileName, 'w', newline="") as stream:
                 table = self.Entiteis_Point
                 writer = csv.writer(stream)
                 for row in range(table.rowCount()):
                     rowdata = []
                     for column in range(table.columnCount()):
-                        print(row, column)
                         item = table.item(row, column)
                         if item is not None:
                             if (item.checkState()==False) and (item.text()==''): rowdata += ["noFixed"]
@@ -447,12 +374,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                 if item.text()=='': rowdata += ["Fixed"]
                                 else: rowdata += [item.text()+'\t']
                     writer.writerow(rowdata)
-                CSV_notebook(writer, self.Entiteis_Point_Style)
-                CSV_notebook(writer, self.Entiteis_Link)
-                CSV_notebook(writer, self.Entiteis_Stay_Chain)
-                CSV_notebook(writer, self.Drive_Shaft)
-                CSV_notebook(writer, self.Slider)
-                CSV_notebook(writer, self.Rod)
+                CSV_notebook(writer, self.Entiteis_Point_Style, 4)
+                CSV_notebook(writer, self.Entiteis_Link, 4)
+                CSV_notebook(writer, self.Entiteis_Stay_Chain, 7)
+                CSV_notebook(writer, self.Drive_Shaft, 5)
+                CSV_notebook(writer, self.Slider, 3)
+                CSV_notebook(writer, self.Rod, 5)
                 print("Successful Save: "+fileName)
                 self.setWindowTitle(_translate("MainWindow", "Pyslvs - "+fileName))
     
@@ -463,15 +390,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if fileName:
             fileName = fileName.replace(".db", "")
             fileName += ".db"
-            with sqlite3.connect(fileName) as conn:
-                conn.execute('''CREATE TABLE POINT_COORDINATES
-                    (ID INT PRIMARY KEY     NOT NULL,
-                    NAME           TEXT    NOT NULL,
-                    X            FLOAT     NOT NULL,
-                    Y            FLOAT     NOT NULL);''')
-                for row in range():
-                    conn.execute("INSERT INTO COMPANY (ID,NAME,X,Y) \
-                VALUES (1, 'Paul', 0.0, 0.0)")
             #TODO: SQLite
     
     @pyqtSlot()
@@ -506,7 +424,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             Points_list(table1, draw_point.Point_num.toPlainText(),
                 draw_point.X_coordinate.text(), draw_point.Y_coordinate.text(),
                 draw_point.Fix_Point.checkState(), False)
-            Points_style_add(table2, draw_point.Point_num.toPlainText(), "GREEN", "1", "GREEN")
+            Points_style_add(table2, draw_point.Point_num.toPlainText(), "G", "1", "G")
     
     @pyqtSlot()
     def on_Point_add_button_clicked(self):
@@ -515,7 +433,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         x = self.X_coordinate.text()
         y = self.Y_coordinate.text()
         Points_list(table1, "Point"+str(table1.rowCount()), x, y, False, False)
-        Points_style_add(table2, "Point"+str(table2.rowCount()), "GREEN", "1", "GREEN")
+        Points_style_add(table2, "Point"+str(table2.rowCount()), "G", "1", "G")
     
     @pyqtSlot()
     def on_actionEdit_Point_triggered(self):
@@ -887,7 +805,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 dlg.Entity.insertItem(i, icon, table1.item(i, 0).text())
             dlg.show()
             if dlg.exec_(): Link_list_delete(table1, table2, dlg)
-        #TODO: Link delete
     
     @pyqtSlot()
     def on_actionDelete_Stay_Chain_triggered(self):
@@ -913,14 +830,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         icon.addPixmap(QPixmap(":/icons/spring.png"), QIcon.Normal, QIcon.Off)
         Delete_dlg_set(self.Rod, icon, delete_rod_show(), "Rod")
     
+    @pyqtSlot(int)
+    def on_ZoomBar_valueChanged(self, value):
+        self.ZoomText.setPlainText(str(value)+"%")
+        self.Reload_Canvas()
+    
+    def wheelEvent(self, event):
+        if QApplication.keyboardModifiers()==Qt.ControlModifier:
+            if event.angleDelta().y()>0: self.ZoomBar.setValue(self.ZoomBar.value()+10)
+            if event.angleDelta().y()<0: self.ZoomBar.setValue(self.ZoomBar.value()-10)
+    
     @pyqtSlot()
     def on_Reload_Button_clicked(self): self.Reload_Canvas()
     
     @pyqtSlot()
     def on_actionReload_Drawing_triggered(self): self.Resolve()
-    
-    @pyqtSlot(int)
-    def on_ZoomBar_valueChanged(self, value): self.ZoomText.setPlainText(str(value)+"%")
 
 def Points_list(table, name, x, y, fixed, edit):
     rowPosition = int(name.replace("Point", ""))
@@ -1080,7 +1004,7 @@ def Delete_dlg_set(table, icon, dlg, name):
 def Reset_notebook(table, k):
     for i in reversed(range(k, table.rowCount())): table.removeRow(i)
 
-def CSV_notebook(writer, table):
+def CSV_notebook(writer, table, k):
     writer.writerow(["Next_table\t"])
     for row in range(table.rowCount()):
         rowdata = []
@@ -1088,5 +1012,6 @@ def CSV_notebook(writer, table):
             print(row, column)
             item = table.item(row, column)
             if item is not None:
-                rowdata += [item.text()+'\t']
+                if column==k-1: rowdata += [item.text()]
+                else: rowdata += [item.text()+'\t']
         writer.writerow(rowdata)

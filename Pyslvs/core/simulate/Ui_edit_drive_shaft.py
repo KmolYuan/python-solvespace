@@ -80,8 +80,10 @@ class Ui_Dialog(object):
         self.label_3.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Setting two Points for the Select Drive Shaft.</span></p></body></html>"))
         self.Shaft_Center.setWhatsThis(_translate("Dialog", "Start point for next link."))
         self.References.setWhatsThis(_translate("Dialog", "End point for next link."))
+        self.Start_Angle.setSuffix(_translate("Dialog", "°"))
         self.label_4.setText(_translate("Dialog", "<html><head/><body><p>Start Angle</p></body></html>"))
         self.label_5.setText(_translate("Dialog", "<html><head/><body><p>Name</p></body></html>"))
+        self.End_Angle.setSuffix(_translate("Dialog", "°"))
         self.label_6.setText(_translate("Dialog", "<html><head/><body><p>End Angle</p></body></html>"))
 
 import icons_rc

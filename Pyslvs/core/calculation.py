@@ -56,7 +56,7 @@ def table_process(table_point, table_line, table_chain, table_shaft, table_slide
     for i in range(table_shaft.rowCount()):
         center = int(table_shaft.item(i, 1).text().replace("Point", ""))
         reference = int(table_shaft.item(i, 2).text().replace("Point", ""))
-        angle = float(table_shaft.item(i, 3).text())
+        angle = float(table_shaft.item(i, 3).text().replace("°", ""))
         line = LineSegment2d(Workplane1, Point[center], Point[reference])
         Constraint.angle(Workplane1, angle, line, Line0, False)
     #TODO: to be continue...

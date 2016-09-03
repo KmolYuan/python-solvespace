@@ -43,7 +43,7 @@ class Ui_Info_Dialog(object):
         Info_Dialog.setWindowTitle(_translate("Info_Dialog", "Color Settings"))
         self.buttonBox.setWhatsThis(_translate("Info_Dialog", "Click to exit"))
         self.label_2.setWhatsThis(_translate("Info_Dialog", "Version Info"))
-        self.label_2.setText(_translate("Info_Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Color Settings</span></p><p><span style=\" font-size:12pt;\">- RED</span></p><p><span style=\" font-size:12pt;\">- GREEN</span></p></body></html>"))
+        self.label_2.setText(_translate("Info_Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Color Settings</span></p><p><span style=\" font-size:12pt;\">- R: red</span></p><p><span style=\" font-size:12pt;\">- G: green</span></p><p><span style=\" font-size:12pt;\">- B: blue</span></p></body></html>"))
 
 import icons_rc
 
