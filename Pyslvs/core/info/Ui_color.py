@@ -27,7 +27,7 @@ class Ui_Info_Dialog(object):
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.label_2 = QtWidgets.QLabel(Info_Dialog)
-        self.label_2.setGeometry(QtCore.QRect(70, 20, 271, 351))
+        self.label_2.setGeometry(QtCore.QRect(70, 20, 271, 421))
         self.label_2.setTextFormat(QtCore.Qt.RichText)
         self.label_2.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.label_2.setWordWrap(True)
@@ -43,7 +43,7 @@ class Ui_Info_Dialog(object):
         Info_Dialog.setWindowTitle(_translate("Info_Dialog", "Color Settings"))
         self.buttonBox.setWhatsThis(_translate("Info_Dialog", "Click to exit"))
         self.label_2.setWhatsThis(_translate("Info_Dialog", "Version Info"))
-        self.label_2.setText(_translate("Info_Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Color Settings</span></p><p><span style=\" font-size:12pt;\">- R: red</span></p><p><span style=\" font-size:12pt;\">- G: green</span></p><p><span style=\" font-size:12pt;\">- B: blue</span></p></body></html>"))
+        self.label_2.setText(_translate("Info_Dialog", "<html><head/><body><p><span style=\" font-size:12pt; font-weight:600;\">Color Settings</span></p><p><span style=\" font-size:12pt;\">*D: Dark Side</span></p><p><span style=\" font-size:12pt;\">- R: Red</span></p><p><span style=\" font-size:12pt;\">- G: Green</span></p><p><span style=\" font-size:12pt;\">- B: Blue</span></p><p><span style=\" font-size:12pt;\">- C: Cyan</span></p><p><span style=\" font-size:12pt;\">- M: Magenta</span></p><p><span style=\" font-size:12pt;\">- Y: Yellow</span></p><p><span style=\" font-size:12pt;\">- Gy: Gray</span></p><p><span style=\" font-size:12pt;\">- Og: Orange</span></p><p><span style=\" font-size:12pt;\">- Pk: Pink</span></p><p><span style=\" font-size:12pt;\">- Bk: Black / W: White</span></p></body></html>"))
 
 import icons_rc
 
