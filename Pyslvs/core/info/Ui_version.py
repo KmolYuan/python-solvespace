@@ -19,7 +19,7 @@ class Ui_About_Dialog(object):
         icon.addPixmap(QtGui.QPixmap(":/icons/main.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         About_Dialog.setWindowIcon(icon)
         About_Dialog.setAutoFillBackground(True)
-        About_Dialog.setSizeGripEnabled(True)
+        About_Dialog.setSizeGripEnabled(False)
         About_Dialog.setModal(True)
         self.buttonBox = QtWidgets.QDialogButtonBox(About_Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(260, 220, 111, 71))

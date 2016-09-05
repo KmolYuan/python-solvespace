@@ -19,7 +19,7 @@ class Ui_Info_Dialog(object):
         icon.addPixmap(QtGui.QPixmap(":/icons/assemble.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Info_Dialog.setWindowIcon(icon)
         Info_Dialog.setAutoFillBackground(True)
-        Info_Dialog.setSizeGripEnabled(True)
+        Info_Dialog.setSizeGripEnabled(False)
         Info_Dialog.setModal(True)
         self.buttonBox = QtWidgets.QDialogButtonBox(Info_Dialog)
         self.buttonBox.setGeometry(QtCore.QRect(270, 380, 111, 71))

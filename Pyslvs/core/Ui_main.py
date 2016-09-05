@@ -309,12 +309,14 @@ class Ui_MainWindow(object):
         icon8 = QtGui.QIcon()
         icon8.addPixmap(QtGui.QPixmap(":/icons/ref.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.Measurement.setIcon(icon8)
+        self.Measurement.setCheckable(False)
         self.Measurement.setObjectName("Measurement")
         self.SimuFunctions.addWidget(self.Measurement, 0, 1, 1, 1)
         self.Drive = QtWidgets.QPushButton(self.Functions_tab)
         icon9 = QtGui.QIcon()
         icon9.addPixmap(QtGui.QPixmap(":/icons/same-orientation.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.Drive.setIcon(icon9)
+        self.Drive.setCheckable(False)
         self.Drive.setObjectName("Drive")
         self.SimuFunctions.addWidget(self.Drive, 1, 0, 1, 1)
         self.SimuFunctionsLayout.addLayout(self.SimuFunctions)
@@ -711,6 +713,8 @@ class Ui_MainWindow(object):
         icon49.addPixmap(QtGui.QPixmap(":/icons/workplane.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.action_Black_Blackground.setIcon(icon49)
         self.action_Black_Blackground.setObjectName("action_Black_Blackground")
+        self.actionOpen_New_Window = QtWidgets.QAction(MainWindow)
+        self.actionOpen_New_Window.setObjectName("actionOpen_New_Window")
         self.menuFile.addAction(self.action_New_Workbook)
         self.menuFile.addAction(self.action_Load_Workbook)
         self.menuFile.addAction(self.action_Output_to_Picture)
@@ -1012,6 +1016,7 @@ class Ui_MainWindow(object):
         self.actionDisplay_Dimensions.setText(_translate("MainWindow", "Display &Dimensions"))
         self.actionDisplay_Dimensions.setStatusTip(_translate("MainWindow", "Display dimensions in the canvas."))
         self.action_Black_Blackground.setText(_translate("MainWindow", "&Black Blackground"))
+        self.actionOpen_New_Window.setText(_translate("MainWindow", "Open New Window"))
 
 import icons_rc
 

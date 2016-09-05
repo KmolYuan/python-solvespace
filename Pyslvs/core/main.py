@@ -44,6 +44,8 @@ from .simulate.edit_drive_shaft import edit_shaft_show
 from .simulate.edit_slider import edit_slider_show
 from .simulate.edit_rod import edit_rod_show
 from .simulate.run_Path_Track import Path_Track_show
+from .simulate.run_Drive import Drive_show
+from .simulate.run_Measurement import Measurement_show
 #DynamicCanvas
 from .canvas import DynamicCanvas
 #Solve
@@ -929,25 +931,38 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     @pyqtSlot()
     def on_PathTrack_clicked(self):
-        table = self.Entiteis_Point
+        table1 = self.Entiteis_Point
         dlg = Path_Track_show()
-        for i in range(table.rowCount()): dlg.Point_list.addItem(table.item(i, 0).text())
+        for i in range(table1.rowCount()): dlg.Point_list.addItem(table1.item(i, 0).text())
         dlg.show()
         if dlg.exec_():
             point_list = []
             for i in range(dlg.Run_list.count()):
                 point_list += [int(dlg.Run_list.item(i).text().replace("Point", ""))]
-            print(point_list)
-            self.Reload_Track(point_list)
+            table2 = self.Drive_Shaft
+            for i in range(table2.rowCount()):
+                Path = path_process(
+                    float(table2.item(i, 3).text().replace("°", "")), float(table2.item(i, 4).text().replace("°", "")),
+                    point_list, self.Entiteis_Point, self.Entiteis_Link, self.Entiteis_Stay_Chain,
+                    self.Drive_Shaft, self.Slider, self.Rod)
+                self.qpainterWindow.path_track(Path)
     
-    def Reload_Track(self, point_list):
-        table = self.Drive_Shaft
-        for i in range(table.rowCount()):
-            Path = path_process(
-                float(table.item(i, 3).text().replace("°", "")), float(table.item(i, 4).text().replace("°", "")),
-                point_list, self.Entiteis_Point, self.Entiteis_Link, self.Entiteis_Stay_Chain,
-                self.Drive_Shaft, self.Slider, self.Rod)
-            self.qpainterWindow.path_track(Path)
+    @pyqtSlot()
+    def on_Drive_clicked(self):
+        if self.mplLayout.count()<=2:
+            table = self.Drive_Shaft
+            icon = QIcon()
+            icon.addPixmap(QPixmap(":/icons/circle.png"), QIcon.Normal, QIcon.Off)
+            self.mplLayout.DriveWidget = Drive_show()
+            for i in range(table.rowCount()):
+                self.mplLayout.DriveWidget.Shaft.insertItem(i, icon, table.item(i, 0).text())
+            self.mplLayout.insertWidget(1, self.mplLayout.DriveWidget)
+    
+    @pyqtSlot()
+    def on_Measurement_clicked(self):
+        if self.mplLayout.count()<=2:
+            self.mplLayout.MeasurementWidget = Measurement_show()
+            self.mplLayout.insertWidget(1, self.mplLayout.MeasurementWidget)
 
 def CSV_notebook(writer, table, k):
     writer.writerow(["Next_table\t"])

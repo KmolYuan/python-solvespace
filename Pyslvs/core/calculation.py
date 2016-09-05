@@ -63,6 +63,19 @@ Constraint.dragged(Workplane1, Point1)""")
         line = LineSegment2d(Workplane1, Point[start], Point[end])
         Constraint.on(Workplane1, Point[pt], line)
         print("Constraint.on(Workplane1, Point"+str(pt+1)+", LineSegment2d(Workplane1, Point"+str(start+1)+", Point"+str(end+1)+")")
+    pN = sys.add_param(10)
+    pNN = sys.add_param(0.0)
+    PointN = Point2d(Workplane1, pN, pNN)
+    Point += [PointN]
+    Constraint.dragged(Workplane1, Point[-1])
+    Line0 = LineSegment2d(Workplane1, Point[0], Point[-1])
+    for i in range(table_shaft.rowCount()):
+        if table_shaft.item(i, 5):
+            angle = float(table_shaft.item(i, 5).text().replace("°", ""))
+            center = int(table_shaft.item(i, 1).text().replace("Point", ""))
+            reference = int(table_shaft.item(i, 2).text().replace("Point", ""))
+            line = LineSegment2d(Workplane1, Point[center], Point[reference])
+            Constraint.angle(Workplane1, angle, line, Line0, False)
     #TODO: to be continue...
     sys.solve()
     result = []
@@ -156,7 +169,6 @@ def path_process(start_angle, end_angle, point_list,
         elif (sys.result == SLVS_RESULT_INCONSISTENT): print ("SLVS_RESULT_INCONSISTENT")
         elif (sys.result == SLVS_RESULT_DIDNT_CONVERGE): print ("SLVS_RESULT_DIDNT_CONVERGE")
         elif (sys.result == SLVS_RESULT_TOO_MANY_UNKNOWNS): print ("SLVS_RESULT_TOO_MANY_UNKNOWNS")
-        print(point_int, x, y, angle)
         return x, y
     
     Path = []
