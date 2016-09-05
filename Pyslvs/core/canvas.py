@@ -3,7 +3,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-
 class DynamicCanvas(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -17,6 +16,7 @@ class DynamicCanvas(QWidget):
         self.origin_y = 250
         self.drag = False
         self.Dimension = False
+        self.Path = []
         self.pen_width = 2
         self.re_Color = [
             'R', 'G', 'B', 'C', 'M', 'Y', 'Gy', 'Og', 'Pk',
@@ -40,11 +40,11 @@ class DynamicCanvas(QWidget):
         self.pen_width = width
         self.Xval = []
         self.Yval = []
-        zoom = float(zoom_rate.replace("%", ""))/100
-        rate_all = 2
+        self.zoom = float(zoom_rate.replace("%", ""))/100
+        self.rate_all = 2
         for i in range(table_point.rowCount()):
-            self.Xval += [float(table_point.item(i, 1).text())*zoom*rate_all]
-            self.Yval += [float(table_point.item(i, 2).text())*zoom*rate_all*(-1)]
+            self.Xval += [float(table_point.item(i, 1).text())*self.zoom*self.rate_all]
+            self.Yval += [float(table_point.item(i, 2).text())*self.zoom*self.rate_all*(-1)]
         self.table_point = table_point
         self.table_line = table_line
         self.table_chain = table_chain
@@ -52,6 +52,10 @@ class DynamicCanvas(QWidget):
         self.table_slider = table_slider
         self.table_rod = table_rod
         self.table_style = table_style
+        self.update()
+    
+    def path_track(self, path):
+        self.Path = path
         self.update()
     
     def paintEvent(self, event):
@@ -108,6 +112,22 @@ class DynamicCanvas(QWidget):
             painter.setPen(pen)
             r = float(self.table_style.item(i, 2).text())
             painter.drawEllipse(point_center, r, r)
+            if self.Dimension:
+                pen.setColor(Qt.darkGray)
+                painter.setPen(pen)
+                painter.drawText(point_center, "["+self.table_point.item(i, 0).text()+"]")
+        if self.Path:
+            print(self.Path)
+            for i in range(0, len(self.Path), 2):
+                X_path = self.Path[i]
+                Y_path = self.Path[i+1]
+                for j in range(len(X_path)-1):
+                    pen.setColor(Qt.darkGray)
+                    pen.setWidth(5)
+                    painter.setPen(pen)
+                    point_center = QPointF(X_path[j]*self.zoom*self.rate_all,
+                        Y_path[j]*self.zoom*self.rate_all*(-1))
+                    painter.drawPoint(point_center)
         painter.end()
     
     def mousePressEvent(self, event):

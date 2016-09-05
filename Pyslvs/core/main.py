@@ -10,8 +10,6 @@ _translate = QCoreApplication.translate
 #UI Ports
 from .Ui_main import Ui_MainWindow
 import webbrowser
-#Preferences Setting
-#from .options.Preference import Preference_show
 #Dialog Ports
 from .info.version import version_show
 from .info.color import color_show
@@ -45,10 +43,11 @@ from .simulate.set_rod import rod_show
 from .simulate.edit_drive_shaft import edit_shaft_show
 from .simulate.edit_slider import edit_slider_show
 from .simulate.edit_rod import edit_rod_show
+from .simulate.run_Path_Track import Path_Track_show
 #DynamicCanvas
 from .canvas import DynamicCanvas
 #Solve
-from .calculation import table_process
+from .calculation import *
 from .list_process import *
 
 Environment_variables = "../"
@@ -60,11 +59,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #No Save
         self.Workbook_Change = False
         #mpl Window
-        self.mplWindow = DynamicCanvas()
-        self.mplWindow.setStatusTip(_translate("MainWindow",
+        self.qpainterWindow = DynamicCanvas()
+        self.qpainterWindow.setStatusTip(_translate("MainWindow",
             "Press Ctrl Key and use mouse to Change Origin or Zoom Size."))
-        self.mplLayout.insertWidget(0, self.mplWindow)
-        self.mplWindow.show()
+        self.mplLayout.insertWidget(0, self.qpainterWindow)
+        self.qpainterWindow.show()
         #Entiteis_Point Right-click menu
         self.Entiteis_Point.setContextMenuPolicy(Qt.CustomContextMenu)
         self.Entiteis_Point.customContextMenuRequested.connect(self.on_point_context_menu)
@@ -135,42 +134,53 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     #Right-click menu event
     def on_point_context_menu(self, point):
-        action = self.popMenu_point.exec_(self.Entiteis_Point.mapToGlobal(point))
+        pos = QPoint(point.x()+43, point.y()+23)
+        action = self.popMenu_point.exec_(self.Entiteis_Point.mapToGlobal(pos))
         if action == self.action_point_right_click_menu_add: self.on_action_New_Point_triggered()
         elif action == self.action_point_right_click_menu_edit: self.on_actionEdit_Point_triggered()
         elif action == self.action_point_right_click_menu_delete: self.on_actionDelete_Point_triggered()
     def on_link_context_menu(self, point):
-        action = self.popMenu_link.exec_(self.Entiteis_Link.mapToGlobal(point))
+        if self.Entiteis_Link.rowCount()==0: pos = QPoint(point.x()+3, point.y()+23)
+        else: pos = QPoint(point.x()+15, point.y()+23)
+        action = self.popMenu_link.exec_(self.Entiteis_Link.mapToGlobal(pos))
         if action == self.action_link_right_click_menu_add: self.on_action_New_Line_triggered()
         elif action == self.action_link_right_click_menu_edit: self.on_actionEdit_Linkage_triggered()
         elif action == self.action_link_right_click_menu_delete: self.on_actionDelete_Linkage_triggered()
     def on_chain_context_menu(self, point):
-        action = self.popMenu_chain.exec_(self.Entiteis_Stay_Chain.mapToGlobal(point))
+        if self.Entiteis_Stay_Chain.rowCount()==0: pos = QPoint(point.x()+3, point.y()+23)
+        else: pos = QPoint(point.x()+15, point.y()+23)
+        action = self.popMenu_chain.exec_(self.Entiteis_Stay_Chain.mapToGlobal(pos))
         if action == self.action_chain_right_click_menu_add: self.on_action_New_Stay_Chain_triggered()
         elif action == self.action_chain_right_click_menu_edit: self.on_actionEdit_Stay_Chain_triggered()
         elif action == self.action_chain_right_click_menu_delete: self.on_actionDelete_Stay_Chain_triggered()
     def on_shaft_context_menu(self, point):
-        action = self.popMenu_shaft.exec_(self.Drive_Shaft.mapToGlobal(point))
+        if self.Drive_Shaft.rowCount()==0: pos = QPoint(point.x()+3, point.y()+23)
+        else: pos = QPoint(point.x()+15, point.y()+23)
+        action = self.popMenu_shaft.exec_(self.Drive_Shaft.mapToGlobal(pos))
         if action == self.action_shaft_right_click_menu_add: self.on_action_Set_Drive_Shaft_triggered()
         elif action == self.action_shaft_right_click_menu_edit: self.on_action_Edit_Drive_Shaft_triggered()
         elif action == self.action_shaft_right_click_menu_delete: self.on_actionDelete_Drive_Shaft_triggered()
     def on_slider_context_menu(self, point):
-        action = self.popMenu_slider.exec_(self.Slider.mapToGlobal(point))
+        if self.Slider.rowCount()==0: pos = QPoint(point.x()+3, point.y()+23)
+        else: pos = QPoint(point.x()+15, point.y()+23)
+        action = self.popMenu_slider.exec_(self.Slider.mapToGlobal(pos))
         if action == self.action_slider_right_click_menu_add: self.on_action_Set_Slider_triggered()
         elif action == self.action_slider_right_click_menu_edit: self.on_action_Edit_Slider_triggered()
         elif action == self.action_slider_right_click_menu_delete: self.on_actionDelete_Slider_triggered()
     def on_rod_context_menu(self, point):
-        action = self.popMenu_rod.exec_(self.Rod.mapToGlobal(point))
+        if self.Rod.rowCount()==0: pos = QPoint(point.x()+3, point.y()+23)
+        else: pos = QPoint(point.x()+15, point.y()+23)
+        action = self.popMenu_rod.exec_(self.Rod.mapToGlobal(pos))
         if action == self.action_rod_right_click_menu_add: self.on_action_Set_Rod_triggered()
         elif action == self.action_rod_right_click_menu_edit: self.on_action_Edit_Piston_Spring_triggered()
         elif action == self.action_rod_right_click_menu_delete: self.on_actionDelete_Piston_Spring_triggered()
     
     #Close Event
     def closeEvent(self, event):
-        if not self.Workbook_Change: reply = QMessageBox.question(self, 'Message',
+        if not self.Workbook_Change: reply = QMessageBox.question(self, 'Exit Message',
             "Are you sure to quit?",
             (QMessageBox.Ok | QMessageBox.Cancel), QMessageBox.Ok)
-        else: reply = QMessageBox.question(self, 'Message',
+        else: reply = QMessageBox.question(self, 'Saving Message',
             "Are you sure to quit?\nAny Changes won't be saved.",
             (QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel), QMessageBox.Save)
         if reply == QMessageBox.Discard or reply == QMessageBox.Ok:
@@ -236,7 +246,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     #Reload Canvas
     def Reload_Canvas(self):
-        self.mplWindow.update_figure(float(self.LineWidth.text()),
+        self.qpainterWindow.update_figure(float(self.LineWidth.text()),
             self.Entiteis_Point, self.Entiteis_Link,
             self.Entiteis_Stay_Chain, self.Drive_Shaft,
             self.Slider, self.Rod,
@@ -257,21 +267,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     @pyqtSlot()
     def on_actionHow_to_use_triggered(self):
-        dlg_help = Help_info_show()
-        dlg_help.show()
-        if dlg_help.exec_(): pass
+        dlg = Help_info_show()
+        dlg.show()
+        if dlg.exec_(): pass
     
     @pyqtSlot()
     def on_actionColor_Settings_triggered(self):
-        dlg_color = color_show()
-        dlg_color.show()
-        if dlg_color.exec_(): pass
-    
+        dlg = color_show()
+        dlg.show()
+        if dlg.exec_(): pass
     @pyqtSlot()
-    def on_Color_set_clicked(self):
-        dlg_color = color_show()
-        dlg_color.show()
-        if dlg_color.exec_(): pass
+    def on_Color_set_clicked(self): self.on_actionColor_Settings_triggered()
     
     @pyqtSlot()
     def on_action_Get_Help_triggered(self):
@@ -290,15 +296,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     @pyqtSlot()
     def on_action_About_Pyslvs_triggered(self):
-        dlg_version  = version_show()
-        dlg_version.show()
-        if dlg_version.exec_(): pass
+        dlg = version_show()
+        dlg.show()
+        if dlg.exec_(): pass
     
     @pyqtSlot()
     def on_action_About_Python_Solvspace_triggered(self):
-        dlg_info  = Info_show()
-        dlg_info.show()
-        if dlg_info.exec_(): pass
+        dlg = Info_show()
+        dlg.show()
+        if dlg.exec_(): pass
     
     @pyqtSlot()
     def on_action_New_Workbook_triggered(self):
@@ -430,7 +436,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if fileName:
             fileName = fileName.replace(".png", "")
             fileName += ".png"
-            pixmap = self.mplWindow.grab()
+            pixmap = self.qpainterWindow.grab()
             pixmap.save(fileName)
             print("Saved to:"+str(fileName))
     
@@ -914,15 +920,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_Entiteis_Point_Style_itemChanged(self, item):
         self.Reload_Canvas()
         self.Workbook_noSave()
-    
     @pyqtSlot(int)
     def on_LineWidth_valueChanged(self, p0): self.Reload_Canvas()
-    
     @pyqtSlot(bool)
     def on_actionDisplay_Dimensions_toggled(self, p0): self.Reload_Canvas()
-    
     @pyqtSlot(bool)
     def on_action_Black_Blackground_toggled(self, p0): self.Reload_Canvas()
+    
+    @pyqtSlot()
+    def on_PathTrack_clicked(self):
+        table = self.Entiteis_Point
+        dlg = Path_Track_show()
+        for i in range(table.rowCount()): dlg.Point_list.addItem(table.item(i, 0).text())
+        dlg.show()
+        if dlg.exec_():
+            point_list = []
+            for i in range(dlg.Run_list.count()):
+                point_list += [int(dlg.Run_list.item(i).text().replace("Point", ""))]
+            print(point_list)
+            self.Reload_Track(point_list)
+    
+    def Reload_Track(self, point_list):
+        table = self.Drive_Shaft
+        for i in range(table.rowCount()):
+            Path = path_process(
+                float(table.item(i, 3).text().replace("°", "")), float(table.item(i, 4).text().replace("°", "")),
+                point_list, self.Entiteis_Point, self.Entiteis_Link, self.Entiteis_Stay_Chain,
+                self.Drive_Shaft, self.Slider, self.Rod)
+            self.qpainterWindow.path_track(Path)
 
 def CSV_notebook(writer, table, k):
     writer.writerow(["Next_table\t"])
