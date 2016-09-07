@@ -28,8 +28,14 @@ class Solvespace():
         Point1 = Point2d(Workplane1, p7, p8)
         Constraint.dragged(Workplane1, Point1)
         self.Script += """# -*- coding: utf-8 -*-
+'''This Code is Generate by Pyslvs.'''
 from slvs import *
 import matplotlib.pyplot as plt
+
+#Please Choose Point number.
+Point_num = 2
+wx = Point_num*2+5
+wy = Point_num*2+6
 
 def """+filename.replace(" ", "_")+"""(degree):
     sys = System(1000)
@@ -129,8 +135,8 @@ def """+filename.replace(" ", "_")+"""(degree):
     
     sys.solve()
     if (sys.result == SLVS_RESULT_OKAY):
-        x = sys.get_param(11).val
-        y = sys.get_param(12).val
+        x = sys.get_param(wx).val
+        y = sys.get_param(wy).val
         return x, y
 
 if __name__=="__main__":
@@ -208,9 +214,6 @@ if __name__=="__main__":
             Constraint.distance(lenab, Workplane1, Point[pa], Point[pb])
             Constraint.distance(lenbc, Workplane1, Point[pb], Point[pc])
             Constraint.distance(lenac, Workplane1, Point[pa], Point[pc])
-            print("Constraint.distance("+str(lenab)+", Workplane1, Point"+str(pa+1)+", Point"+str(pb+1)+")")
-            print("Constraint.distance("+str(lenbc)+", Workplane1, Point"+str(pb+1)+", Point"+str(pc+1)+")")
-            print("Constraint.distance("+str(lenac)+", Workplane1, Point"+str(pa+1)+", Point"+str(pc+1)+")")
         for i in range(table_line.rowCount()):
             start = int(table_line.item(i, 1).text().replace("Point", ""))
             end = int(table_line.item(i, 2).text().replace("Point", ""))
@@ -229,7 +232,6 @@ if __name__=="__main__":
             line = LineSegment2d(Workplane1, Point[center], Point[reference])
             Constraint.angle(Workplane1, angle, line, Line0, False)
         #TODO: to be continue...
-        print("------")
         sys.solve()
         x = 0
         y = 0
@@ -240,19 +242,3 @@ if __name__=="__main__":
         elif (sys.result == SLVS_RESULT_DIDNT_CONVERGE): print ("SLVS_RESULT_DIDNT_CONVERGE")
         elif (sys.result == SLVS_RESULT_TOO_MANY_UNKNOWNS): print ("SLVS_RESULT_TOO_MANY_UNKNOWNS")
         return x, y
-
-    def path_process(self, start_angle, end_angle, point_list,
-            table_point, table_line,
-            table_chain, table_shaft,
-            table_slider, table_rod):
-        Path = []
-        for n in point_list:
-            Xval = []
-            Yval = []
-            for i in range(int(start_angle), int(end_angle)+1, 5):
-                x, y = self.Solve(n, i, table_point, table_line,
-                    table_chain, table_shaft, table_slider, table_rod)
-                Xval += [x]
-                Yval += [y]
-            Path += [Xval, Yval]
-        return Path

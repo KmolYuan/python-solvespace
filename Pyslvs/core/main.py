@@ -472,8 +472,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if fileName:
             fileName = fileName.replace(".py", "")
             if sub == "Python Script(*.py)": fileName += ".py"
+            with open(fileName, 'w', newline="") as f:
+                f.write(self.Script)
             print("Saved to:"+str(fileName))
-            # TODO: Output_to_Script
     
     @pyqtSlot()
     def on_action_Output_to_Picture_triggered(self):
@@ -557,7 +558,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if draw_link.exec_():
                 a = draw_link.Start_Point.currentText()
                 b = draw_link.End_Point.currentText()
-                #TODO: Repeated_check
                 if Repeated_check(table2, a, b): self.on_action_New_Line_triggered()
                 elif a == b:
                     dlg = same_show()
@@ -977,7 +977,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_PathTrack_clicked(self):
         table1 = self.Entiteis_Point
         dlg = Path_Track_show()
-        for i in range(table1.rowCount()): dlg.Point_list.addItem(table1.item(i, 0).text())
+        for i in range(table1.rowCount()):
+            if not table1.item(i, 3).checkState(): dlg.Point_list.addItem(table1.item(i, 0).text())
         dlg.Entiteis_Point = self.Entiteis_Point
         dlg.Entiteis_Link = self.Entiteis_Link
         dlg.Entiteis_Stay_Chain = self.Entiteis_Stay_Chain
