@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import webbrowser, os
+import webbrowser
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -32,4 +32,3 @@ class Script_Dialog(QDialog, Ui_Info_Dialog):
             with open(fileName, 'w', newline="") as f:
                 f.write(self.script.toPlainText())
             print("Successful Save Script: "+fileName)
-            os.system("python3 "+fileName)

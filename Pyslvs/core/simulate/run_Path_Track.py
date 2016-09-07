@@ -57,9 +57,7 @@ class Path_Track_show(QDialog, Ui_Dialog):
         self.add_button.setEnabled(False)
         self.remove_botton.setEnabled(False)
     
-    def stop(self):
-        self.work.stop()
-        self.buttonBox.button(QDialogButtonBox.Apply).setEnabled(True)
+    def stop(self): self.work.stop()
     
     @pyqtSlot(list)
     def finish(self, Path):
