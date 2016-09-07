@@ -11,9 +11,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(400, 364)
-        Dialog.setMinimumSize(QtCore.QSize(400, 364))
-        Dialog.setMaximumSize(QtCore.QSize(400, 364))
+        Dialog.resize(400, 428)
+        Dialog.setMinimumSize(QtCore.QSize(400, 428))
+        Dialog.setMaximumSize(QtCore.QSize(400, 428))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/icons/bezier.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Dialog.setWindowIcon(icon)
@@ -100,7 +100,7 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Path Track"))
-        self.label.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Choose which points to execution path simulation.</span></p></body></html>"))
+        self.label.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Choose these points to execution path simulation.</span></p></body></html>"))
         self.label_4.setText(_translate("Dialog", "Resolution:"))
         self.label_2.setText(_translate("Dialog", "<html><head/><body><p><span style=\" font-size:12pt;\">Points:</span></p></body></html>"))
         self.add_button.setText(_translate("Dialog", ">"))
