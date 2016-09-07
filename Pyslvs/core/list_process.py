@@ -144,7 +144,7 @@ def Link_list_delete(table1, table2, dlg):
             table2.removeRow(i)
             for j in range(i, table3.rowCount()): table3.setItem(j, 0, QTableWidgetItem("Slider"+str(j)))
             break
-    for i in range(1, table1.rowCount()):
+    for i in range(table1.rowCount()):
         if (dlg.Entity.currentText() == table1.item(i, 0).text()):
             table1.removeRow(i)
             for j in range(i, table1.rowCount()): table1.setItem(j, 0, QTableWidgetItem("Line"+str(j)))
@@ -174,12 +174,14 @@ def Repeated_check(table, first, second):
         case1 = (table.item(i, 1).text()==first)and(table.item(i, 2).text()==second)
         case2 = (table.item(i, 2).text()==first)and(table.item(i, 1).text()==second)
         if case1 or case2:
+            n = True
             dlg = contradict_show()
             dlg.show()
-            if dlg.exec_():
-                n = True
-                break
+            if dlg.exec_(): break
     return n
 
 def Reset_notebook(table, k):
     for i in reversed(range(k, table.rowCount())): table.removeRow(i)
+
+def Point_setup(table, num, x, y):
+    table.setItem(num, 4, QTableWidgetItem("("+str(x)+", "+str(y)+")"))

@@ -15,6 +15,7 @@ from .info.version import version_show
 from .info.color import color_show
 from .info.info import Info_show
 from .info.help import Help_info_show
+from .info.script import Script_Dialog
 #Warning Dialog Ports
 from .warning.reset_workbook import reset_show
 from .warning.zero_value import zero_show
@@ -49,7 +50,7 @@ from .simulate.run_Measurement import Measurement_show
 #DynamicCanvas
 from .canvas import DynamicCanvas
 #Solve
-from .calculation import *
+from .calculation import Solvespace
 from .list_process import *
 
 Environment_variables = "../"
@@ -66,6 +67,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             "Press Ctrl Key and use mouse to Change Origin or Zoom Size."))
         self.mplLayout.insertWidget(0, self.qpainterWindow)
         self.qpainterWindow.show()
+        #Script
+        self.Script = ""
         #Entiteis_Point Right-click menu
         self.Entiteis_Point.setContextMenuPolicy(Qt.CustomContextMenu)
         self.Entiteis_Point.customContextMenuRequested.connect(self.on_point_context_menu)
@@ -86,6 +89,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.action_link_right_click_menu_edit = QAction("Edit a Link", self)
         self.popMenu_link.addAction(self.action_link_right_click_menu_edit)
         self.popMenu_link.addSeparator()
+        self.action_link_right_click_menu_move_up = QAction("Move up", self)
+        self.popMenu_link.addAction(self.action_link_right_click_menu_move_up)
+        self.action_link_right_click_menu_move_down = QAction("Move down", self)
+        self.popMenu_link.addAction(self.action_link_right_click_menu_move_down)
+        self.popMenu_link.addSeparator()
         self.action_link_right_click_menu_delete = QAction("Delete a Link", self)
         self.popMenu_link.addAction(self.action_link_right_click_menu_delete) 
         #Entiteis_Chain Right-click menu
@@ -96,6 +104,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.popMenu_chain.addAction(self.action_chain_right_click_menu_add)
         self.action_chain_right_click_menu_edit = QAction("Edit a Chain", self)
         self.popMenu_chain.addAction(self.action_chain_right_click_menu_edit)
+        self.popMenu_chain.addSeparator()
+        self.action_chain_right_click_menu_move_up = QAction("Move up", self)
+        self.popMenu_chain.addAction(self.action_chain_right_click_menu_move_up)
+        self.action_chain_right_click_menu_move_down = QAction("Move down", self)
+        self.popMenu_chain.addAction(self.action_chain_right_click_menu_move_down)
         self.popMenu_chain.addSeparator()
         self.action_chain_right_click_menu_delete = QAction("Delete a Chain", self)
         self.popMenu_chain.addAction(self.action_chain_right_click_menu_delete) 
@@ -132,6 +145,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.popMenu_rod.addSeparator()
         self.action_rod_right_click_menu_delete = QAction("Delete a Rod", self)
         self.popMenu_rod.addAction(self.action_rod_right_click_menu_delete)
+        #Resolve
         self.Resolve()
     
     #Right-click menu event
@@ -144,16 +158,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_link_context_menu(self, point):
         if self.Entiteis_Link.rowCount()==0: pos = QPoint(point.x()+3, point.y()+23)
         else: pos = QPoint(point.x()+15, point.y()+23)
+        self.action_link_right_click_menu_move_up.setEnabled((not bool(self.Entiteis_Link.rowCount()<=1))and(self.Entiteis_Link.currentRow()>=1))
+        self.action_link_right_click_menu_move_down.setEnabled((not bool(self.Entiteis_Link.rowCount()<=1))and(self.Entiteis_Link.currentRow()<=self.Entiteis_Link.rowCount()-2))
         action = self.popMenu_link.exec_(self.Entiteis_Link.mapToGlobal(pos))
         if action == self.action_link_right_click_menu_add: self.on_action_New_Line_triggered()
         elif action == self.action_link_right_click_menu_edit: self.on_actionEdit_Linkage_triggered()
+        elif action == self.action_link_right_click_menu_move_up: self.move_up(self.Entiteis_Link, self.Entiteis_Link.currentRow(), "Line")
+        elif action == self.action_link_right_click_menu_move_down: self.move_down(self.Entiteis_Link, self.Entiteis_Link.currentRow(), "Line")
         elif action == self.action_link_right_click_menu_delete: self.on_actionDelete_Linkage_triggered()
     def on_chain_context_menu(self, point):
         if self.Entiteis_Stay_Chain.rowCount()==0: pos = QPoint(point.x()+3, point.y()+23)
         else: pos = QPoint(point.x()+15, point.y()+23)
+        self.action_chain_right_click_menu_move_up.setEnabled((not bool(self.Entiteis_Stay_Chain.rowCount()<=1))and(self.Entiteis_Stay_Chain.currentRow()>=1))
+        self.action_chain_right_click_menu_move_down.setEnabled((not bool(self.Entiteis_Stay_Chain.rowCount()<=1))and(self.Entiteis_Stay_Chain.currentRow()<=self.Entiteis_Link.rowCount()-2))
         action = self.popMenu_chain.exec_(self.Entiteis_Stay_Chain.mapToGlobal(pos))
         if action == self.action_chain_right_click_menu_add: self.on_action_New_Stay_Chain_triggered()
         elif action == self.action_chain_right_click_menu_edit: self.on_actionEdit_Stay_Chain_triggered()
+        elif action == self.action_chain_right_click_menu_move_up: self.move_up(self.Entiteis_Stay_Chain, self.Entiteis_Stay_Chain.currentRow(), "Chain")
+        elif action == self.action_chain_right_click_menu_move_down: self.move_down(self.Entiteis_Stay_Chain, self.Entiteis_Stay_Chain.currentRow(), "Chain")
         elif action == self.action_chain_right_click_menu_delete: self.on_actionDelete_Stay_Chain_triggered()
     def on_shaft_context_menu(self, point):
         if self.Drive_Shaft.rowCount()==0: pos = QPoint(point.x()+3, point.y()+23)
@@ -177,24 +199,40 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         elif action == self.action_rod_right_click_menu_edit: self.on_action_Edit_Piston_Spring_triggered()
         elif action == self.action_rod_right_click_menu_delete: self.on_actionDelete_Piston_Spring_triggered()
     
+    #Table move up & down
+    def move_up(self, table, row, name):
+        try:
+            table.insertRow(row-1)
+            for i in range(table.columnCount()): table.setItem(row-1, i, QTableWidgetItem(table.item(row+1, i).text()))
+            table.removeRow(row+1)
+            for j in range(table.rowCount()): table.setItem(j, 0, QTableWidgetItem(name+str(j)))
+            self.Workbook_noSave()
+        except: pass
+    def move_down(self, table, row, name):
+        try:
+            table.insertRow(row+2)
+            for i in range(table.columnCount()): table.setItem(row+2, i, QTableWidgetItem(table.item(row, i).text()))
+            table.removeRow(row)
+            for j in range(table.rowCount()): table.setItem(j, 0, QTableWidgetItem(name+str(j)))
+            self.Workbook_noSave()
+        except: pass
+    
     #Close Event
     def closeEvent(self, event):
-        if not self.Workbook_Change: reply = QMessageBox.question(self, 'Exit Message',
-            "Are you sure to quit?",
-            (QMessageBox.Ok | QMessageBox.Cancel), QMessageBox.Ok)
-        else: reply = QMessageBox.question(self, 'Saving Message',
-            "Are you sure to quit?\nAny Changes won't be saved.",
-            (QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel), QMessageBox.Save)
-        if reply == QMessageBox.Discard or reply == QMessageBox.Ok:
-            print("Exit.")
-            event.accept()
-        elif reply == QMessageBox.Save:
-            self.on_action_Output_Coordinate_to_Text_File_triggered()
-            if not self.Workbook_Change:
+        if self.Workbook_Change:
+            reply = QMessageBox.question(self, 'Saving Message',
+                "Are you sure to quit?\nAny Changes won't be saved.",
+                (QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel), QMessageBox.Save)
+            if reply == QMessageBox.Discard or reply == QMessageBox.Ok:
                 print("Exit.")
                 event.accept()
-            else: event.ignore()
-        else: event.ignore()
+            elif reply == QMessageBox.Save:
+                self.on_action_Output_Coordinate_to_Text_File_triggered()
+                if not self.Workbook_Change:
+                    print("Exit.")
+                    event.accept()
+                else: event.ignore()
+        else: event.accept()
     
     #Resolve
     def Resolve(self):
@@ -234,15 +272,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 else: table_point.setItem(c, 2, QTableWidgetItem(str(float(table_point.item(c, 2).text())+0.01)))
         #Solve
         result = []
-        result = table_process(table_point, table_line, table_chain, table_shaft, table_slider, table_rod)
+        solvespace = Solvespace()
+        fileName = self.windowTitle().replace("Pyslvs - ", "").replace("*", "").split("/")[-1].split(".")[0]
+        result = solvespace.table_process(table_point, table_line, table_chain, table_shaft, table_slider, table_rod, fileName)
+        self.Script = solvespace.Script
         if result==[]:
             print("Rebuild the cavanc falled.")
             dlg = resolution_fail_show()
             dlg.show()
-            if dlg.exec_(): pass
+            dlg.exec()
         else:
-            for i in range(1, table_point.rowCount()):
-                Points_list(table_point, "Point"+str(i), str(result[i*2]), str(result[i*2+1]), not(table_point.item(i, 3).checkState()==False), True)
+            for i in range(table_point.rowCount()):
+                Point_setup(table_point, i, result[i*2], result[i*2+1])
             self.Reload_Canvas()
         print("Rebuild the cavanc.")
     
@@ -271,114 +312,117 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_actionHow_to_use_triggered(self):
         dlg = Help_info_show()
         dlg.show()
-        if dlg.exec_(): pass
-    
+        dlg.exec()
     @pyqtSlot()
     def on_actionColor_Settings_triggered(self):
         dlg = color_show()
         dlg.show()
-        if dlg.exec_(): pass
+        dlg.exec()
     @pyqtSlot()
     def on_Color_set_clicked(self): self.on_actionColor_Settings_triggered()
-    
     @pyqtSlot()
     def on_action_Get_Help_triggered(self):
         print("Open http://project.mde.tw/blog/slvs-library-functions.html")
         webbrowser.open("http://project.mde.tw/blog/slvs-library-functions.html")
-    
     @pyqtSlot()
     def on_actionGit_hub_Site_triggered(self):
         print("Open https://github.com/40323230/python-solvespace")
         webbrowser.open("https://github.com/40323230/python-solvespace")
-    
     @pyqtSlot()
     def on_actionGithub_Wiki_triggered(self):
         print("Open https://github.com/40323230/python-solvespace/wiki")
         webbrowser.open("https://github.com/40323230/python-solvespace/wiki")
-    
     @pyqtSlot()
     def on_action_About_Pyslvs_triggered(self):
         dlg = version_show()
         dlg.show()
-        if dlg.exec_(): pass
-    
+        dlg.exec()
     @pyqtSlot()
     def on_action_About_Python_Solvspace_triggered(self):
         dlg = Info_show()
         dlg.show()
-        if dlg.exec_(): pass
+        dlg.exec()
     
     @pyqtSlot()
     def on_action_New_Workbook_triggered(self):
-        dlg  = reset_show()
-        dlg.show()
-        if dlg.exec_():
-            Reset_notebook(self.Entiteis_Point, 1)
-            Reset_notebook(self.Entiteis_Link, 0)
-            Reset_notebook(self.Entiteis_Stay_Chain, 0)
-            Reset_notebook(self.Entiteis_Point_Style, 1)
-            Reset_notebook(self.Drive_Shaft, 0)
-            Reset_notebook(self.Slider, 0)
-            self.Resolve()
-            print("Reset the workbook.")
-            self.setWindowTitle(_translate("MainWindow", "Pyslvs - New Workbook"))
+        if self.Workbook_Change:
+            dlg  = reset_show()
+            dlg.show()
+            if dlg.exec_(): self.new_Workbook()
+        else: self.new_Workbook()
     
     @pyqtSlot()
     def on_action_Load_Workbook_triggered(self):
-        warning_reset  = reset_show()
-        warning_reset.show()
-        if warning_reset.exec_():
-            Reset_notebook(self.Entiteis_Point, 1)
-            Reset_notebook(self.Entiteis_Link, 0)
-            Reset_notebook(self.Entiteis_Stay_Chain, 0)
-            Reset_notebook(self.Entiteis_Point_Style, 1)
-            Reset_notebook(self.Drive_Shaft, 0)
-            Reset_notebook(self.Slider, 0)
+        if self.Workbook_Change:
+            warning_reset  = reset_show()
+            warning_reset.show()
+            if warning_reset.exec_(): self.load_Workbook()
+        else: self.load_Workbook()
+    
+    def new_Workbook(self):
+        Reset_notebook(self.Entiteis_Point, 1)
+        Reset_notebook(self.Entiteis_Link, 0)
+        Reset_notebook(self.Entiteis_Stay_Chain, 0)
+        Reset_notebook(self.Entiteis_Point_Style, 1)
+        Reset_notebook(self.Drive_Shaft, 0)
+        Reset_notebook(self.Slider, 0)
+        self.qpainterWindow.removePath()
+        self.Resolve()
+        print("Reset the workbook.")
+        self.setWindowTitle(_translate("MainWindow", "Pyslvs - New Workbook"))
+    def load_Workbook(self):
+        Reset_notebook(self.Entiteis_Point, 1)
+        Reset_notebook(self.Entiteis_Link, 0)
+        Reset_notebook(self.Entiteis_Stay_Chain, 0)
+        Reset_notebook(self.Entiteis_Point_Style, 1)
+        Reset_notebook(self.Drive_Shaft, 0)
+        Reset_notebook(self.Slider, 0)
+        self.qpainterWindow.removePath()
+        self.Resolve()
+        print("Reset workbook.")
+        fileName, _ = QFileDialog.getOpenFileName(self, 'Open file...', Environment_variables, 'CSV File(*.csv);;Text File(*.txt)')
+        if fileName:
+            print("Get:"+fileName)
+            data = []
+            with open(fileName, newline="") as stream:
+                reader = csv.reader(stream, delimiter=' ', quotechar='|')
+                for row in reader:
+                    data += ', '.join(row).split('\t,')
+            bookmark = 0
+            for i in range(4, len(data), 4):
+                bookmark = i
+                if data[i] == 'Next_table\t': break
+                if data[i+3]=="Fixed": fixed = True
+                else: fixed = False
+                Points_list(self.Entiteis_Point, data[i], data[i+1], data[i+2], fixed, False)
+            self.Entiteis_Point_Style.removeRow(0)
+            for i in range(bookmark+1, len(data), 4):
+                bookmark = i
+                if data[i] == 'Next_table\t': break
+                Points_style_add(self.Entiteis_Point_Style, data[i], data[i+1], data[i+2], data[i+3])
+            for i in range(bookmark+1, len(data), 4):
+                bookmark = i
+                if data[i] == 'Next_table\t': break
+                Links_list(self.Entiteis_Link, data[i], data[i+1], data[i+2], data[i+3], False)
+            for i in range(bookmark+1, len(data), 7):
+                bookmark = i
+                if data[i] == 'Next_table\t': break
+                Chain_list(self.Entiteis_Stay_Chain, data[i], data[i+1], data[i+2], data[i+3], data[i+4], data[i+5], data[i+6], False)
+            for i in range(bookmark+1, len(data), 5):
+                bookmark = i
+                if data[i] == 'Next_table\t': break
+                Shaft_list(self.Drive_Shaft, data[i], data[i+1], data[i+2], data[i+3], data[i+4], False)
+            for i in range(bookmark+1, len(data), 3):
+                bookmark = i
+                if data[i] == 'Next_table\t': break
+                Slider_list(self.Slider, data[i], data[i+1], data[i+2], False)
+            for i in range(bookmark+1, len(data), 5):
+                bookmark = i
+                Rod_list(self.Slider, data[i], data[i+1], data[i+2], data[i+3], data[i+4], False)
+            self.Workbook_Change = False
+            self.setWindowTitle(_translate("MainWindow", "Pyslvs - "+fileName))
             self.Resolve()
-            print("Reset workbook.")
-            fileName, _ = QFileDialog.getOpenFileName(self, 'Open file...', Environment_variables, 'CSV File(*.csv);;Text File(*.txt)')
-            if fileName:
-                print("Get:"+fileName)
-                data = []
-                with open(fileName, newline="") as stream:
-                    reader = csv.reader(stream, delimiter=' ', quotechar='|')
-                    for row in reader:
-                        data += ', '.join(row).split('\t,')
-                bookmark = 0
-                for i in range(4, len(data), 4):
-                    bookmark = i
-                    if data[i] == 'Next_table\t': break
-                    if data[i+3]=="Fixed": fixed = True
-                    else: fixed = False
-                    Points_list(self.Entiteis_Point, data[i], data[i+1], data[i+2], fixed, False)
-                self.Entiteis_Point_Style.removeRow(0)
-                for i in range(bookmark+1, len(data), 4):
-                    bookmark = i
-                    if data[i] == 'Next_table\t': break
-                    Points_style_add(self.Entiteis_Point_Style, data[i], data[i+1], data[i+2], data[i+3])
-                for i in range(bookmark+1, len(data), 4):
-                    bookmark = i
-                    if data[i] == 'Next_table\t': break
-                    Links_list(self.Entiteis_Link, data[i], data[i+1], data[i+2], data[i+3], False)
-                for i in range(bookmark+1, len(data), 7):
-                    bookmark = i
-                    if data[i] == 'Next_table\t': break
-                    Chain_list(self.Entiteis_Stay_Chain, data[i], data[i+1], data[i+2], data[i+3], data[i+4], data[i+5], data[i+6], False)
-                for i in range(bookmark+1, len(data), 5):
-                    bookmark = i
-                    if data[i] == 'Next_table\t': break
-                    Shaft_list(self.Drive_Shaft, data[i], data[i+1], data[i+2], data[i+3], data[i+4], False)
-                for i in range(bookmark+1, len(data), 3):
-                    bookmark = i
-                    if data[i] == 'Next_table\t': break
-                    Slider_list(self.Slider, data[i], data[i+1], data[i+2], False)
-                for i in range(bookmark+1, len(data), 5):
-                    bookmark = i
-                    Rod_list(self.Slider, data[i], data[i+1], data[i+2], data[i+3], data[i+4], False)
-                self.Resolve()
-                self.Workbook_Change = False
-                print("Successful Load the workbook...")
-                self.setWindowTitle(_translate("MainWindow", "Pyslvs - "+fileName))
+            print("Successful Load the workbook...")
     
     @pyqtSlot()
     def on_action_Output_Coordinate_to_Text_File_triggered(self):
@@ -394,10 +438,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 writer = csv.writer(stream)
                 for row in range(table.rowCount()):
                     rowdata = []
-                    for column in range(table.columnCount()):
+                    for column in range(table.columnCount()-1):
                         item = table.item(row, column)
                         if item is not None:
-                            if (item.checkState()==False) and (item.text()==''): rowdata += ["noFixed"]
+                            if (item.checkState()==False) and (item.text()==''): rowdata += ["noFixedFixed"]
                             else:
                                 if item.text()=='': rowdata += ["Fixed"]
                                 else: rowdata += [item.text()+'\t']
@@ -453,8 +497,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             Points_list(table1, draw_point.Point_num.toPlainText(),
                 draw_point.X_coordinate.text(), draw_point.Y_coordinate.text(),
                 draw_point.Fix_Point.checkState(), False)
-            if draw_point.Fix_Point.checkState(): fix = "5"
-            else: fix = "10"
+            if draw_point.Fix_Point.checkState()==True: fix = "10"
+            else: fix = "5"
             Points_style_add(table2, draw_point.Point_num.toPlainText(), "G", fix, "G")
             self.Resolve()
             self.Workbook_noSave()
@@ -476,7 +520,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if (table1.rowCount() <= 1):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_(): pass
+            dlg.exec()
         else:
             draw_point  = edit_point_show()
             icon = QIcon()
@@ -499,7 +543,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if (table1.rowCount() <= 1):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_(): pass
+            dlg.exec()
         else:
             icon = QIcon()
             icon.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
@@ -533,7 +577,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if (table2.rowCount() <= 0):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_(): pass
+            dlg.exec()
         else:
             icon1 = QIcon()
             icon1.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
@@ -568,7 +612,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if (table1.rowCount() <= 2):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_(): pass
+            dlg.exec()
         else:
             New_stay_chain = chain_show()
             table2 = self.Entiteis_Stay_Chain
@@ -606,7 +650,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if (table2.rowCount() <= 0):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_(): pass
+            dlg.exec()
         else:
             New_stay_chain = edit_stay_chain_show()
             for i in range(table1.rowCount()):
@@ -639,7 +683,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if (table1.rowCount() <= 1):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_(): pass
+            dlg.exec()
         else:
             dlg = shaft_show()
             icon = QIcon()
@@ -670,7 +714,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if (table2.rowCount() <= 0):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_(): pass
+            dlg.exec()
         else:
             dlg = edit_shaft_show()
             icon1 = QIcon()
@@ -705,7 +749,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if (table2.rowCount() <= 0) and (table1.rowCount() <= 2):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_(): pass
+            dlg.exec()
         else:
             dlg = slider_show()
             icon1 = QIcon()
@@ -739,7 +783,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if (table3.rowCount() <= 0):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_(): pass
+            dlg.exec()
         else:
             dlg = edit_slider_show()
             icon1 = QIcon()
@@ -775,7 +819,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if (table1.rowCount() <= 1):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_(): pass
+            dlg.exec()
         else:
             dlg = rod_show()
             icon = QIcon()
@@ -806,7 +850,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if (table1.rowCount() <= 1):
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_(): pass
+            dlg.exec()
         else:
             dlg = edit_rod_show()
             icon = QIcon()
@@ -839,7 +883,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if table.rowCount() <= 1:
             dlg = kill_origin_show()
             dlg.show()
-            if dlg.exec_(): pass
+            dlg.exec()
         else:
             dlg = delete_point_show()
             for i in range(1, table.rowCount()):
@@ -862,7 +906,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if table1.rowCount() <= 0:
             dlg = zero_show()
             dlg.show()
-            if dlg.exec_(): pass
+            dlg.exec()
         else:
             dlg = delete_linkage_show()
             for i in range(table1.rowCount()):
@@ -934,18 +978,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         table1 = self.Entiteis_Point
         dlg = Path_Track_show()
         for i in range(table1.rowCount()): dlg.Point_list.addItem(table1.item(i, 0).text())
+        dlg.Entiteis_Point = self.Entiteis_Point
+        dlg.Entiteis_Link = self.Entiteis_Link
+        dlg.Entiteis_Stay_Chain = self.Entiteis_Stay_Chain
+        dlg.Drive_Shaft = self.Drive_Shaft
+        dlg.Slider = self.Slider
+        dlg.Rod = self.Rod
         dlg.show()
         if dlg.exec_():
-            point_list = []
-            for i in range(dlg.Run_list.count()):
-                point_list += [int(dlg.Run_list.item(i).text().replace("Point", ""))]
-            table2 = self.Drive_Shaft
-            for i in range(table2.rowCount()):
-                Path = path_process(
-                    float(table2.item(i, 3).text().replace("°", "")), float(table2.item(i, 4).text().replace("°", "")),
-                    point_list, self.Entiteis_Point, self.Entiteis_Link, self.Entiteis_Stay_Chain,
-                    self.Drive_Shaft, self.Slider, self.Rod)
-                self.qpainterWindow.path_track(Path)
+            Path = dlg.Path_data
+            self.qpainterWindow.path_track(Path)
     
     @pyqtSlot()
     def on_Drive_clicked(self):
@@ -963,6 +1005,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.mplLayout.count()<=2:
             self.mplLayout.MeasurementWidget = Measurement_show()
             self.mplLayout.insertWidget(1, self.mplLayout.MeasurementWidget)
+            print(self.mplLayout.count())
+            x = str(self.qpainterWindow.mouse[0])
+            y = str(self.qpainterWindow.mouse[1])
+            print(x, y)
+            self.mplLayout.MeasurementWidget.Mouse.setPlainText("("+x+"), ("+y+")")
+            self.mplLayout.MeasurementWidget.update()
+    
+    @pyqtSlot()
+    def on_link_move_up_clicked(self):
+        if (not bool(self.Entiteis_Link.rowCount()<=1))and(self.Entiteis_Link.currentRow()>=1): self.move_up(self.Entiteis_Link, self.Entiteis_Link.currentRow(), "Line")
+    @pyqtSlot()
+    def on_link_move_down_clicked(self):
+        if (not bool(self.Entiteis_Link.rowCount()<=1))and(self.Entiteis_Link.currentRow()<=self.Entiteis_Link.rowCount()-2): self.move_down(self.Entiteis_Link, self.Entiteis_Link.currentRow(), "Line")
+    @pyqtSlot()
+    def on_chain_move_up_clicked(self):
+        if (not bool(self.Entiteis_Stay_Chain.rowCount()<=1))and(self.Entiteis_Stay_Chain.currentRow()>=1): self.move_up(self.Entiteis_Stay_Chain, self.Entiteis_Stay_Chain.currentRow(), "Chain")
+    @pyqtSlot()
+    def on_chain_move_down_clicked(self):
+        if (not bool(self.Entiteis_Stay_Chain.rowCount()<=1))and(self.Entiteis_Stay_Chain.currentRow()<=self.Entiteis_Stay_Chain.rowCount()-2): self.move_down(self.Entiteis_Stay_Chain, self.Entiteis_Stay_Chain.currentRow(), "Line")
+    
+    @pyqtSlot()
+    def on_action_See_Python_Scripts_triggered(self):
+        dlg = Script_Dialog()
+        dlg.script.setPlainText(self.Script)
+        dlg.show()
+        dlg.exec()
 
 def CSV_notebook(writer, table, k):
     writer.writerow(["Next_table\t"])

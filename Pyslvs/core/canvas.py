@@ -18,6 +18,7 @@ class DynamicCanvas(QWidget):
         self.drag = False
         self.Dimension = False
         self.Path = []
+        self.mouse = [0, 0]
         self.pen_width = 2
         self.re_Color = [
             'R', 'G', 'B', 'C', 'M', 'Y', 'Gy', 'Og', 'Pk',
@@ -44,8 +45,13 @@ class DynamicCanvas(QWidget):
         self.zoom = float(zoom_rate.replace("%", ""))/100
         self.rate_all = 2
         for i in range(table_point.rowCount()):
-            self.Xval += [float(table_point.item(i, 1).text())*self.zoom*self.rate_all]
-            self.Yval += [float(table_point.item(i, 2).text())*self.zoom*self.rate_all*(-1)]
+            try:
+                k = table_point.item(i, 4).text().replace("(", "").replace(")", "").split(", ")
+                self.Xval += [float(k[0])*self.zoom*self.rate_all]
+                self.Yval += [float(k[1])*self.zoom*self.rate_all*(-1)]
+            except:
+                self.Xval += [float(table_point.item(i, 1).text())*self.zoom*self.rate_all]
+                self.Yval += [float(table_point.item(i, 2).text())*self.zoom*self.rate_all*(-1)]
         self.table_point = table_point
         self.table_line = table_line
         self.table_chain = table_chain
@@ -118,18 +124,21 @@ class DynamicCanvas(QWidget):
                 painter.setPen(pen)
                 painter.drawText(point_center, "["+self.table_point.item(i, 0).text()+"]")
         if self.Path:
-            print(self.Path)
-            for i in range(0, len(self.Path), 2):
-                X_path = self.Path[i]
-                Y_path = self.Path[i+1]
-                for j in range(len(X_path)-1):
-                    pen.setColor(Qt.darkGray)
-                    pen.setWidth(5)
-                    painter.setPen(pen)
-                    point_center = QPointF(X_path[j]*self.zoom*self.rate_all,
-                        Y_path[j]*self.zoom*self.rate_all*(-1))
-                    painter.drawPoint(point_center)
+            for i in range(len(self.Path)):
+                nPath = self.Path[i]
+                for j in range(0, len(nPath), 2):
+                    X_path = nPath[j]
+                    Y_path = nPath[j+1]
+                    for j in range(len(X_path)-1):
+                        pen.setColor(Qt.darkGray)
+                        pen.setWidth(5)
+                        painter.setPen(pen)
+                        point_center = QPointF(X_path[j]*self.zoom*self.rate_all, Y_path[j]*self.zoom*self.rate_all*(-1))
+                        painter.drawPoint(point_center)
         painter.end()
+    
+    def removePath(self):
+        self.Path = []
     
     def mousePressEvent(self, event):
         if QApplication.keyboardModifiers()==Qt.ControlModifier: self.drag = True
@@ -144,3 +153,5 @@ class DynamicCanvas(QWidget):
             self.origin_x = event.x()
             self.origin_y = event.y()
             self.update()
+        self.mouse = [(event.x()+self.origin_x)*self.zoom*self.rate_all,
+            (event.y()+self.origin_y)*self.zoom*self.rate_all*(-1)]
