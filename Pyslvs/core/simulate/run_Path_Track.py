@@ -16,6 +16,7 @@ class Path_Track_show(QDialog, Ui_Dialog):
         self.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(self.stop)
         self.work.done.connect(self.finish)
         self.work.progress_Signal.connect(self.progressbar_change)
+        self.buttonBox.button(QDialogButtonBox.Apply).setEnabled(False)
     
     @pyqtSlot()
     def on_add_button_clicked(self):
@@ -23,6 +24,7 @@ class Path_Track_show(QDialog, Ui_Dialog):
             self.Run_list.addItem(self.Point_list.currentItem().text())
             self.Point_list.takeItem(self.Point_list.currentRow())
         except: pass
+        self.buttonBox.button(QDialogButtonBox.Apply).setEnabled(self.Run_list.count()>=1)
     
     @pyqtSlot()
     def on_remove_botton_clicked(self):
@@ -30,42 +32,43 @@ class Path_Track_show(QDialog, Ui_Dialog):
             self.Point_list.addItem(self.Run_list.currentItem().text())
             self.Run_list.takeItem(self.Run_list.currentRow())
         except: pass
+        self.buttonBox.button(QDialogButtonBox.Apply).setEnabled(self.Run_list.count()>=1)
     
     def start(self):
-        self.work.Run_list = self.Run_list
-        self.work.Entiteis_Point = self.Entiteis_Point
-        self.work.Entiteis_Link = self.Entiteis_Link
-        self.work.Entiteis_Stay_Chain = self.Entiteis_Stay_Chain
-        self.work.Drive_Shaft = self.Drive_Shaft
-        self.work.Slider = self.Slider
-        self.work.Rod = self.Rod
-        self.work.Resolution = self.Resolution
-        q = 0
-        for i in range(self.Drive_Shaft.rowCount()):
-            start_angle = float(self.Drive_Shaft.item(i, 3).text().replace("°", ""))*100
-            end_angle = float(self.Drive_Shaft.item(i, 4).text().replace("°", ""))*100
-            Resolution = float(self.Resolution.text())*100
-            angle_set = int((end_angle+1-start_angle)/Resolution)
-            q = q+angle_set
-        limit = self.Run_list.count()*q
-        self.progressBar.setRange(0, limit)
-        self.work.start()
-        self.buttonBox.button(QDialogButtonBox.Apply).setEnabled(False)
-        self.Run_list.setEnabled(False)
-        self.Point_list.setEnabled(False)
-        self.Resolution.setEnabled(False)
-        self.add_button.setEnabled(False)
-        self.remove_botton.setEnabled(False)
-    
+        if not self.Run_list.count()==0:
+            self.work.Run_list = self.Run_list
+            self.work.Entiteis_Point = self.Entiteis_Point
+            self.work.Entiteis_Link = self.Entiteis_Link
+            self.work.Entiteis_Stay_Chain = self.Entiteis_Stay_Chain
+            self.work.Drive_Shaft = self.Drive_Shaft
+            self.work.Slider = self.Slider
+            self.work.Rod = self.Rod
+            self.work.Resolution = self.Resolution
+            q = 0
+            for i in range(self.Drive_Shaft.rowCount()):
+                start_angle = float(self.Drive_Shaft.item(i, 3).text().replace("°", ""))*100
+                end_angle = float(self.Drive_Shaft.item(i, 4).text().replace("°", ""))*100
+                Resolution = float(self.Resolution.text())*100
+                angle_set = int((end_angle+1-start_angle)/Resolution)
+                q = q+angle_set
+            limit = self.Run_list.count()*q
+            self.progressBar.setRange(0, limit)
+            self.work.start()
+            self.buttonBox.button(QDialogButtonBox.Apply).setEnabled(False)
+            self.Run_list.setEnabled(False)
+            self.Point_list.setEnabled(False)
+            self.Resolution.setEnabled(False)
+            self.add_button.setEnabled(False)
+            self.remove_botton.setEnabled(False)
     def stop(self): self.work.stop()
+    
+    @pyqtSlot(int)
+    def progressbar_change(self, val): self.progressBar.setValue(val)
     
     @pyqtSlot(list)
     def finish(self, Path):
         self.Path_data = Path
         self.accept()
-    
-    @pyqtSlot(int)
-    def progressbar_change(self, val): self.progressBar.setValue(val)
 
 class WorkerThread(QThread):
     done = pyqtSignal(list)

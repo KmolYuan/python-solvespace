@@ -63,8 +63,22 @@ def """+filename.replace(" ", "_")+"""(degree):
         Point = [Point1]
         #Load tables to constraint
         for i in range(1, table_point.rowCount()):
-            x = sys.add_param(float(table_point.item(i, 1).text()))
-            y = sys.add_param(float(table_point.item(i, 2).text()))
+            if not(table_shaft.rowCount()>=1):
+                x = sys.add_param(float(table_point.item(i, 1).text()))
+                y = sys.add_param(float(table_point.item(i, 2).text()))
+            else:
+                for j in range(table_shaft.rowCount()):
+                    case = table_shaft.item(j, 2).text()==table_point.item(i, 0).text()
+                    if case and(table_shaft.item(j, 5) is not None):
+                        angle = float(table_shaft.item(j, 5).text().replace("°", ""))
+                        if angle >= 180: other = -1
+                        else: other = 1
+                        a = int(table_shaft.item(j, 1).text().replace("Point", ""))
+                        x = sys.add_param(float(table_point.item(a, 1).text()))
+                        y = sys.add_param(float(table_point.item(i, 2).text())*other)
+                    else:
+                        x = sys.add_param(float(table_point.item(i, 1).text()))
+                        y = sys.add_param(float(table_point.item(i, 2).text()))
             p = Point2d(Workplane1, x, y)
             Point += [p]
             for j in range(table_shaft.rowCount()):
@@ -158,7 +172,6 @@ if __name__=="__main__":
         elif (sys.result == SLVS_RESULT_INCONSISTENT): print ("SLVS_RESULT_INCONSISTENT")
         elif (sys.result == SLVS_RESULT_DIDNT_CONVERGE): print ("SLVS_RESULT_DIDNT_CONVERGE")
         elif (sys.result == SLVS_RESULT_TOO_MANY_UNKNOWNS): print ("SLVS_RESULT_TOO_MANY_UNKNOWNS")
-        print(self.Script)
         return result
 
     def Solve(self, point_int, angle, table_point, table_line, table_chain, table_shaft, table_slider, table_rod):
@@ -219,7 +232,6 @@ if __name__=="__main__":
             end = int(table_line.item(i, 2).text().replace("Point", ""))
             len = float(table_line.item(i, 3).text())
             Constraint.distance(len, Workplane1, Point[start], Point[end])
-            print("Constraint.distance("+str(len)+", Workplane1, Point"+str(start+1)+", Point"+str(end+1)+")")
         for i in range(table_slider.rowCount()):
             pt = int(table_slider.item(i, 1).text().replace("Point", ""))
             start = int(table_line.item(int(table_slider.item(i, 2).text().replace("Line", "")), 1).text().replace("Point", ""))

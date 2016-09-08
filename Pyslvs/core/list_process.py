@@ -39,7 +39,7 @@ def Links_list(table, name, start, end, l, edit):
     if not edit: print("Add a link, Line "+str(rowPosition)+".")
     else: print("Edit a link, Line "+str(rowPosition)+".")
 
-def Chain_list(table, name, p1, p2, p3, a, b, c, edit, ):
+def Chain_list(table, name, p1, p2, p3, a, b, c, edit):
     rowPosition = int(name.replace("Chain", ""))
     if not edit: table.insertRow(rowPosition)
     name_set = QTableWidgetItem(name)
@@ -54,7 +54,7 @@ def Chain_list(table, name, p1, p2, p3, a, b, c, edit, ):
     if not edit: print("Add a Triangle Chain, Line "+str(rowPosition)+".")
     else: print("Edit a Triangle Chain, Line "+str(rowPosition)+".")
 
-def Shaft_list(table, name, center, references, start, end, edit, ):
+def Shaft_list(table, name, center, references, start, end, edit):
     rowPosition = int(name.replace("Shaft", ""))
     name_set = QTableWidgetItem(name)
     name_set.setFlags(Qt.ItemIsEnabled)
@@ -67,7 +67,7 @@ def Shaft_list(table, name, center, references, start, end, edit, ):
     if not edit: print("Set the Point to new Shaft.")
     else: print("Set the Point to selected Shaft.")
 
-def Slider_list(table, name, center, references, edit, ):
+def Slider_list(table, name, center, references, edit):
     rowPosition = int(name.replace("Slider", ""))
     name_set = QTableWidgetItem(name)
     name_set.setFlags(Qt.ItemIsEnabled)
@@ -185,3 +185,15 @@ def Reset_notebook(table, k):
 
 def Point_setup(table, num, x, y):
     table.setItem(num, 4, QTableWidgetItem("("+str(x)+", "+str(y)+")"))
+
+def Path_point_setup(table, data, Run_list):
+    for i in range(len(data)):
+        nPath = data[i]
+        for j in range(0, len(nPath), 2):
+            X_path = nPath[j]
+            Y_path = nPath[j+1]
+            for k in range(len(X_path)-1):
+                table.insertRow(table.rowCount())
+                table.setItem(table.rowCount()-1, 0, QTableWidgetItem(Run_list[int(j/2)]))
+                table.setItem(table.rowCount()-1, 1, QTableWidgetItem(str(X_path[k])))
+                table.setItem(table.rowCount()-1, 2, QTableWidgetItem(str(Y_path[k])))
