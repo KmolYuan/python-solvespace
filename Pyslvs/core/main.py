@@ -288,7 +288,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             for i in range(table_point.rowCount()):
                 Point_setup(table_point, i, result[i*2], result[i*2+1])
             self.Reload_Canvas()
-        print("Rebuild the cavanc.")
     
     #Reload Canvas
     def Reload_Canvas(self):
