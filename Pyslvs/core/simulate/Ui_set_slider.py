@@ -52,6 +52,8 @@ class Ui_Dialog(object):
         self.label_5.setObjectName("label_5")
         self.Slider_num = QtWidgets.QTextBrowser(Dialog)
         self.Slider_num.setGeometry(QtCore.QRect(30, 170, 211, 31))
+        self.Slider_num.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.Slider_num.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.Slider_num.setObjectName("Slider_num")
 
         self.retranslateUi(Dialog)

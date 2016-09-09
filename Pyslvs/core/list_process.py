@@ -54,7 +54,7 @@ def Chain_list(table, name, p1, p2, p3, a, b, c, edit):
     if not edit: print("Add a Triangle Chain, Line "+str(rowPosition)+".")
     else: print("Edit a Triangle Chain, Line "+str(rowPosition)+".")
 
-def Shaft_list(table, name, center, references, start, end, edit):
+def Shaft_list(table, name, center, references, start, end, demo_angle, edit):
     rowPosition = int(name.replace("Shaft", ""))
     name_set = QTableWidgetItem(name)
     name_set.setFlags(Qt.ItemIsEnabled)
@@ -64,6 +64,7 @@ def Shaft_list(table, name, center, references, start, end, edit):
     table.setItem(rowPosition, 2, QTableWidgetItem(references))
     table.setItem(rowPosition, 3, QTableWidgetItem(start))
     table.setItem(rowPosition, 4, QTableWidgetItem(end))
+    if demo_angle: table.setItem(rowPosition, 5, QTableWidgetItem(demo_angle))
     if not edit: print("Set the Point to new Shaft.")
     else: print("Set the Point to selected Shaft.")
 
@@ -168,7 +169,7 @@ def Delete_dlg_set(table, icon, dlg, name):
         dlg.show()
         if dlg.exec_(): One_list_delete(table, name, dlg)
 
-def Repeated_check(table, first, second):
+def Repeated_check_line(table, first, second):
     n = False
     for i in range(table.rowCount()):
         case1 = (table.item(i, 1).text()==first)and(table.item(i, 2).text()==second)

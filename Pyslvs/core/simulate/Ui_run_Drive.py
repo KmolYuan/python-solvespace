@@ -49,6 +49,8 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.Degree_text.sizePolicy().hasHeightForWidth())
         self.Degree_text.setSizePolicy(sizePolicy)
         self.Degree_text.setMaximumSize(QtCore.QSize(70, 30))
+        self.Degree_text.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.Degree_text.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.Degree_text.setObjectName("Degree_text")
         self.horizontalLayout_2.addWidget(self.Degree_text)
         self.playButton = QtWidgets.QPushButton(Form)

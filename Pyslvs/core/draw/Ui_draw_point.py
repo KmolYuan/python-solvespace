@@ -51,6 +51,8 @@ class Ui_Dialog(object):
         self.Fix_Point.setObjectName("Fix_Point")
         self.Point_num = QtWidgets.QTextBrowser(Dialog)
         self.Point_num.setGeometry(QtCore.QRect(40, 110, 241, 31))
+        self.Point_num.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.Point_num.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.Point_num.setObjectName("Point_num")
         self.label_4 = QtWidgets.QLabel(Dialog)
         self.label_4.setGeometry(QtCore.QRect(40, 80, 241, 31))

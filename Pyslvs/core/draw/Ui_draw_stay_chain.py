@@ -31,6 +31,8 @@ class Ui_Dialog(object):
         self.label.setObjectName("label")
         self.Chain_num = QtWidgets.QTextBrowser(Dialog)
         self.Chain_num.setGeometry(QtCore.QRect(50, 80, 121, 31))
+        self.Chain_num.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.Chain_num.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.Chain_num.setObjectName("Chain_num")
         self.label_2 = QtWidgets.QLabel(Dialog)
         self.label_2.setGeometry(QtCore.QRect(50, 56, 121, 21))

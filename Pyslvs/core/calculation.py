@@ -10,7 +10,6 @@ class Solvespace():
     
     def table_process(self, table_point, table_line, table_chain, table_shaft, table_slider, table_rod, filename):
         sys = System(1000)
-        #g = 1
         #Pre-oder
         p0 = sys.add_param(0.0)
         p1 = sys.add_param(0.0)
@@ -175,9 +174,7 @@ if __name__=="__main__":
         return result
 
     def Solve(self, point_int, angle, table_point, table_line, table_chain, table_shaft, table_slider, table_rod):
-        #Script = ""
         sys = System(1000)
-        #g = 1
         #Pre-oder
         p0 = sys.add_param(0.0)
         p1 = sys.add_param(0.0)

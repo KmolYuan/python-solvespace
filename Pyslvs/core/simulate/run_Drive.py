@@ -8,6 +8,7 @@ from .Ui_run_Drive import Ui_Form
 
 class Drive_show(QWidget, Ui_Form):
     Degree_change = pyqtSignal(int, float)
+    Shaft_change = pyqtSignal(int)
     def __init__(self, parent=None):
         super(Drive_show, self).__init__(parent)
         self.setupUi(self)
@@ -23,18 +24,9 @@ class Drive_show(QWidget, Ui_Form):
     
     def start(self):
         self.work.start()
-        self.playButton.clicked.disconnect(self.start)
-        self.playButton.clicked.connect(self.stop)
-        self.playButton.setText(_translate("Info_Dialog", "Stop"))
+        self.playButton.setEnabled(False)
         self.Degree.setEnabled(False)
         self.Shaft.setEnabled(False)
-        
-    def stop(self):
-        self.work.stop()
-        self.playButton.clicked.disconnect(self.stop)
-        self.playButton.clicked.connect(self.start)
-        self.playButton.setText(_translate("Info_Dialog", "Start"))
-        self.Degree.setEnabled(True)
     
     @pyqtSlot(int)
     def progressbar_change(self, val): self.Degree.setValue(val)
@@ -43,13 +35,16 @@ class Drive_show(QWidget, Ui_Form):
     def finish(self):
         self.Degree.setValue(0)
         self.work = WorkerThread()
-        self.playButton.clicked.disconnect(self.stop)
         self.playButton.clicked.connect(self.start)
         self.work.progress_Signal.connect(self.progressbar_change)
         self.work.done.connect(self.finish)
         self.playButton.setText(_translate("Info_Dialog", "Start"))
         self.Degree.setEnabled(True)
         self.Shaft.setEnabled(True)
+        self.playButton.setEnabled(True)
+    
+    @pyqtSlot(int)
+    def on_Shaft_currentIndexChanged(self, index): self.Shaft_change.emit(index)
 
 class WorkerThread(QThread):
     done = pyqtSignal()
@@ -71,7 +66,6 @@ class WorkerThread(QThread):
     def progress_going(self):
         time.sleep(0.05)
         self.progress = self.progress+100
-        print(self.progress)
         self.progress_Signal.emit(self.progress)
     
     def continue_progress(self):

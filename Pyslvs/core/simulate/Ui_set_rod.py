@@ -56,6 +56,8 @@ class Ui_Dialog(object):
         self.label_5.setObjectName("label_5")
         self.Rod_num = QtWidgets.QTextBrowser(Dialog)
         self.Rod_num.setGeometry(QtCore.QRect(30, 110, 211, 31))
+        self.Rod_num.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.Rod_num.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.Rod_num.setObjectName("Rod_num")
         self.len2 = QtWidgets.QDoubleSpinBox(Dialog)
         self.len2.setGeometry(QtCore.QRect(250, 180, 91, 26))
