@@ -1,25 +1,19 @@
 # -*- coding: utf-8 -*-
-
-"""
-Module implementing edit_slider_show.
-"""
-
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QDialog
-
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from .Ui_edit_slider import Ui_Dialog
 
-
 class edit_slider_show(QDialog, Ui_Dialog):
-    """
-    Class documentation goes here.
-    """
+    Another_slider = pyqtSignal(int)
     def __init__(self, parent=None):
-        """
-        Constructor
-        
-        @param parent reference to the parent widget
-        @type QWidget
-        """
         super(edit_slider_show, self).__init__(parent)
         self.setupUi(self)
+    
+    @pyqtSlot(int)
+    def on_Slider_currentIndexChanged(self, index): self.Another_slider.emit(index)
+    
+    @pyqtSlot(int, int)
+    def change_feedback(self, point, line):
+        self.Slider_Center.setCurrentIndex(point)
+        self.References.setCurrentIndex(line)

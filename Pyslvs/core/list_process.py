@@ -1,7 +1,6 @@
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-
 from .warning.contradict_value import contradict_show
 
 def Points_list(table, name, x, y, fixed, edit):
@@ -79,7 +78,7 @@ def Slider_list(table, name, center, references, edit):
     if not edit: print("Set the Point to new Slider.")
     else: print("Set the Point to selected Slider.")
 
-def Rod_list(table, name, start, end, min, max, edit, ):
+def Rod_list(table, name, start, end, min, max, edit):
     rowPosition = int(name.replace("Rod", ""))
     name_set = QTableWidgetItem(name)
     name_set.setFlags(Qt.ItemIsEnabled)
@@ -158,7 +157,7 @@ def One_list_delete(table, name, dlg):
             for j in range(i, table.rowCount()): table.setItem(j, 0, QTableWidgetItem(name+str(j)))
             break
 
-def Delete_dlg_set(table, icon, dlg, name):
+def Delete_dlg_set(table, icon, dlg, name, pos):
     if table.rowCount() <= 0:
         dlg = zero_show()
         dlg.show()
@@ -166,6 +165,7 @@ def Delete_dlg_set(table, icon, dlg, name):
     else:
         for i in range(table.rowCount()):
             dlg.Entity.insertItem(i, icon, table.item(i, 0).text())
+        dlg.Entity.setCurrentIndex(pos)
         dlg.show()
         if dlg.exec_(): One_list_delete(table, name, dlg)
 
@@ -198,3 +198,12 @@ def Path_point_setup(table, data, Run_list):
                 table.setItem(table.rowCount()-1, 0, QTableWidgetItem(Run_list[int(j/2)]))
                 table.setItem(table.rowCount()-1, 1, QTableWidgetItem(str(X_path[k])))
                 table.setItem(table.rowCount()-1, 2, QTableWidgetItem(str(Y_path[k])))
+
+def Parameter_management(table, name, val, commit):
+    rowPosition = int(name.replace("n", ""))
+    name_set = QTableWidgetItem(name)
+    name_set.setFlags(Qt.ItemIsEnabled)
+    table.insertRow(rowPosition)
+    table.setItem(rowPosition, 0, name_set)
+    table.setItem(rowPosition, 1, QTableWidgetItem(val))
+    table.setItem(rowPosition, 2, QTableWidgetItem(commit))

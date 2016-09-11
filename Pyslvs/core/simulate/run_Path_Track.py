@@ -43,6 +43,7 @@ class Path_Track_show(QDialog, Ui_Dialog):
             self.work.Drive_Shaft = self.Drive_Shaft
             self.work.Slider = self.Slider
             self.work.Rod = self.Rod
+            self.work.Parameter_list = self.Parameter_list
             self.work.Resolution = self.Resolution
             q = 0
             for i in range(self.Drive_Shaft.rowCount()):
@@ -99,7 +100,7 @@ class WorkerThread(QThread):
                 for j in range(int(start_angle), int(end_angle)+1, int(Resolution)):
                     angle = float(j/100)
                     x, y = solvespace.Solve(n, angle, self.Entiteis_Point, self.Entiteis_Link,
-                        self.Entiteis_Stay_Chain, self.Drive_Shaft, self.Slider, self.Rod)
+                        self.Entiteis_Stay_Chain, self.Drive_Shaft, self.Slider, self.Rod, self.Parameter_list)
                     Xval += [x]
                     Yval += [y]
                     self.progress_going()

@@ -30,9 +30,9 @@ class Ui_Dialog(object):
         self.label_3.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.label_3.setWordWrap(True)
         self.label_3.setObjectName("label_3")
-        self.Point = QtWidgets.QComboBox(Dialog)
-        self.Point.setGeometry(QtCore.QRect(10, 140, 131, 25))
-        self.Point.setObjectName("Point")
+        self.Entity = QtWidgets.QComboBox(Dialog)
+        self.Entity.setGeometry(QtCore.QRect(10, 140, 131, 25))
+        self.Entity.setObjectName("Entity")
 
         self.retranslateUi(Dialog)
         self.buttonBox.accepted.connect(Dialog.accept)
