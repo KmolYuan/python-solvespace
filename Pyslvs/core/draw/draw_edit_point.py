@@ -15,8 +15,8 @@ class edit_point_show(QDialog, Ui_Dialog):
     
     @pyqtSlot(float, float, bool)
     def change_feedback(self, x, y, fix):
-        self.X_coordinate.setValue(x)
-        self.Y_coordinate.setValue(y)
+        self.X_coordinate.setPlaceholderText(str(x))
+        self.Y_coordinate.setPlaceholderText(str(y))
         if fix: fixed = Qt.Checked
         else: fixed = Qt.Unchecked
         self.Fix_Point.setCheckState(fixed)

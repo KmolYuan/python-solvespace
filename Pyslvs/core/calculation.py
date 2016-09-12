@@ -16,7 +16,9 @@ class Solvespace():
         table_slider_l = []
         table_rod_l = []
         table_parameter_l = []
-        for i in range(table_parameter.rowCount()): table_parameter_l += table_parameter.item(i, 1).text()
+        for i in range(table_parameter.rowCount()):
+            try: table_parameter_l += [float(table_parameter.item(i, 1).text())]
+            except: pass
         for i in range(table_point.rowCount()):
             k = []
             for j in range(1, 3):
@@ -26,6 +28,11 @@ class Solvespace():
                 k += [float(table_val)]
             #bool
             k += [bool(table_point.item(i, 3).checkState())]
+            #XY
+            try:
+                k += [float(table_point.item(i, 4).text().replace("(", "").replace(")", "").split(", ")[0])]
+                k += [float(table_point.item(i, 4).text().replace("(", "").replace(")", "").split(", ")[1])]
+            except: pass
             table_point_l += [k]
         for i in range(table_line.rowCount()):
             k = []

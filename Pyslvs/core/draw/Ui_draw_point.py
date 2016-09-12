@@ -85,6 +85,8 @@ class Ui_Dialog(object):
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.verticalLayout_2.addWidget(self.buttonBox)
+        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_2.addItem(spacerItem1)
         self.Fix_Point = QtWidgets.QCheckBox(Dialog)
         self.Fix_Point.setObjectName("Fix_Point")
         self.verticalLayout_2.addWidget(self.Fix_Point)

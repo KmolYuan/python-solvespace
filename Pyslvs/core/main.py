@@ -75,6 +75,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #Mask
         self.Mask = None
         self.Mask_Change()
+        #qpainterWindow Right-click menu
+        self.qpainterWindow.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.qpainterWindow.customContextMenuRequested.connect(self.on_painter_context_menu)
+        self.popMenu_painter = QMenu(self)
+        self.action_painter_right_click_menu_add = QAction("Add a Point", self)
+        self.popMenu_painter.addAction(self.action_painter_right_click_menu_add)
+        self.mouse_pos_x = 0.0
+        self.mouse_pos_y = 0.0
+        self.qpainterWindow.mouse_track.connect(self.context_menu_mouse_pos)
         #Entiteis_Point Right-click menu
         self.Entiteis_Point_Widget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.Entiteis_Point_Widget.customContextMenuRequested.connect(self.on_point_context_menu)
@@ -169,6 +178,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.Resolve()
     
     #Right-click menu event
+    def on_painter_context_menu(self, point):
+        action = self.popMenu_painter.exec_(self.qpainterWindow.mapToGlobal(point))
+        if action == self.action_painter_right_click_menu_add:
+            table1 = self.Entiteis_Point
+            table2 = self.Entiteis_Point_Style
+            x = str(self.mouse_pos_x)
+            y = str(self.mouse_pos_y)
+            Points_list(table1, "Point"+str(table1.rowCount()), x, y, False, False)
+            Points_style_add(table2, "Point"+str(table2.rowCount()), "G", "5", "G")
+    @pyqtSlot(float, float)
+    def context_menu_mouse_pos(self, x, y):
+        self.mouse_pos_x = x
+        self.mouse_pos_y = y
     def on_point_context_menu(self, point):
         self.action_point_right_click_menu_edit.setEnabled(self.Entiteis_Point.rowCount()>=2)
         self.action_point_right_click_menu_delete.setEnabled(self.Entiteis_Point.rowCount()>=2)
@@ -228,9 +250,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if action == self.action_parameter_right_click_menu_add:
             rowPosition = self.Parameter_list.rowCount()
             self.Parameter_list.insertRow(rowPosition)
-            for i in range(rowPosition):
+            name_set = QTableWidgetItem("n0")
+            for i in range(rowPosition-1):
                 if not 'n'+str(i) == self.Parameter_list.item(i, 0).text():
-                    name_set = QTableWidgetItem("n"+str(rowPosition))
+                    name_set = QTableWidgetItem("n"+str(i))
                     break
             name_set.setFlags(Qt.ItemIsEnabled)
             digit_set = QTableWidgetItem("0.0")
@@ -242,6 +265,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.Parameter_list.setItem(rowPosition, 2, commit_set)
             self.Workbook_noSave()
             self.Mask_Change()
+            self.Resolve()
         elif action == self.action_parameter_right_click_menu_move_up:
             table = self.Parameter_list
             row = self.Parameter_list.currentRow()
@@ -257,6 +281,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 table.setItem(row-1, 2, commit_set)
                 table.removeRow(row+1)
                 self.Workbook_noSave()
+                self.Mask_Change()
+                self.Resolve()
             except: pass
         elif action == self.action_parameter_right_click_menu_move_down:
             try:
@@ -382,9 +408,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.qpainterWindow.update_figure(float(self.LineWidth.text()), float(self.PathWidth.text()),
             self.Entiteis_Point, self.Entiteis_Link,
             self.Entiteis_Stay_Chain, self.Drive_Shaft,
-            self.Slider, self.Rod,
+            self.Slider, self.Rod, self.Parameter_list,
             self.Entiteis_Point_Style, self.ZoomText.toPlainText(),
-            self.actionDisplay_Dimensions.isChecked(), self.action_Black_Blackground.isChecked())
+            self.Font_size.value(),
+            self.actionDisplay_Dimensions.isChecked(), self.actionDisplay_Point_Mark.isChecked(),
+            self.action_Black_Blackground.isChecked())
     
     #Workbook Change
     def Workbook_noSave(self):
@@ -406,8 +434,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         dlg = color_show()
         dlg.show()
         dlg.exec()
-    @pyqtSlot()
-    def on_Color_set_clicked(self): self.on_actionColor_Settings_triggered()
     @pyqtSlot()
     def on_action_Get_Help_triggered(self):
         print("Open http://project.mde.tw/blog/slvs-library-functions.html")
@@ -448,24 +474,48 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else: self.load_Workbook()
     
     def new_Workbook(self):
+        try:
+            self.MeasurementWidget.deleteLater()
+            del self.MeasurementWidget
+            self.Measurement.setChecked(False)
+        except: pass
+        try:
+            self.DriveWidget.deleteLater()
+            del self.DriveWidget
+            self.Drive.setChecked(False)
+        except: pass
         Reset_notebook(self.Entiteis_Point, 1)
         Reset_notebook(self.Entiteis_Link, 0)
         Reset_notebook(self.Entiteis_Stay_Chain, 0)
         Reset_notebook(self.Entiteis_Point_Style, 1)
         Reset_notebook(self.Drive_Shaft, 0)
         Reset_notebook(self.Slider, 0)
+        Reset_notebook(self.Rod, 0)
+        Reset_notebook(self.Parameter_list, 0)
         self.qpainterWindow.removePath()
         self.Path_data_exist.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600; color:#ff0000;\">No Path Data</span></p></body></html>"))
         self.Resolve()
         print("Reset the workbook.")
         self.setWindowTitle(_translate("MainWindow", "Pyslvs - New Workbook"))
     def load_Workbook(self):
+        try:
+            self.MeasurementWidget.deleteLater()
+            del self.MeasurementWidget
+            self.Measurement.setChecked(False)
+        except: pass
+        try:
+            self.DriveWidget.deleteLater()
+            del self.DriveWidget
+            self.Drive.setChecked(False)
+        except: pass
         Reset_notebook(self.Entiteis_Point, 1)
         Reset_notebook(self.Entiteis_Link, 0)
         Reset_notebook(self.Entiteis_Stay_Chain, 0)
         Reset_notebook(self.Entiteis_Point_Style, 1)
         Reset_notebook(self.Drive_Shaft, 0)
         Reset_notebook(self.Slider, 0)
+        Reset_notebook(self.Rod, 0)
+        Reset_notebook(self.Parameter_list, 0)
         self.qpainterWindow.removePath()
         self.Resolve()
         print("Reset workbook.")
@@ -517,16 +567,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.Path_data_exist.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600; color:#ff0000;\">No Path Data</span></p></body></html>"))
             self.Path_Clear.setEnabled(False)
             self.Path_coordinate.setEnabled(False)
-            try:
-                self.MeasurementWidget.deleteLater()
-                self.Measurement.setChecked(False)
-                self.Drive.setEnabled(True)
-            except: pass
-            try:
-                self.DriveWidget.deleteLater()
-                self.Drive.setChecked(False)
-                self.Measurement.setEnabled(True)
-            except: pass
             print("Successful Load the workbook...")
     
     @pyqtSlot()
@@ -601,8 +641,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         dlg.Point_num.insertPlainText("Point"+str(table1.rowCount()))
         dlg.show()
         if dlg.exec_():
-            x = self.X_coordinate.text() if not self.X_coordinate.text()=="" else "0.0"
-            y = self.Y_coordinate.text() if not self.Y_coordinate.text()=="" else "0.0"
+            x = self.X_coordinate.text() if not self.X_coordinate.text()in["", "n", "-"] else self.X_coordinate.placeholderText()
+            y = self.Y_coordinate.text() if not self.Y_coordinate.text()in["", "n", "-"] else self.Y_coordinate.placeholderText()
             Points_list(table1, dlg.Point_num.toPlainText(),
                 x, y, dlg.Fix_Point.checkState(), False)
             fix = "10" if dlg.Fix_Point.checkState() else "5"
@@ -614,8 +654,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_Point_add_button_clicked(self):
         table1 = self.Entiteis_Point
         table2 = self.Entiteis_Point_Style
-        x = self.X_coordinate.text() if not self.X_coordinate.text()=="" else self.X_coordinate.placeholderText()
-        y = self.Y_coordinate.text() if not self.Y_coordinate.text()=="" else self.Y_coordinate.placeholderText()
+        x = self.X_coordinate.text() if not self.X_coordinate.text()in["", "n", "-"] else self.X_coordinate.placeholderText()
+        y = self.Y_coordinate.text() if not self.Y_coordinate.text()in["", "n", "-"] else self.Y_coordinate.placeholderText()
         Points_list(table1, "Point"+str(table1.rowCount()), x, y, False, False)
         Points_style_add(table2, "Point"+str(table2.rowCount()), "G", "5", "G")
         self.Resolve()
@@ -641,7 +681,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if dlg.exec_():
                 table2 = self.Entiteis_Point_Style
                 Points_list(table1, dlg.Point.currentText(),
-                    dlg.X_coordinate.text(), dlg.Y_coordinate.text(),
+                    dlg.X_coordinate.text() if not dlg.X_coordinate.text()in["", "n", "-"] else dlg.X_coordinate.placeholderText(),
+                    dlg.Y_coordinate.text() if not dlg.Y_coordinate.text()in["", "n", "-"] else dlg.Y_coordinate.placeholderText(),
                     dlg.Fix_Point.checkState(), True)
                 Points_style_fix(table2, dlg.Point.currentText(), dlg.Fix_Point.checkState())
                 self.Resolve()
@@ -683,7 +724,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     Links_list(table2, dlg.Link_num.toPlainText(),
                         dlg.Start_Point.currentText(), dlg.End_Point.currentText(),
-                        dlg.Length.text(), False)
+                        dlg.Length.text()if not dlg.Length.text()in["", "n"] else dlg.Length.placeholderText(), False)
                     self.Resolve()
                     self.Workbook_noSave()
     
@@ -721,7 +762,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     Links_list(table2, dlg.Link.currentText(),
                         dlg.Start_Point.currentText(),  dlg.End_Point.currentText(),
-                        dlg.Length.text(), True)
+                        dlg.Length.text() if not dlg.Length.text()in["", "n"] else dlg.Length.placeholderText(), True)
                     self.Resolve()
                     self.Workbook_noSave()
     link_feedback = pyqtSignal(int, int, float)
@@ -762,9 +803,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     Chain_list(table2, dlg.Chain_num.toPlainText(),
                         p1, p2, p3,
-                        dlg.p1_p2.text(),
-                        dlg.p2_p3.text(),
-                        dlg.p1_p3.text(), False)
+                        dlg.p1_p2.text() if not dlg.p1_p2.text()in["", "n"] else dlg.p1_p2.placeholderText(),
+                        dlg.p2_p3.text() if not dlg.p2_p3.text()in["", "n"] else dlg.p2_p3.placeholderText(),
+                        dlg.p1_p3.text() if not dlg.p1_p3.text()in["", "n"] else dlg.p1_p3.placeholderText(), False)
                     self.Resolve()
                     self.Workbook_noSave()
     
@@ -803,9 +844,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if dlg.exec_(): self.on_actionEdit_Stay_Chain_triggered()
                 else:
                     Chain_list(table2, dlg.Chain.currentText(), p1, p2, p3,
-                        dlg.p1_p2.text(),
-                        dlg.p2_p3.text(),
-                        dlg.p1_p3.text(), True)
+                        dlg.p1_p2.text() if not dlg.p1_p2.text()in["", "n"] else dlg.p1_p2.placeholderText(),
+                        dlg.p2_p3.text() if not dlg.p2_p3.text()in["", "n"] else dlg.p2_p3.placeholderText(),
+                        dlg.p1_p3.text() if not dlg.p1_p3.text()in["", "n"] else dlg.p1_p3.placeholderText(), True)
                     self.Resolve()
                     self.Workbook_noSave()
     chain_feedback = pyqtSignal(int, int, int, float, float, float)
@@ -951,12 +992,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             icon2.addPixmap(QPixmap(":/icons/line.png"), QIcon.Normal, QIcon.Off)
             icon3 = QIcon()
             icon3.addPixmap(QPixmap(":/icons/pointonx.png"), QIcon.Normal, QIcon.Off)
-            for i in range(table1.rowCount()):
-                dlg.Slider_Center.insertItem(i, icon1, table1.item(i, 0).text())
-            for i in range(table2.rowCount()):
-                dlg.References.insertItem(i, icon2, table2.item(i, 0).text())
-            for i in range(table3.rowCount()):
-                dlg.Slider.insertItem(i, icon3, table3.item(i, 0).text())
+            for i in range(table1.rowCount()): dlg.Slider_Center.insertItem(i, icon1, table1.item(i, 0).text())
+            for i in range(table2.rowCount()): dlg.References.insertItem(i, icon2, table2.item(i, 0).text())
+            for i in range(table3.rowCount()): dlg.Slider.insertItem(i, icon3, table3.item(i, 0).text())
             dlg.Another_slider.connect(self.Change_Edit_Slider)
             self.slider_feedback.connect(dlg.change_feedback)
             dlg.Slider.setCurrentIndex(pos)
@@ -1158,13 +1196,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot(bool)
     def on_actionDisplay_Dimensions_toggled(self, p0): self.Reload_Canvas()
     @pyqtSlot(bool)
+    def on_actionDisplay_Point_Mark_toggled(self, p0): self.Reload_Canvas()
+    @pyqtSlot(bool)
     def on_action_Black_Blackground_toggled(self, p0): self.Reload_Canvas()
     
     @pyqtSlot()
     def on_PathTrack_clicked(self):
         table1 = self.Entiteis_Point
         dlg = Path_Track_show()
-        self.actionDisplay_Dimensions.setChecked(True)
+        self.actionDisplay_Point_Mark.setChecked(True)
         for i in range(table1.rowCount()):
             if not table1.item(i, 3).checkState(): dlg.Point_list.addItem(table1.item(i, 0).text())
         if dlg.Point_list.count()==0:
@@ -1204,8 +1244,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     @pyqtSlot()
     def on_Drive_clicked(self):
-        if self.mplLayout.count()<=2:
-            self.Measurement.setEnabled(False)
+        if self.mplLayout.count()<=3 and not hasattr(self, 'DriveWidget'):
             icon = QIcon()
             icon.addPixmap(QPixmap(":/icons/circle.png"), QIcon.Normal, QIcon.Off)
             self.DriveWidget = Drive_show()
@@ -1215,8 +1254,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.DriveWidget.Shaft_change.connect(self.Shaft_limit)
             self.Shaft_limit(0)
         else:
-            self.Measurement.setEnabled(True)
-            self.DriveWidget.deleteLater()
+            try:
+                self.DriveWidget.deleteLater()
+                del self.DriveWidget
+            except: pass
     @pyqtSlot(int)
     def Shaft_limit(self, pos):
         try:
@@ -1232,8 +1273,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     @pyqtSlot()
     def on_Measurement_clicked(self):
-        if self.mplLayout.count()<=2:
-            self.Drive.setEnabled(False)
+        if self.mplLayout.count()<=3 and not hasattr(self, 'MeasurementWidget'):
             table = self.Entiteis_Point
             icon = QIcon()
             icon.addPixmap(QPixmap(":/icons/point.png"), QIcon.Normal, QIcon.Off)
@@ -1242,14 +1282,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.MeasurementWidget.Start.insertItem(i, icon, table.item(i, 0).text())
                 self.MeasurementWidget.End.insertItem(i, icon, table.item(i, 0).text())
             self.mplLayout.insertWidget(1, self.MeasurementWidget)
+            self.qpainterWindow.change_event.connect(self.MeasurementWidget.Detection_do)
             self.actionDisplay_Dimensions.setChecked(True)
+            self.actionDisplay_Point_Mark.setChecked(True)
             self.qpainterWindow.mouse_track.connect(self.MeasurementWidget.show_mouse_track)
             self.MeasurementWidget.point_change.connect(self.distance_solving)
             self.distance_changed.connect(self.MeasurementWidget.change_distance)
             self.MeasurementWidget.Mouse.setPlainText("Detecting")
         else:
-            self.Drive.setEnabled(True)
-            self.MeasurementWidget.deleteLater()
+            try:
+                self.MeasurementWidget.deleteLater()
+                del self.MeasurementWidget
+            except: pass
     distance_changed = pyqtSignal(float)
     @pyqtSlot(int, int)
     def distance_solving(self, start, end):
@@ -1258,9 +1302,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         x = float(start.split(", ")[0])-float(end.split(", ")[0])
         y = float(start.split(", ")[1])-float(end.split(", ")[1])
         self.distance_changed.emit(round(math.sqrt(x**2+y**2), 9))
-    
-    @pyqtSlot(int, int)
-    def on_Parameter_list_cellChanged(self, row, column): self.Resolve()
     
     def Mask_Change(self):
         param_10 = '[1-'+str(int(self.Parameter_list.rowCount()/10))+']?' if self.Parameter_list.rowCount()>=10 else ''
@@ -1273,9 +1314,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     @pyqtSlot(int, int, int, int)
     def on_Parameter_list_currentCellChanged(self, currentRow, currentColumn, previousRow, previousColumn):
-        self.Parameter_num.setPlainText("n"+str(currentRow))
-        self.Parameter_digital.setPlaceholderText(str(self.Parameter_list.item(currentRow, 1).text()))
-        self.Parameter_digital.clear()
+        try:
+            self.Parameter_num.setPlainText("n"+str(currentRow))
+            self.Parameter_digital.setPlaceholderText(str(self.Parameter_list.item(currentRow, 1).text()))
+            self.Parameter_digital.clear()
+        except:
+            self.Parameter_num.setPlainText("N/A")
+            self.Parameter_digital.setPlaceholderText("0.0")
+            self.Parameter_digital.clear()
     
     @pyqtSlot()
     def on_Parameter_update_clicked(self):

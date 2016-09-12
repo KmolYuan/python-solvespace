@@ -3,9 +3,11 @@
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from .calculation import Solvespace
 
 class DynamicCanvas(QWidget):
     mouse_track = pyqtSignal(float, float)
+    change_event = pyqtSignal()
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setParent(parent)
@@ -34,26 +36,29 @@ class DynamicCanvas(QWidget):
     def update_figure(self, width, pathwidth,
             table_point, table_line,
             table_chain, table_shaft,
-            table_slider, table_rod,
+            table_slider, table_rod, table_parameter,
             table_style, zoom_rate,
-            Dimension, Blackground):
+            Font_size, Dimension, Point_mark, Blackground):
+        slvs = Solvespace()
+        table_point, table_line, table_chain, table_shaft, table_slider, table_rod = slvs.table_process(table_point, table_line, table_chain, table_shaft, table_slider, table_rod, table_parameter)
         if Blackground: self.Blackground = Qt.black
         else: self.Blackground = Qt.white
+        self.Font_size = Font_size
         self.Dimension = Dimension
+        self.Point_mark = Point_mark
         self.pen_width = width
         self.path_width = pathwidth
         self.Xval = []
         self.Yval = []
         self.zoom = float(zoom_rate.replace("%", ""))/100
         self.rate_all = 2
-        for i in range(table_point.rowCount()):
+        for i in range(len(table_point)):
             try:
-                k = table_point.item(i, 4).text().replace("(", "").replace(")", "").split(", ")
-                self.Xval += [float(k[0])*self.zoom*self.rate_all]
-                self.Yval += [float(k[1])*self.zoom*self.rate_all*(-1)]
+                self.Xval += [table_point[i][3]*self.zoom*self.rate_all]
+                self.Yval += [table_point[i][4]*self.zoom*self.rate_all*(-1)]
             except:
-                self.Xval += [float(table_point.item(i, 1).text())*self.zoom*self.rate_all]
-                self.Yval += [float(table_point.item(i, 2).text())*self.zoom*self.rate_all*(-1)]
+                self.Xval += [table_point[i][0]*self.zoom*self.rate_all]
+                self.Yval += [table_point[i][1]*self.zoom*self.rate_all*(-1)]
         self.table_point = table_point
         self.table_line = table_line
         self.table_chain = table_chain
@@ -72,10 +77,10 @@ class DynamicCanvas(QWidget):
         painter.begin(self)
         painter.fillRect(event.rect(), QBrush(self.Blackground))
         painter.translate(self.origin_x, self.origin_y)
-        for i in range(self.table_chain.rowCount()):
-            pa = int(self.table_chain.item(i, 1).text().replace("Point", ""))
-            pb = int(self.table_chain.item(i, 2).text().replace("Point", ""))
-            pc = int(self.table_chain.item(i, 3).text().replace("Point", ""))
+        for i in range(len(self.table_chain)):
+            pa = self.table_chain[i][0]
+            pb = self.table_chain[i][1]
+            pc = self.table_chain[i][2]
             pen = QPen()
             pen.setWidth(self.pen_width)
             painter.setBrush(Qt.cyan)
@@ -87,15 +92,16 @@ class DynamicCanvas(QWidget):
             if self.Dimension:
                 pen.setColor(Qt.darkGray)
                 painter.setPen(pen)
+                painter.setFont(QFont("Arial", self.Font_size))
                 mp = QPointF((self.Xval[pa]+self.Xval[pb])/2, (self.Yval[pa]+self.Yval[pb])/2)
-                painter.drawText(mp, self.table_chain.item(i, 4).text())
+                painter.drawText(mp, str(self.table_chain[i][3]))
                 mp = QPointF((self.Xval[pb]+self.Xval[pc])/2, (self.Yval[pb]+self.Yval[pc])/2)
-                painter.drawText(mp, self.table_chain.item(i, 5).text())
+                painter.drawText(mp, str(self.table_chain[i][4]))
                 mp = QPointF((self.Xval[pa]+self.Xval[pc])/2, (self.Yval[pa]+self.Yval[pc])/2)
-                painter.drawText(mp, self.table_chain.item(i, 6).text())
-        for i in range(self.table_line.rowCount()):
-            start = int(self.table_line.item(i, 1).text().replace("Point", ""))
-            end = int(self.table_line.item(i, 2).text().replace("Point", ""))
+                painter.drawText(mp, str(self.table_chain[i][5]))
+        for i in range(len(self.table_line)):
+            start = self.table_line[i][0]
+            end = self.table_line[i][1]
             point_start = QPointF(self.Xval[start], self.Yval[start])
             point_end = QPointF(self.Xval[end], self.Yval[end])
             pen = QPen()
@@ -107,11 +113,13 @@ class DynamicCanvas(QWidget):
                 pen.setColor(Qt.darkGray)
                 painter.setPen(pen)
                 mp = QPointF((self.Xval[start]+self.Xval[end])/2, (self.Yval[start]+self.Yval[end])/2)
-                painter.drawText(mp, self.table_line.item(i, 3).text())
-        for i in range(self.table_point.rowCount()):
+                painter.setFont(QFont("Arial", self.Font_size))
+                painter.drawText(mp, str(self.table_line[i][2]))
+        for i in range(len(self.table_point)):
             pen = QPen()
             pen.setWidth(2)
             point_center = QPointF(int(self.Xval[i]), int(self.Yval[i]))
+            text_center = QPointF(int(self.Xval[i]+6), int(self.Yval[i]-6))
             try: pen.setColor(self.Color[self.table_style.item(i, 1).text()])
             except KeyError: pen.setColor(Qt.green)
             painter.setPen(pen)
@@ -121,10 +129,11 @@ class DynamicCanvas(QWidget):
             painter.setPen(pen)
             r = float(self.table_style.item(i, 2).text())
             painter.drawEllipse(point_center, r, r)
-            if self.Dimension:
+            if self.Point_mark:
                 pen.setColor(Qt.darkGray)
                 painter.setPen(pen)
-                painter.drawText(point_center, "["+self.table_point.item(i, 0).text()+"]")
+                painter.setFont(QFont("Arial", self.Font_size))
+                painter.drawText(text_center, "[Point"+str(i)+"]")
         if self.Path:
             pen = QPen()
             pen.setWidth(self.path_width)
@@ -139,6 +148,7 @@ class DynamicCanvas(QWidget):
                         point_center = QPointF(X_path[k]*self.zoom*self.rate_all, Y_path[k]*self.zoom*self.rate_all*(-1))
                         painter.drawPoint(point_center)
         painter.end()
+        self.change_event.emit()
     
     def removePath(self): self.Path = []
     
