@@ -1,3 +1,6 @@
 [submodule "solid-python"]
 	path = solid-python
 	url = https://github.com/BBBSnowball/SolidPython.git
+[submodule "Pyslvs-PyQt5"]
+	path = Pyslvs-PyQt5
+	url = https://github.com/40323230/Pyslvs-PyQt5
