@@ -7,3 +7,6 @@
 [submodule "dynamic"]
 	path = dynamic
 	url = https://github.com/smpss91341/python3_solve_dynamic.git
+[submodule "python_genetic_algorithm"]
+	path = python_genetic_algorithm
+	url = https://github.com/40023139/python_genetic_algorithm.git
