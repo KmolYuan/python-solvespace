@@ -1,9 +1,3 @@
-[submodule "solid-python"]
-	path = solid-python
-	url = https://github.com/BBBSnowball/SolidPython.git
-[submodule "Pyslvs-PyQt5"]
-	path = Pyslvs-PyQt5
-	url = https://github.com/40323230/Pyslvs-PyQt5
 [submodule "dynamic"]
 	path = dynamic
 	url = https://github.com/smpss91341/python3_solve_dynamic.git
