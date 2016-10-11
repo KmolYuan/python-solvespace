@@ -81,7 +81,7 @@ PYTHON = \"W:\Anaconda3\python.exe\"
 PYTHONLIB = -LW:/Anaconda3/libs -lPython"""+py_nm.replace('.', '')+"""
 PYTHONINCLUDE = -IW:/Anaconda3/include
 
-all: $(CSO) $(CDEMO) $(PYTHONDLL)
+all: $(CSO) $(CDEMOEXE) $(PYTHONDLL)
 \t@cp -f --target-directory=W:/tmp/workplace/exposed/ _slvs.pyd libslvs.so slvs.py
 \t@cp -f --target-directory=../../Windows _slvs.pyd libslvs.so slvs.py
 \t@echo Complete
