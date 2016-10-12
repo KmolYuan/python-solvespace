@@ -20,7 +20,7 @@ ubuntu_list = {
     "swig":"swig",
     "python":"python3",
     "python lib":"-L/usr/lib/python"+py_nm+"/config-"+py_nm+"m-x86_64-linux-gnu/ -lpython"+py_nm+"m",
-    "python include":"-IW:/Anaconda3/include",
+    "python include":"-I/usr/include/python"+py_nm+"/",
     }
 
 def file_check():
@@ -52,10 +52,10 @@ WIN_DEFINES = -D_WIN32_WINNT=0x500 -D_WIN32_IE=0x500 -DWIN32_LEAN_AND_MEAN
 """
     else: system_list = ubuntu_list
     Makefile_script += """
-SWIG = """+ubuntu_list["swig"]+"""
-PYTHON = """+ubuntu_list["python"]+"""
-PYTHONLIB = """+ubuntu_list["python lib"]+"""
-PYTHONINCLUDE = """+ubuntu_list["python include"]+"""
+SWIG = """+system_list["swig"]+"""
+PYTHON = """+system_list["python"]+"""
+PYTHONLIB = """+system_list["python lib"]+"""
+PYTHONINCLUDE = """+system_list["python include"]+"""
 DEFINES = -DISOLATION_AWARE_ENABLED -DLIBRARY -DDLL_EXPORT
 CFLAGS  = -I../extlib -I../../common/win32 -I. -I.. -D_DEBUG -D_CRT_SECURE_NO_WARNINGS -O2 -g -Wno-write-strings -fpermissive
 HEADERS = ../solvespace.h \
