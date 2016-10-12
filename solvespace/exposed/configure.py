@@ -10,6 +10,19 @@ system_name = platform.dist()[0]
 system_version = platform.dist()[1]
 system_machine = platform.machine()
 
+windows_list = {
+    "swig":"\"W:\SWIG\swig.exe\"",
+    "python":"\"W:\Anaconda3\python.exe\"",
+    "python lib":"-LW:/Anaconda3/libs -lPython"+py_nm.replace('.', ''),
+    "python include":"-IW:/Anaconda3/include",
+    }
+ubuntu_list = {
+    "swig":"swig",
+    "python":"python3",
+    "python lib":"-L/usr/lib/python"+py_nm+"/config-"+py_nm+"m-x86_64-linux-gnu/ -lpython"+py_nm+"m",
+    "python include":"-IW:/Anaconda3/include",
+    }
+
 def file_check():
     print(str(os.path.isfile('../solvespace.h'))+' | ../solvespace.h')
     print(str(os.path.isfile('../dsc.h'))+' | ../dsc.h')
@@ -32,10 +45,17 @@ def file_check():
 
 def build_Makefile():
     Makefile_script = "#Python Solvespace Makefile"
-    if platform.system().lower()=="windows": Makefile_script += """
+    if platform.system().lower()=="windows":
+        system_list = windows_list
+        Makefile_script += """
 WIN_DEFINES = -D_WIN32_WINNT=0x500 -D_WIN32_IE=0x500 -DWIN32_LEAN_AND_MEAN
 """
+    else: system_list = ubuntu_list
     Makefile_script += """
+SWIG = """+ubuntu_list["swig"]+"""
+PYTHON = """+ubuntu_list["python"]+"""
+PYTHONLIB = """+ubuntu_list["python lib"]+"""
+PYTHONINCLUDE = """+ubuntu_list["python include"]+"""
 DEFINES = -DISOLATION_AWARE_ENABLED -DLIBRARY -DDLL_EXPORT
 CFLAGS  = -I../extlib -I../../common/win32 -I. -I.. -D_DEBUG -D_CRT_SECURE_NO_WARNINGS -O2 -g -Wno-write-strings -fpermissive
 HEADERS = ../solvespace.h \
@@ -76,22 +96,12 @@ CDEMO = cdemo
 CDEMOEXE = CDemo.exe
 """
     if platform.system().lower()=="windows": Makefile_script += """
-SWIG = \"W:\SWIG\swig.exe\"
-PYTHON = \"W:\Anaconda3\python.exe\"
-PYTHONLIB = -LW:/Anaconda3/libs -lPython"""+py_nm.replace('.', '')+"""
-PYTHONINCLUDE = -IW:/Anaconda3/include
-
 all: $(CSO) $(CDEMOEXE) $(PYTHONDLL)
 \t@cp -f --target-directory=W:/tmp/workplace/exposed/ _slvs.pyd libslvs.so slvs.py
 \t@cp -f --target-directory=../../Windows _slvs.pyd libslvs.so slvs.py
 \t@echo Complete
 """
     else: Makefile_script += """
-SWIG = swig
-PYTHON = python3
-PYTHONLIB = -L/usr/lib/python"""+py_nm+"""/config-"""+py_nm+"""m-x86_64-linux-gnu/ -lpython"""+py_nm+"""m
-PYTHONINCLUDE = -I/usr/include/python"""+py_nm+"""/
-
 all: $(CSO) $(CDEMO) $(PYTHONSO)
 \t@cp -f --target-directory=../../Ubuntu/ _slvs.so libslvs.so slvs.py
 \t@echo Complete
