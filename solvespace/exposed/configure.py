@@ -15,12 +15,22 @@ windows_list = {
     "python":"\"W:\Anaconda3\python.exe\"",
     "python lib":"-LW:/Anaconda3/libs -lPython"+py_nm.replace('.', ''),
     "python include":"-IW:/Anaconda3/include",
+    "all":"$(CSO) $(CDEMOEXE) $(PYTHONDLL)",
+    "target-directory":"../../Windows _slvs.pyd libslvs.so slvs.py",
+    "Dynamic link library":"$(PYTHONDLL)",
+    "library define":"$(DEFLIB) -L. -l:$(CSO)",
+    "Executable file":"$(CDEMOEXE)",
     }
 ubuntu_list = {
     "swig":"swig",
     "python":"python3",
     "python lib":"-L/usr/lib/python"+py_nm+"/config-"+py_nm+"m-x86_64-linux-gnu/ -lpython"+py_nm+"m",
     "python include":"-I/usr/include/python"+py_nm+"/",
+    "all":"$(CSO) $(CDEMO) $(PYTHONSO)",
+    "target-directory":"../../Ubuntu/ _slvs.so libslvs.so slvs.py",
+    "Dynamic link library":"$(PYTHONSO)",
+    "library define":"",
+    "Executable file":"$(CDEMO)",
     }
 
 def file_check():
@@ -94,30 +104,21 @@ PYTHONSO = _slvs.so
 CSO = libslvs.so
 CDEMO = cdemo
 CDEMOEXE = CDemo.exe
-"""
-    if platform.system().lower()=="windows": Makefile_script += """
-all: $(CSO) $(CDEMOEXE) $(PYTHONDLL)
-\t@cp -f --target-directory=W:/tmp/workplace/exposed/ _slvs.pyd libslvs.so slvs.py
-\t@cp -f --target-directory=../../Windows _slvs.pyd libslvs.so slvs.py
+
+all: """+system_list["all"]+"""
+\t@cp -f --target-directory="""+system_list["target-directory"]+"""
 \t@echo Complete
-"""
-    else: Makefile_script += """
-all: $(CSO) $(CDEMO) $(PYTHONSO)
-\t@cp -f --target-directory=../../Ubuntu/ _slvs.so libslvs.so slvs.py
-\t@echo Complete
-"""
-    Makefile_script += """
+
 SONAME = -Wl,-soname,$(PYTHONSO) -o $(PYTHONSO)
 DEFLIB = -Wl,--output-def,libslvs.def,--out-implib,libslvs.lib
 
 VPATH = .. \
 ../win32
-"""
-    Makefile_script += """
-test-python: slvs.py test.py
+
+test-python: slvs.py test.py ../../Ubuntu/Usage.py
 \t@echo \"$@\"
-\t@echo test
-\t@$(PYTHON) test.py
+\t@echo usage
+\t@$(PYTHON) ../../Ubuntu/Usage.py
 
 clean:
 \t@rm -f $(OBJDIR)/*.o*
@@ -138,34 +139,19 @@ $(CSO): $(OFILES)
 \t@echo Dynamic link library: \"$@\"
 \t$(CXX) -shared -o $@ $^
 \t@echo --------------------------------
-"""
-    if platform.system().lower()=="windows": Makefile_script += """
-$(PYTHONDLL): $(OFILES) $(OWRAP)
+
+"""+system_list["Dynamic link library"]+""": $(OFILES) $(OWRAP)
 \t@echo --------------------------------
 \t@echo Dynamic link library: "$@"
-\t$(CXX) -shared -o $@ $(DEFLIB) $^ $(PYTHONLIB) -L. -l:$(CSO)
+\t$(CXX) -shared -o $@ $^ $(PYTHONLIB) """+system_list["library define"]+"""
 \t@echo --------------------------------
 
-$(CDEMOEXE): CDemo.c $(CSO)
+"""+system_list["Executable file"]+""": CDemo.c $(CSO)
 \t@echo ================================
-\t@echo Executable files: "$@"
+\t@echo Executable file: "$@"
 \t@$(CXX) $(CFLAGS) -o $@ $< -L. -l:$(CSO)
 \t@echo ================================
-"""
-    else: Makefile_script += """
-$(PYTHONSO): $(OFILES) $(OWRAP)
-\t@echo --------------------------------
-\t@echo Dynamic link library: "$@"
-\t$(CXX) -shared -o $@ $^ $(PYTHONLIB)
-\t@echo --------------------------------
 
-$(CDEMO): CDemo.c $(CSO)
-\t@echo ================================
-\t@echo Executable files: "$@"
-\t@$(CXX) $(CFLAGS) -o $@ $< -L. -l:$(CSO)
-\t@echo ================================
-"""
-    Makefile_script += """
 $(OBJDIR)/%.obj: %.cpp $(HEADERS)
 \t@echo object: "$@"
 \t@$(CXX) -fPIC $(CFLAGS) $(DEFINES) -c -o $@ $<
