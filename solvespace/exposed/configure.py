@@ -12,25 +12,27 @@ system_machine = platform.machine()
 
 windows_list = {
     "swig":"\"W:\SWIG\swig.exe\"",
-    "python":"\"W:\Anaconda3\python.exe\"",
+    "python":"\""+sys.executable+"\"",
     "python lib":"-LW:/Anaconda3/libs -lPython"+py_nm.replace('.', ''),
     "python include":"-IW:/Anaconda3/include",
     "all":"$(CSO) $(CDEMOEXE) $(PYTHONDLL)",
-    "target-directory":"../../Windows _slvs.pyd libslvs.so slvs.py",
+    "target-directory":"../../pyslvs_library/py"+py_nm.replace('.', '')+"w/ _slvs.pyd libslvs.so slvs.py",
     "Dynamic link library":"$(PYTHONDLL)",
     "library define":"$(DEFLIB) -L. -l:$(CSO)",
     "Executable file":"$(CDEMOEXE)",
+    "test":"py"+py_nm.replace('.', '')+"w",
     }
 ubuntu_list = {
     "swig":"swig",
-    "python":"python3",
+    "python":sys.executable,
     "python lib":"-L/usr/lib/python"+py_nm+"/config-"+py_nm+"m-x86_64-linux-gnu/ -lpython"+py_nm+"m",
     "python include":"-I/usr/include/python"+py_nm+"/",
     "all":"$(CSO) $(CDEMO) $(PYTHONSO)",
-    "target-directory":"../../Ubuntu/ _slvs.so libslvs.so slvs.py",
+    "target-directory":"../../pyslvs_library/py"+py_nm.replace('.', '')+"/ _slvs.so libslvs.so slvs.py",
     "Dynamic link library":"$(PYTHONSO)",
     "library define":"",
     "Executable file":"$(CDEMO)",
+    "test":"py"+py_nm.replace('.', ''),
     }
 
 def file_check():
@@ -107,20 +109,20 @@ CDEMOEXE = CDemo.exe
 
 all: """+system_list["all"]+"""
 \t@cp -f --target-directory="""+system_list["target-directory"]+"""
+\t@cp -f --target-directory=../../pyslvs_library/"""+system_list["test"]+""" ../../pyslvs_library/__init__.py
 \t@echo Complete
 
 SONAME = -Wl,-soname,$(PYTHONSO) -o $(PYTHONSO)
 DEFLIB = -Wl,--output-def,libslvs.def,--out-implib,libslvs.lib
 
-VPATH = .. \
-../win32
+VPATH = .. ../win32
 
-test-python: slvs.py test.py ../../Ubuntu/Usage.py
-\t@echo \"$@\"
-\t@echo usage
-\t@$(PYTHON) ../../Ubuntu/Usage.py
+test-python: slvs.py test.py ../../python_test.py
+\t@echo Python test
+\t@$(PYTHON) ../../python_test.py
 
 clean:
+\t@rm -f -r ../../pyslvs_library/"""+system_list["test"]+"""/*
 \t@rm -f $(OBJDIR)/*.o*
 \t@rm -f $(CDEMO)
 \t@rm -f $(CDEMOEXE)
@@ -175,4 +177,4 @@ if __name__=='__main__':
     if file_check():
         print("Files checked done.")
         build_Makefile()
-    else: print("Files not exist.")
+    else: print("Some files not exist.")
