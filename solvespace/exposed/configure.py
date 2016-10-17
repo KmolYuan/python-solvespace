@@ -4,10 +4,6 @@ import os.path
 
 py_version = sys.version[0:sys.version.find(" ")]
 py_nm = py_version[0:3]
-py_locate = [i for i in sys.path]
-system_type = platform.system()
-system_name = platform.dist()[0]
-system_version = platform.dist()[1]
 system_machine = platform.machine()
 
 windows_list = {
@@ -173,6 +169,7 @@ $(OWRAP): $(CWRAP)
 
 if __name__=='__main__':
     print("System: "+platform.system())
+    print("["+system_machine+"]")
     print("Python Version: "+py_version)
     if file_check():
         print("Files checked done.")
