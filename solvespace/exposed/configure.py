@@ -103,19 +103,22 @@ CSO = libslvs.so
 CDEMO = cdemo
 CDEMOEXE = CDemo.exe
 
-all: """+system_list["all"]+"""
-\t@cp -f --target-directory="""+system_list["target-directory"]+"""
-\t@cp -f --target-directory=../../pyslvs_library/"""+system_list["test"]+""" ../../pyslvs_library/__init__.py
-\t@echo Complete
-
 SONAME = -Wl,-soname,$(PYTHONSO) -o $(PYTHONSO)
 DEFLIB = -Wl,--output-def,libslvs.def,--out-implib,libslvs.lib
 
 VPATH = .. ../win32
 
-test-python: slvs.py test.py ../../python_test.py
+all: """+system_list["all"]+"""
+\t@cp -f --target-directory="""+system_list["target-directory"]+"""
+\t@cp -f --target-directory=../../pyslvs_library/"""+system_list["test"]+""" ../../pyslvs_library/__init__.py
+\t@echo Complete
+
+test: slvs.py test.py ../../python_test.py
+\t@echo ================================
 \t@echo Python test
+\t@echo --------------------------------
 \t@$(PYTHON) ../../python_test.py
+\t@echo ================================
 
 clean:
 \t@rm -f -r ../../pyslvs_library/"""+system_list["test"]+"""/*
@@ -129,6 +132,23 @@ clean:
 \t@rm -f *.a
 \t@rm -f *.dll
 \t@rm -f *.pyd
+
+help:
+\t@echo ================================
+\t@echo Python Solvespace - Solvespace Library for Python Script
+\t@echo Copyright \(C\) 2016 Yuan Chang
+\t@echo E-mail: daan0014119@gmail.com
+\t@echo --------------------------------
+\t@echo Use this Makefile to build Solvespace Library,
+\t@echo with Linux or Windows platform and any Python 3
+\t@echo version.
+\t@echo 
+\t@echo Command:
+\t@echo all:    Complete compilation process.
+\t@echo clean:  Clean all maked files.
+\t@echo test:   Test Library with your Python.
+\t@echo help:   Show this help message.
+\t@echo ================================
 
 .SECONDEXPANSION:
 
