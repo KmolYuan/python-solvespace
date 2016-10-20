@@ -17,6 +17,7 @@ windows_list = {
     "library define":"$(DEFLIB) -L. -l:$(CSO)",
     "Executable file":"$(CDEMOEXE)",
     "test":"py"+py_nm.replace('.', '')+"w",
+    "pip":"pip",
     }
 ubuntu_list = {
     "swig":"swig",
@@ -29,6 +30,7 @@ ubuntu_list = {
     "library define":"",
     "Executable file":"$(CDEMO)",
     "test":"py"+py_nm.replace('.', ''),
+    "pip":"pip3",
     }
 
 def file_check():
@@ -120,6 +122,12 @@ test: slvs.py test.py ../../python_test.py
 \t@$(PYTHON) ../../python_test.py
 \t@echo ================================
 
+install-modules:
+\t@echo ================================
+\t@echo Python modules for Pyslvs
+\t"""+system_list["pip"]+""" install peewee dxfwrite
+\t@echo ================================
+
 clean:
 \t@rm -f -r ../../pyslvs_library/"""+system_list["test"]+"""/*
 \t@rm -f $(OBJDIR)/*.o*
@@ -144,10 +152,11 @@ help:
 \t@echo version.
 \t@echo 
 \t@echo Command:
-\t@echo all:    Complete compilation process.
-\t@echo clean:  Clean all maked files.
-\t@echo test:   Test Library with your Python.
-\t@echo help:   Show this help message.
+\t@echo all:             Complete compilation process.
+\t@echo clean:           Clean all maked files.
+\t@echo test:            Test Library with your Python.
+\t@echo install-modules  Install Python modules for Pyslvs.
+\t@echo help:            Show this help message.
 \t@echo ================================
 
 .SECONDEXPANSION:
