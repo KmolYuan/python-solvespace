@@ -15,47 +15,30 @@ And there are some code and Solvespace drawing (Also include COMPILED library fi
 
 Another tool "Pyslvs" is in writing.
 
-My using tools
+Requirement
 ===
 
-This project is made by following tools. (But they are Win-version.)
+1. [GNU Make] (Windows)
 
-In Ubuntu, you just need to install Python 3.4-dev, Netbeans and SWIG.
+1. [SWIG]
 
-Compiler
----
+1. python3-dev (Ubuntu package)
 
-Netbeans IDE `8.1`
+Build
+===
 
-plugins:
+Goto `solvespace/exposed` folder.
 
+```bash
+$python3 configure.py
+$make
 ```
-Python
 
-Python/Jython Sample Projects
-```
+And take out this files:
 
-Python
----
+* _slvs.pyd or _slvs.so
+* slvs.py
+* libslvs.so
 
-Anaconda 3 with Python `3.5.2`
-
-Other Python version maybe not compatible for some libraries.
-
-In Ubuntu, I used Python `3.4.5` to made them.
-
-GNU
----
-
-gcc and g++ (GCC) `6.1.0`
-
-gendef `1.0.1346`
-
-dlltool `2.26.20160125`
-
-objdump `2.26.20160125`
-
-SWIG
----
-
-SWIG `3.0.10`
+[GNU Make]: https://sourceforge.net/projects/mingw-w64/files/latest/download?source=files
+[SWIG]: http://www.swig.org/download.html
