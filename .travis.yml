@@ -13,6 +13,7 @@ install:
 
 before_script:
  - cd $TRAVIS_BUILD_DIR/solvespace/exposed/
+ - ls -1
 
 script:
  - make
