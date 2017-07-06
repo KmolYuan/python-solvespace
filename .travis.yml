@@ -1,0 +1,22 @@
+dist: trusty
+sudo: required
+language: python
+
+python:
+- 3.4
+- 3.5
+- 3.6
+
+install:
+ - sudo apt update
+ - sudo apt -y install swig
+ 
+script:
+ - cd ./solvespace/exposed/
+ - make
+
+before_cache:
+  - rm -rf $HOME/.cache/pip/log
+cache:
+  directories:
+    - $HOME/.cache/pip
