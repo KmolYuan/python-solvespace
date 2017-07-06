@@ -12,8 +12,7 @@ install:
  - sudo apt -y install swig
  
 script:
- - cd ./solvespace/exposed/
- - make
+ - make -f ./solvespace/exposed/Makefile
 
 before_cache:
   - rm -rf $HOME/.cache/pip/log
