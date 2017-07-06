@@ -12,7 +12,7 @@ install:
  - sudo apt -y install swig
 
 before_script:
- - cd solvespace/exposed/
+ - cd $TRAVIS_BUILD_DIR/solvespace/exposed/
 
 script:
  - make
