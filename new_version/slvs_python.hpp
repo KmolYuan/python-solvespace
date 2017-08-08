@@ -54,7 +54,11 @@ public:
         va_start(args, fmt);
 
         char* buf;
+#ifdef WIN32
+        if (__mingw_vasprintf(&buf, fmt, args) >= 0) {
+#else
         if (vasprintf(&buf, fmt, args) >= 0) {
+#endif
             _what = std::string(buf);
             free(buf);
         } else {
