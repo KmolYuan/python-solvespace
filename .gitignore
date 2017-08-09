@@ -1,17 +1,18 @@
 *.exe
 */cdemo
 
-*.so
-*.pyd
 */slvs.py
 *.pyc
 *.o*
 *.def
-*.dll
+*.lib
+*.so
+*.pyd
 *.a
 */slvs_wrap.cxx
 
 *__pycache__*
+*obj*
 
 *.eric6project*
 *.e4p

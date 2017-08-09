@@ -442,7 +442,7 @@ bool WriteFile(const Platform::Path &filename, const std::string &data) {
 // Loading resources, on Windows.
 //-----------------------------------------------------------------------------
 
-#if defined(WIN32)
+#if defined(WIN32) && !defined(LIBRARY)
 
 const void *LoadResource(const std::string &name, size_t *size) {
     HRSRC hres = FindResourceW(NULL, Widen(name).c_str(), RT_RCDATA);
