@@ -12,7 +12,7 @@ OFILES = $(OBJDIR)/util.obj \
                $(OBJDIR)/lib.obj
 
 ifeq ($(OS), Windows_NT)
-    CFLAGS += -DWIN32
+    CFLAGS += -DWIN32 -D_USE_MATH_DEFINES
     OFILES += $(OBJDIR)/w32util.obj
 else
     OFILES += $(OBJDIR)/unixutil.obj

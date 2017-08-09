@@ -1,17 +1,15 @@
-/solvespace/exposed/CDemo.exe
-/solvespace/exposed/libslvs.so
-/solvespace/exposed/slvs.dll
-/solvespace/exposed/cdemo
+*.exe
+*/cdemo
 
-/solvespace/exposed/_slvs.so
-/solvespace/exposed/_slvs.pyd
-/solvespace/exposed/slvs.py
+*.so
+*.pyd
+*/slvs.py
 *.pyc
 *.o*
 *.def
 *.dll
 *.a
-/solvespace/exposed/slvs_wrap.cxx
+*/slvs_wrap.cxx
 
 *__pycache__*
 
@@ -20,6 +18,3 @@
 *.e4q
 *.e6t
 *.ui
-
-/Ubuntu/example_*
-/Windows/example_*
