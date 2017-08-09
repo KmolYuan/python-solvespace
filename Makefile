@@ -53,8 +53,10 @@ endif
 .SECONDEXPANSION:
 
 $(OBJDIR)/%.o: %.cpp
-ifeq ($(wildcard $(OBJDIR)),)
-	mkdir $(OBJDIR)
+ifeq ($(OS),Windows_NT)
+	if not exist $(OBJDIR) mkdir $(OBJDIR)
+else
+	mkdir -p $(OBJDIR)
 endif
 	g++ -fPIC $(CFLAGS) $(DEFINES) -c -o $@ $<
 
