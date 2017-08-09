@@ -93,7 +93,7 @@ ifeq ($(OS),Windows_NT)
 	move /y src\libslvs.so .
 	move /y src\slvs.py .
 else
-	mv src/_slvs.pyd _slvs.pyd
+	mv src/_slvs.so _slvs.so
 	mv src/libslvs.so libslvs.so
 	mv src/slvs.py slvs.py
 	@echo Build done!
