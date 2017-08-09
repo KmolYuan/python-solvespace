@@ -53,9 +53,8 @@ endif
 .SECONDEXPANSION:
 
 $(OBJDIR)/%.o: %.cpp
-ifneq ($(wildcard $(OBJDIR)),)
-else
-	mkdir obj
+ifeq ($(wildcard $(OBJDIR)),)
+	mkdir $(OBJDIR)
 endif
 	g++ -fPIC $(CFLAGS) $(DEFINES) -c -o $@ $<
 

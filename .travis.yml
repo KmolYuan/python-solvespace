@@ -11,11 +11,8 @@ install:
  - sudo apt update
  - sudo apt -y install swig
 
-before_script:
- - cd $TRAVIS_BUILD_DIR/solvespace/exposed/
-
 script:
- - make
+ - make test
 
 before_cache:
   - rm -rf $HOME/.cache/pip/log
