@@ -9,7 +9,7 @@
 *.so
 *.pyd
 *.a
-*/slvs_wrap.cxx
+*.cxx
 
 *__pycache__*
 *obj*
