@@ -14,7 +14,7 @@
 #   include <stdlib.h>
 
     // finally, we include slvs - the library we want to wrap
-#   include "include/slvs.h"
+#   include "../include/slvs.h"
 
     // and one more: a few helpers to make the API more pythonic
     // (Well, actually it grew to be a bit more than 'a few' *g*)
@@ -53,7 +53,7 @@
 %ignore param;
 
 
-%include "include/slvs.h"
+%include "../include/slvs.h"
 
 /*%exception System::System {
    try {

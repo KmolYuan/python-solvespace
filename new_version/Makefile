@@ -22,9 +22,10 @@ HEADERS = src/solvespace.h src/platform/platform.h
 
 VPATH = src src/platform
 
-all: test
+all: slvs.py
+	@echo Finish
 
-test: wrap
+test: slvs.py
 ifeq ($(OS),Windows_NT)
 	python test.py
 else
@@ -32,37 +33,36 @@ else
 endif
 	@echo Test done!
 
+.PHONY: clean
 clean:
 ifeq ($(OS),Windows_NT)
 	-rd /S /Q $(OBJDIR)
 	-del *.so
-	-del *.def
-	-del *.lib
+	-del src\*.def
+	-del src\*.lib
+	-del src\slvs_wrap.cxx
 	-del *.pyd
-	-del slvs_wrap.cxx
 	-del slvs.py
 else
 	-rm -fr $(OBJDIR)
 	-rm -f *.so
-	-rm -f slvs_wrap.cxx
+	-rm -f src/slvs_wrap.cxx
 	-rm -f slvs.py
 endif
 
 .SECONDEXPANSION:
 
-$(OBJDIR):
+$(OBJDIR)/%.o: %.cpp
 ifneq ($(wildcard $(OBJDIR)),)
 else
 	mkdir obj
 endif
-
-$(OBJDIR)/%.o: %.cpp $(OBJDIR)
 	g++ -fPIC $(CFLAGS) $(DEFINES) -c -o $@ $<
 
-libslvs.so: $(OFILES)
+src/libslvs.so: $(OFILES)
 	g++ -shared -o $@ $^
 
-slvs_wrap.cxx: slvs.i libslvs.so
+src/slvs_wrap.cxx: src/slvs.i src/libslvs.so
 	swig -c++ -python -py3 -o $@ $<
 
 $(OBJDIR)/slvs_wrap.o: slvs_wrap.cxx
@@ -76,13 +76,24 @@ endif
 
 wrap: $(OFILES) $(OBJDIR)/slvs_wrap.o
 ifeq ($(OS),Windows_NT)
-	g++ -shared -o _slvs.pyd $^ -L. -l:libslvs.so \
+	g++ -shared -o src/_slvs.pyd $^ -Lsrc -l:libslvs.so \
 -L$(shell python -c "from distutils import sysconfig;print(sysconfig.get_config_var('BINDIR'))")\libs \
 -lPython$(shell python -c "from distutils import sysconfig;print(sysconfig.get_config_var('VERSION'))") \
--Wl,--output-def,libslvs.def,--out-implib,libslvs.lib
+-Wl,--output-def,src/libslvs.def,--out-implib,src/libslvs.lib
 else
-	g++ -shared -o _slvs.so $^ \
+	g++ -shared -o src/_slvs.so $^ \
 -L$(shell python3 -c "from distutils import sysconfig;print(sysconfig.get_config_var('srcdir'))") \
 -I$(shell python3 -c "from distutils import sysconfig;print(sysconfig.get_config_var('LDLIBRARY'))")
 endif
-	@echo Finish
+
+slvs.py: wrap
+ifeq ($(OS),Windows_NT)
+	move /y src\_slvs.pyd .
+	move /y src\libslvs.so .
+	move /y src\slvs.py .
+else
+	mv src/_slvs.pyd _slvs.pyd
+	mv src/libslvs.so libslvs.so
+	mv src/slvs.py slvs.py
+	@echo Build done!
+endif
