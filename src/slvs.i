@@ -247,6 +247,8 @@ public:
     // parameter should be created and used.
     Param(double value);
 
+    void prepareFor(System* system, Slvs_hGroup group)
+        throw(wrong_system_exception, invalid_state_exception);
     Slvs_hParam GetHandle() throw(invalid_state_exception);
     Slvs_hGroup GetGroup()  throw(invalid_state_exception);
     double GetValue()       throw(invalid_state_exception);
@@ -274,6 +276,8 @@ public:
             return self.value
     %}
 };
+
+#define USE_DEFAULT_GROUP 0
 
 class Entity {
 private: Entity();
