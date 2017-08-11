@@ -251,6 +251,7 @@ public:
     Slvs_hGroup GetGroup()  throw(invalid_state_exception);
     double GetValue()       throw(invalid_state_exception);
     void SetValue(double v) throw(invalid_state_exception);
+    System* GetSystem()     throw(invalid_state_exception);
 
     // see http://stackoverflow.com/a/4750081
     %pythoncode %{
@@ -263,6 +264,9 @@ public:
         __swig_getmethods__["value"] = GetValue
         __swig_setmethods__["value"] = SetValue
         if _newclass: value = property(GetValue, SetValue)
+
+        __swig_getmethods__["sys"] = GetSystem
+        if _newclass: sys = property(GetSystem)
     %}
 
     %pythoncode %{
