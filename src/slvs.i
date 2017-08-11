@@ -277,7 +277,11 @@ public:
     %}
 };
 
-#define USE_DEFAULT_GROUP 0
+const Slvs_hGroup DEFAULT_GROUP = 0;
+
+%{
+    const Slvs_hGroup DEFAULT_GROUP = 0;
+%}
 
 class Entity {
 private: Entity();
