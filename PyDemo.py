@@ -19,23 +19,23 @@ def Example3d():
     p0 = sys.add_param(10)
     p1 = sys.add_param(10)
     p2 = sys.add_param(10)
-    Point1 = Point3d(p0, p1, p2)
+    Point101 = Point3d(p0, p1, p2)
 
     #and a second point at (20 20 20)
     p3 = sys.add_param(20)
     p4 = sys.add_param(20)
     p5 = sys.add_param(20)
-    Point2 = Point3d(p3, p4, p5)
+    Point102 = Point3d(p3, p4, p5)
 
     #and a line segment connecting them.
-    LineSegment3d(Point1, Point2)
+    LineSegment3d(Point101, Point102)
 
     #The distance between the points should be 30.0 units.
-    Constraint.distance(30., Point1, Point2)
+    Constraint.distance(30., Point101, Point102)
 
     #Let's tell the solver to keep the second point as close to constant
     #as possible, instead moving the first point.
-    Constraint.dragged(Point2)
+    Constraint.dragged(Point102)
     
     #Now that we have written our system, we solve.
     result = sys.solve()
@@ -54,6 +54,9 @@ along the reference frame's xy plane. In a second group, we create some
 entities in that group and dimension them.
 '''
 def Example2d():
+    g1 = groupNum(1)
+    sys.default_group = g1
+
     #First, we create our workplane. Its origin corresponds to the origin
     #of our base frame (x y z) = (0 0 0)
     p0 = sys.add_param(0)
@@ -75,6 +78,8 @@ def Example2d():
     #Now create a second group. We'll solve group 2, while leaving group 1
     #constant; so the workplane that we've created will be locked down,
     #and the solver can't move it.
+    g2 = groupNum(2)
+    sys.default_group = g2
 
     #These points are represented by their coordinates (u v) within the
     #workplane, so they need only two parameters each.
@@ -174,7 +179,6 @@ def Example2d():
 if __name__=='__main__':
     #Example3d()
     Example2d()
-    del sys
 
 '''
 solved okay

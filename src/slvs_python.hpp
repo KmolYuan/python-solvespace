@@ -74,6 +74,8 @@ public:
 //     declaration and implementation) because it is only used for the
 //     Python library.
 
+Slvs_hGroup groupNum(int input) { return (Slvs_hGroup) input; }
+
 class System;
 
 class Param {

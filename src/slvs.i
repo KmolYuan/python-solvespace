@@ -1,5 +1,8 @@
 %module slvs
 
+//Let Python enable to delete Slvs_hParam, Slvs_hEntity, ... types.
+%include "stdint.i"
+
 //NOTE We must put it into the %begin section (instead of %header) because
 //     it must be available for the stuff in %extends and that is put
 //     directly before the header section...
@@ -242,6 +245,10 @@ def move_and_rotate(p1, p2, p3):
 // %ignore Entity::Entity;
 
 //%include "slvs_python.hpp"
+
+%inline %{
+    extern Slvs_hGroup groupNum(int input);
+%}
 
 class Param {
 public:
