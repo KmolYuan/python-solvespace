@@ -11,6 +11,7 @@ slvs.py
 *.pyd
 *.a
 *.cxx
+cdemo
 
 *__pycache__*
 *obj*

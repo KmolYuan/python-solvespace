@@ -22,7 +22,7 @@ HEADERS = src/solvespace.h src/platform/platform.h
 
 VPATH = src src/platform
 
-all: slvs.py
+all: slvs.py cdemo
 	@echo Finish
 
 test: slvs.py
@@ -43,11 +43,13 @@ ifeq ($(OS),Windows_NT)
 	-del src\slvs_wrap.cxx
 	-del *.pyd
 	-del slvs.py
+	-del cdemo.exe
 else
 	-rm -fr $(OBJDIR)
 	-rm -f *.so
 	-rm -f src/slvs_wrap.cxx
 	-rm -f slvs.py
+	-rm -f cdemo
 endif
 
 .SECONDEXPANSION:
@@ -62,6 +64,13 @@ endif
 
 src/libslvs.so: $(OFILES)
 	g++ -shared -o $@ $^
+
+cdemo: exposed/CDemo.c src/libslvs.so
+ifeq ($(OS),Windows_NT)
+	g++ $(CFLAGS) -o cdemo.exe $< -L. -l:libslvs.so
+else
+	g++ $(CFLAGS) -o cdemo $< -L. -l:libslvs.so
+endif
 
 src/slvs_wrap.cxx: src/slvs.i src/libslvs.so
 	swig -c++ -python -py3 -o $@ $<

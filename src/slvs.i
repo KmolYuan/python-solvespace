@@ -55,7 +55,8 @@
 
 %include "../include/slvs.h"
 
-/*%exception System::System {
+/*
+%exception System::System {
    try {
       $action
    } catch (out_of_memory_exception &e) {
@@ -64,7 +65,8 @@
    } catch (not_enough_space_exception &e) {
 
    }
-}*/
+}
+*/
 
 %include "exception.i"
 
@@ -543,55 +545,60 @@ public:
     static Constraint on(
             Point3d p1, Point3d p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
-		throw_entity_constructor;
+        throw_entity_constructor;
     static Constraint on(
             Workplane wrkpl, Point p1, Point p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
-		throw_entity_constructor;
-    static Constraint distance(double value,
+        throw_entity_constructor;
+    static Constraint distance(
+            double value,
             Point3d p1, Point3d p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
-		throw_entity_constructor;
-    static Constraint distance(double value,
+        throw_entity_constructor;
+    static Constraint distance(
+            double value,
             Workplane wrkpl, Point p1, Point p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
-		throw_entity_constructor;
-    static Constraint distance(double value,
+        throw_entity_constructor;
+    static Constraint distance(
+            double value,
             Workplane wrkpl, Point3d p,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
-		throw_entity_constructor;
-    static Constraint distance(double value,
+        throw_entity_constructor;
+    static Constraint distance(
+            double value,
             Workplane wrkpl, Point p, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
-		throw_entity_constructor;
-    static Constraint distance(double value,
+        throw_entity_constructor;
+    static Constraint distance(
+            double value,
             Point3d p, LineSegment3d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
-		throw_entity_constructor;
+        throw_entity_constructor;
     static Constraint on(
             Workplane wrkpl, Point3d p,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
-		throw_entity_constructor;
+        throw_entity_constructor;
     static Constraint on(
             Workplane wrkpl, Point p, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
-		throw_entity_constructor;
+        throw_entity_constructor;
     static Constraint on(
             Point3d p, LineSegment3d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
-		throw_entity_constructor;
+        throw_entity_constructor;
     static Constraint on(
             Workplane wrkpl, Point p, Circle c,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
-		throw_entity_constructor;
+        throw_entity_constructor;
     static Constraint horizontal(
             Workplane wrkpl, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
-		throw_entity_constructor;
+        throw_entity_constructor;
     static Constraint vertical(
             Workplane wrkpl, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
-		throw_entity_constructor;
+        throw_entity_constructor;
     static Constraint diameter(double diameter,
             Workplane wrkpl, Circular c,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
@@ -600,46 +607,54 @@ public:
             Workplane wrkpl, Circular c1, Circular c2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint equal(Workplane wrkpl,
-            LineSegment2d line, Circular c,
+    static Constraint equal(
+            Workplane wrkpl, LineSegment2d line, Circular c,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint equal(Workplane wrkpl,
-            LineSegment2d line1, LineSegment2d line2,
+    static Constraint equal(
+            Workplane wrkpl, LineSegment2d line1, LineSegment2d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint equal_point_line(Workplane wrkpl,
+    static Constraint equal_point_line(
+            Workplane wrkpl,
             Point2d p1, Point2d p2,
             LineSegment2d line1, LineSegment2d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     /*
-    static Constraint equal_angle(Workplane wrkpl,
+    static Constraint equal_angle(
+            Workplane wrkpl,
             LineSegment2d line1, LineSegment2d line2, LineSegment2d line3, LineSegment2d line4,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
     */
-    static Constraint ratio(double value,
+    static Constraint ratio(
+            double value,
             Workplane wrkpl, LineSegment2d line1, LineSegment2d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint symmetric(Workplane wrkpl,
+    static Constraint symmetric(
+            Workplane wrkpl,
             Point3d p1, Point3d p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint symmetric(Workplane wrkpl,
+    static Constraint symmetric(
+            Workplane wrkpl,
             Point2d p1, Point2d p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint symmetric(Workplane wrkpl,
+    static Constraint symmetric(
+            Workplane wrkpl,
             Point2d p1, Point2d p2, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint symmetric_H(Workplane wrkpl,
+    static Constraint symmetric_H(
+            Workplane wrkpl,
             Point2d p1, Point2d p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint symmetric_V(Workplane wrkpl,
+    static Constraint symmetric_V(
+            Workplane wrkpl,
             Point2d p1, Point2d p2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
@@ -647,7 +662,8 @@ public:
             Point3d p, LineSegment3d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint midpoint(Workplane wrkpl,
+    static Constraint midpoint(
+            Workplane wrkpl,
             Point2d p, LineSegment2d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
@@ -655,11 +671,14 @@ public:
             Normal3d nrml1, Normal3d nrml2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint angle(Workplane wrkpl,  double value,
+    static Constraint angle(
+            Workplane wrkpl,
+            double value,
             LineSegment2d line1, LineSegment2d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint perpendicular(Workplane wrkpl,
+    static Constraint perpendicular(
+            Workplane wrkpl,
             LineSegment2d line1, LineSegment2d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
@@ -667,7 +686,8 @@ public:
             LineSegment3d line1, LineSegment3d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint parallel(Workplane wrkpl,
+    static Constraint parallel(
+            Workplane wrkpl,
             LineSegment2d line1, LineSegment2d line2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
@@ -679,7 +699,8 @@ public:
             Cubic cubic, LineSegment3d line,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint distance_proj(double value,
+    static Constraint distance_proj(
+            double value,
             Point3d p1, Point3d p2, Workplane wrkpl,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
@@ -687,11 +708,13 @@ public:
             Point3d p,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint dragged(Workplane wrkpl,
+    static Constraint dragged(
+            Workplane wrkpl,
             Point2d p,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint tangent(Workplane wrkpl,
+    static Constraint tangent(
+            Workplane wrkpl,
             ArcOfCircle c1, ArcOfCircle c2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
@@ -699,11 +722,13 @@ public:
             Cubic c1, Cubic c2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint tangent(Workplane wrkpl,
+    static Constraint tangent(
+            Workplane wrkpl,
             ArcOfCircle c1, Cubic c2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
-    static Constraint tangent(Workplane wrkpl,
+    static Constraint tangent(
+            Workplane wrkpl,
             Cubic c1, ArcOfCircle c2,
             Slvs_hGroup group = USE_DEFAULT_GROUP)
         throw_entity_constructor;
