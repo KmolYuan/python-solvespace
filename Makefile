@@ -22,16 +22,24 @@ HEADERS = src/solvespace.h src/platform/platform.h
 
 VPATH = src src/platform
 
-all: slvs.py cdemo
-	@echo Finish
+all: test
 
-test: slvs.py
+build: slvs.py cdemo
+	@echo Build finish
+
+test: build
 ifeq ($(OS),Windows_NT)
-	python test.py
+	@echo --- C library test ---
+	.\cdemo.exe
+	@echo --- Python library test ---
+	python PyDemo.py
 else
-	python3 test.py
+	@echo --- C library test ---
+	./cdemo
+	@echo --- Python library test ---
+	python3 PyDemo.py
 endif
-	@echo Test done!
+	@echo Test finish
 
 .PHONY: clean
 clean:
@@ -105,5 +113,5 @@ else
 	mv src/_slvs.so _slvs.so
 	mv src/libslvs.so libslvs.so
 	mv src/slvs.py slvs.py
-	@echo Build done!
+	@echo Library finish
 endif

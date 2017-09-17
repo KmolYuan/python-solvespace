@@ -4,7 +4,6 @@
 #三角形呆鍊邊長分別為40mm、40mm、70mm
 from slvs import *
 from math import *
-import unittest
 
 #相關參數
 d0 = 90 #基線長度(mm)
@@ -75,33 +74,32 @@ def crank_rock(degree):
     Line1 = LineSegment2d(Workplane1, Point1, Point4)
 
     #短連桿與水平軸的角度
-    Constraint.angle(Workplane1, degree, Line1, Line0, False)
+    Constraint.angle(Workplane1, degree, Line1, Line0)
 
     #以下解題
 
-    sys.solve()
+    result = sys.solve()
 
-    if (sys.result == SLVS_RESULT_OKAY):
+    if result == SLVS_RESULT_OKAY:
         print ("點座標：")
         print(("P3(%.3f %.3f %.3f)")%(sys.get_param(11).val, sys.get_param(12).val, sys.get_param(2).val))
         print(("P4(%.3f %.3f %.3f)")%(sys.get_param(13).val, sys.get_param(14).val, sys.get_param(2).val))
         print ("%d DOF" % sys.dof)
-    elif (sys.result == SLVS_RESULT_INCONSISTENT):
+    elif result == SLVS_RESULT_INCONSISTENT:
         print ("solve failed")
         print ("SLVS_RESULT_INCONSISTENT")
         print ("%d DOF" % sys.dof)
-    elif (sys.result == SLVS_RESULT_DIDNT_CONVERGE):
+    elif result == SLVS_RESULT_DIDNT_CONVERGE:
         print ("solve failed")
         print ("SLVS_RESULT_DIDNT_CONVERGE")
         print ("%d DOF" % sys.dof)
-    elif (sys.result == SLVS_RESULT_TOO_MANY_UNKNOWNS):
+    elif result == SLVS_RESULT_TOO_MANY_UNKNOWNS:
         print ("solve failed")
         print ("SLVS_RESULT_TOO_MANY_UNKNOWNS")
         print ("%d DOF" % sys.dof)
 
 #主程式
-for i in range(0, 361):
-    print ("Degree: %3s deg"%i)
+for i in range(0, 360, 10):
+    print ("Degree: {:03} deg".format(i))
     crank_rock(i)
-    print ("=======")
 print ("Solve Completed")
