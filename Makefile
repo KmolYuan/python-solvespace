@@ -29,13 +29,9 @@ build: slvs.py cdemo
 
 test: build
 ifeq ($(OS),Windows_NT)
-	@echo --- C library test ---
-	.\cdemo.exe
 	@echo --- Python library test ---
 	python PyDemo.py
 else
-	@echo --- C library test ---
-	./cdemo
 	@echo --- Python library test ---
 	python3 PyDemo.py
 endif
