@@ -117,11 +117,11 @@ def Example2d():
     Point306 = Point2d(Workplane200, p17, p18)
 
     p19 = sys.add_param(30)
-    Distance0 = Distance(Workplane200, p19)
+    Distance307 = Distance(Workplane200, p19)
 
     #And a complete circle, centered at point 306 with radius equal to
     #distance 307. The normal is 102, the same as our workplane.
-    Circle402 = Circle(Workplane200, Normal102, Point306, Distance0)
+    Circle402 = Circle(Workplane200, Normal102, Point306, Distance307)
 
     #The length of our line segment is 30.0 units.
     Constraint.distance(30., Workplane200, Point301, Point302)
@@ -154,17 +154,20 @@ def Example2d():
     result = sys.solve()
     if result == SLVS_RESULT_OKAY:
         print("solved okay")
+        #Python-Solvespace can use wrapper of pointer to get the values,
+        #or record the entry number first, then using the 'get_param' method.
         print("line from ({:.3f} {:.3f}) to ({:.3f} {:.3f})".format(
-            sys.get_param(7).val, sys.get_param(8).val,
-            sys.get_param(9).val, sys.get_param(10).val
+            Point301.u().value, Point301.v().value, #(sys.get_param(7).val, sys.get_param(8).val) is okay.
+            Point302.u().value, Point302.v().value
         ))
         print("arc center ({:.3f} {:.3f}) start ({:.3f} {:.3f}) finish ({:.3f} {:.3f})".format(
-            sys.get_param(11).val, sys.get_param(12).val,
-            sys.get_param(13).val, sys.get_param(14).val,
-            sys.get_param(15).val, sys.get_param(16).val
+            Point303.u().value, Point303.v().value, #(sys.get_param(11).val, sys.get_param(12).val) is okay.
+            Point304.u().value, Point304.v().value,
+            Point305.u().value, Point305.v().value
         ))
         print("circle center ({:.3f} {:.3f}) radius {:.3f}".format(
-            sys.get_param(17).val, sys.get_param(18).val, sys.get_param(19).val
+            Point306.u().value, Point306.v().value,
+            Distance307.distance().value
         ))
         print("{} DOF".format(sys.dof))
     else:
