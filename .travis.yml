@@ -11,7 +11,9 @@ install:
  - sudo apt -y install swig
 
 script:
- - make test
+ - make
+ - cp example/PyDemo.py .
+ - python PyDemo.py
 
 before_cache:
   - rm -rf $HOME/.cache/pip/log
