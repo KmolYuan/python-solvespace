@@ -5,17 +5,16 @@ import matplotlib.pyplot as plt
 from math import *
 
 #參數
-r = 10.0#基圓半徑
+r = 10.0 #基圓半徑
 
 def Involute(degree):
     #角度換算：degree去除重複圈數
-    d = r*(degree*pi/180)
-    n = degree//360
-    degree -= 360*n
+    d = r * degree * pi / 180
+    n = degree // 360
+    degree -= 360 * n
 
     #開始繪圖
     sys = System(500)
-    g = 1
 
     #3D原點Point0
     p0 = sys.add_param(0.0)
@@ -77,36 +76,34 @@ def Involute(degree):
 
     #以下解題
     sys.solve()
-    if (sys.result == SLVS_RESULT_OKAY):
+    if sys.result == SLVS_RESULT_OKAY:
         #回傳Point7
-        x = sys.get_param(11).val
-        y = sys.get_param(12).val
-        return x, y
-    elif (sys.result == SLVS_RESULT_INCONSISTENT):
-        print ("solve failed")
-        print ("SLVS_RESULT_INCONSISTENT")
-        print ("%d DOF" % sys.dof)
-    elif (sys.result == SLVS_RESULT_DIDNT_CONVERGE):
-        print ("solve failed")
-        print ("SLVS_RESULT_DIDNT_CONVERGE")
-        print ("%d DOF" % sys.dof)
-    elif (sys.result == SLVS_RESULT_TOO_MANY_UNKNOWNS):
-        print ("solve failed")
-        print ("SLVS_RESULT_TOO_MANY_UNKNOWNS")
-        print ("%d DOF" % sys.dof)
+        return sys.get_param(11).val, sys.get_param(12).val
+    else:
+        print("{} DOF".format(sys.dof))
+        if sys.result == SLVS_RESULT_INCONSISTENT:
+            raise Exception("SLVS_RESULT_INCONSISTENT")
+        elif sys.result == SLVS_RESULT_DIDNT_CONVERGE:
+            raise Exception("SLVS_RESULT_DIDNT_CONVERGE")
+        elif sys.result == SLVS_RESULT_TOO_MANY_UNKNOWNS:
+            raise Exception("SLVS_RESULT_TOO_MANY_UNKNOWNS")
 
 #主程式
 Xval  = []
 Yval  = []
 degree = 720
-for i in range(0, degree+1, 1):
-    x, y = Involute(i)
-    Xval += [x]
-    Yval += [y]
-print ("Solve Completed")
+for i in range(degree):
+    try:
+        x, y = Involute(i)
+    except:
+        pass
+    else:
+        Xval += [x]
+        Yval += [y]
+print("Solve Completed")
 
 plt.plot(Xval, Yval)
-plt.xlabel('x coordinate')
-plt.ylabel('y coordinate')
-plt.title("Involute - "+str(degree)+" deg")
+plt.xlabel("x coordinate")
+plt.ylabel("y coordinate")
+plt.title("Involute - {} deg".format(degree))
 plt.show()

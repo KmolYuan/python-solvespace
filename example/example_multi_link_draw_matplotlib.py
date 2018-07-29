@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 def Multi_link(degree):
     #開始繪圖
     sys = System(500)
-    g = 1
 
     #3D原點Point0
     p0 = sys.add_param(0.0)
@@ -100,33 +99,31 @@ def Multi_link(degree):
 
     #以下解題
     sys.solve()
-    if (sys.result == SLVS_RESULT_OKAY):
+    if sys.result == SLVS_RESULT_OKAY:
         #回傳Point7
-        x = sys.get_param(19).val
-        y = sys.get_param(20).val
-        return x, y
-    elif (sys.result == SLVS_RESULT_INCONSISTENT):
-        print ("solve failed")
-        print ("SLVS_RESULT_INCONSISTENT")
-        print ("%d DOF" % sys.dof)
-    elif (sys.result == SLVS_RESULT_DIDNT_CONVERGE):
-        print ("solve failed")
-        print ("SLVS_RESULT_DIDNT_CONVERGE")
-        print ("%d DOF" % sys.dof)
-    elif (sys.result == SLVS_RESULT_TOO_MANY_UNKNOWNS):
-        print ("solve failed")
-        print ("SLVS_RESULT_TOO_MANY_UNKNOWNS")
-        print ("%d DOF" % sys.dof)
+        return sys.get_param(19).val, sys.get_param(20).val
+    else:
+        print("{} DOF".format(sys.dof))
+        if sys.result == SLVS_RESULT_INCONSISTENT:
+            raise Exception("SLVS_RESULT_INCONSISTENT")
+        elif sys.result == SLVS_RESULT_DIDNT_CONVERGE:
+            raise Exception("SLVS_RESULT_DIDNT_CONVERGE")
+        elif sys.result == SLVS_RESULT_TOO_MANY_UNKNOWNS:
+            raise Exception("SLVS_RESULT_TOO_MANY_UNKNOWNS")
 
 #主程式
 Xval  = []
 Yval  = []
 
-for i in range(0, 361, 1):
-    x, y = Multi_link(i)
-    Xval += [x]
-    Yval += [y]
-print ("Solve Completed")
+for i in range(360):
+    try:
+        x, y = Multi_link(i)
+    except:
+        pass
+    else:
+        Xval += [x]
+        Yval += [y]
+print("Solve Completed")
 
 plt.plot(Xval, Yval)
 plt.xlabel('x coordinate')
