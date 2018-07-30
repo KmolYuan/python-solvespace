@@ -1,4 +1,4 @@
-DEFINES = -DISOLATION_AWARE_ENABLED -DLIBRARY -DDLL_EXPORT
+DEFINES = -DISOLATION_AWARE_ENABLED -DLIBRARY -DDLL_EXPORT -D_hypot=hypot
 CFLAGS  = -I. -Iinclude -Isrc -Isrc/platform -D_DEBUG -D_CRT_SECURE_NO_WARNINGS -O2 -g -Wno-write-strings -fpermissive -std=c++11
 
 OBJDIR = obj

@@ -42,66 +42,6 @@ Windows
 
 Download and install [SWIG](http://www.swig.org/download.html).
 
-Some conflicts between the Microsoft C Language and Python.
-
-You need change a few of Python files to avoid these conflicts.
-
-But you can be assured that the changes won't cause any negative impact.
-
-**Python development**
-
-If your Python doesn't have development library, like `libpython35.a`, using `gendef` to generate it.
-
-First copy `python3x.dll` to `where_your_python\libs` folder.
-
-Then using this command:
-
-```bash
-gendef python3x.dll
-dlltool --dllname python3x.dll --def python3x.def --output-lib libpython3x.a
-```
-
-And then adjust source code about Visual C. Find this code in `where_your_python\include\pyconfig.h`.
-
-```c
-#ifdef _WIN64
-#define MS_WIN64
-#endif
-```
-
-Cut them and paste **Above** this:
-
-```c
-#ifdef _MSC_VER
-```
-
-Find this code in `where_your_python\Lib\distutils\cygwinccompiler.py`:
-
-```python
-#with MSVC 7.0 or later.
-self.dll_libraries = get_msvcr()
-```
-
-Commit `self.dll_libraries = get_msvcr()`.
-
-**`math.h` conflict with `pyconfig.h`**
-
-You will definitely get warning with `_hypot` in `pyconfig.h`, and you should do this step.
-
-In `where_your_python\include\pyconfig.h`, find this:
-
-```c
-#define hypot _hypot
-```
-
-Edit it to this:
-
-```c
-#ifndef _MATH_H_
-#define hypot _hypot
-#endif
-```
-
 Build
 ===
 
