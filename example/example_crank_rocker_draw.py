@@ -1,7 +1,7 @@
-#一三角形呆鍊，由一長一短的連桿固定在水平基線上。
-#短連桿鎖固在原點上，長連桿鎖固在距原點90mm處。
-#短連桿長度35mm；長連桿長度70mm。
-#三角形呆鍊邊長分別為40mm、40mm、70mm
+# 一三角形呆鍊，由一長一短的連桿固定在水平基線上。
+# 短連桿鎖固在原點上，長連桿鎖固在距原點90mm處。
+# 短連桿長度35mm；長連桿長度70mm。
+# 三角形呆鍊邊長分別為40mm、40mm、70mm
 '''
 example_crank_rocker_draw.py
 python3 -m pip install matplotlib
@@ -52,7 +52,7 @@ def crank_rocker(degree, p2x, p2y, p3x, p3y, p4x, p4y, p5x, p5y):
     Point1 = Point2d(Workplane1, p7, p8)
     Constraint.dragged(Workplane1, Point1)
 
-    #add Point2 and Line0
+    # add Point2 and Line0
     p9 = sys.add_param(d0)
     p10 = sys.add_param(0.0)
     Point2 = Point2d(Workplane1, p9, p10)
@@ -84,10 +84,10 @@ def crank_rocker(degree, p2x, p2y, p3x, p3y, p4x, p4y, p5x, p5y):
     Constraint.distance(n2, Workplane1, Point2, Point5)
     Line1 = LineSegment2d(Workplane1, Point1, Point4)
 
-    #add rotation angle constraint
+    # add rotation angle constraint
     Constraint.angle(Workplane1, degree, Line1, Line0, False)
 
-    #solve for results
+    # solve for results
     sys.calculateFaileds = 1;
     
     sys.solve()
