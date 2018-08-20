@@ -1,28 +1,28 @@
-#一三角形呆鍊，由一長一短的連桿固定在水平基線上。
-#短連桿鎖固在原點上，長連桿鎖固在距原點90mm處。
-#短連桿長度35mm；長連桿長度70mm。
-#三角形呆鍊邊長分別為40mm、40mm、70mm
+# 一三角形呆鍊，由一長一短的連桿固定在水平基線上。
+# 短連桿鎖固在原點上，長連桿鎖固在距原點90mm處。
+# 短連桿長度35mm；長連桿長度70mm。
+# 三角形呆鍊邊長分別為40mm、40mm、70mm
 from slvs import *
 
 
-#相關參數
-d0 = 90 #基線長度(mm)
-n1 = 35 #短連桿長度(mm)
-n2 = 70 #長連桿長度(mm)
-t1 = 40 #三角形第一邊(mm)
-t2 = 40 #三角形第二邊(mm)
-t3 = 70 #三角形第三邊(mm)
+# 相關參數
+d0 = 90 # 基線長度(mm)
+n1 = 35 # 短連桿長度(mm)
+n2 = 70 # 長連桿長度(mm)
+t1 = 40 # 三角形第一邊(mm)
+t2 = 40 # 三角形第二邊(mm)
+t3 = 70 # 三角形第三邊(mm)
 
-#開始繪圖
+# 開始繪圖
 def crank_rock(degree):
     sys = System(500)
-    #原點Point0
+    # 原點Point0
     p0 = sys.add_param(0.0)
     p1 = sys.add_param(0.0)
     p2 = sys.add_param(0.0)
     Point0 = Point3d(p0, p1, p2)
     
-    #XY法線
+    # XY法線
     qw, qx, qy, qz = Slvs_MakeQuaternion(1, 0, 0, 0, 1, 0)
     p3 = sys.add_param(qw)
     p4 = sys.add_param(qx)
@@ -30,26 +30,26 @@ def crank_rock(degree):
     p6 = sys.add_param(qz)
     Normal1 = Normal3d(p3, p4, p5, p6)
     
-    #工作平面
+    # 工作平面
     Workplane1 = Workplane(Point0, Normal1)
     
-    #3D版的Point0=>Point1
+    # 3D版的Point0=>Point1
     p7 = sys.add_param(0.0)
     p8 = sys.add_param(0.0)
     Point1 = Point2d(Workplane1, p7, p8)
     Constraint.dragged(Workplane1, Point1)
     
-    #長連桿轉軸Point2，還有基線Line0。
+    # 長連桿轉軸Point2，還有基線Line0。
     p9 = sys.add_param(d0)
     p10 = sys.add_param(0.0)
     Point2 = Point2d(Workplane1, p9, p10)
     Constraint.dragged(Workplane1, Point2)
     Line0 = LineSegment2d(Workplane1, Point1, Point2)
     
-    #Angle約束判斷
+    # Angle約束判斷
     other = -1 if degree >= 180 else 1
     
-    #三角形Point3 / Point4 / Point5
+    # 三角形Point3 / Point4 / Point5
     p11 = sys.add_param(20.0)
     p12 = sys.add_param(20.0)
     Point3 = Point2d(Workplane1, p11, p12)
@@ -63,15 +63,15 @@ def crank_rock(degree):
     Constraint.distance(t2, Workplane1, Point3, Point5)
     Constraint.distance(t3, Workplane1, Point4, Point5)
     
-    #連桿約束
+    # 連桿約束
     Constraint.distance(n1, Workplane1, Point1, Point4)
     Constraint.distance(n2, Workplane1, Point2, Point5)
     Line1 = LineSegment2d(Workplane1, Point1, Point4)
     
-    #短連桿與水平軸的角度
+    # 短連桿與水平軸的角度
     Constraint.angle(Workplane1, degree, Line1, Line0)
     
-    #以下解題
+    # 以下解題
     result = sys.solve()
     
     if result == SLVS_RESULT_OKAY:
@@ -100,7 +100,7 @@ def crank_rock(degree):
         print("SLVS_RESULT_TOO_MANY_UNKNOWNS")
         print("{} DOF".format(sys.dof))
 
-#主程式
+# 主程式
 for i in range(0, 360, 10):
     print ("Degree: {:3} deg".format(i))
     crank_rock(i)

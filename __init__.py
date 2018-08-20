@@ -10,19 +10,19 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 from .slvs import (
-    #Entities & Constraint
+    # Entities & Constraint
     Point3d,
     Workplane,
     Normal3d,
     Point2d,
     LineSegment2d,
     Constraint,
-    #Result flags
+    # Result flags
     SLVS_RESULT_OKAY,
     SLVS_RESULT_INCONSISTENT,
     SLVS_RESULT_DIDNT_CONVERGE,
     SLVS_RESULT_TOO_MANY_UNKNOWNS,
-    #System base
+    # System base
     System,
     groupNum,
     Slvs_MakeQuaternion,
