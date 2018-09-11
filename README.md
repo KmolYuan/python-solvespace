@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/KmolYuan/python-solvespace.svg)](https://travis-ci.org/KmolYuan/python-solvespace)
-![OS](https://img.shields.io/badge/OS-Linux%2C%20Windows-blue.svg)
+![OS](https://img.shields.io/badge/OS-Windows%2C%20MacOS%2C%20Ubuntu-blue.svg)
 [![GitHub license](https://img.shields.io/badge/license-AGPLv3-blue.svg)](https://raw.githubusercontent.com/KmolYuan/python-solvespace/master/LICENSE)
 
 Python Solvespace
@@ -26,7 +26,7 @@ Requirement
 
 1. python3-dev (Ubuntu package)
 
-Ubuntu
+MacOS and Ubuntu
 ---
 
 First, install SWIG. This tool kit can make a Python bundle with C/C++ library.
@@ -34,6 +34,9 @@ First, install SWIG. This tool kit can make a Python bundle with C/C++ library.
 If your not, install python development kit.
 
 ```bash
+# Using Homebrew
+brew install swig
+# Using APT
 sudo apt install swig python3-dev
 ```
 
