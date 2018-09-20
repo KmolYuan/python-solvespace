@@ -37,7 +37,9 @@ VPATH = src src/platform
 
 .PHONY: _slvs clean
 
-all: $(OBJDIR) libslvs.so $(WRAPPER)
+all: build
+
+build: $(OBJDIR) libslvs.so $(WRAPPER)
 
 clean:
 ifeq ($(OS),Windows_NT)
@@ -78,9 +80,9 @@ $(OBJDIR)/slvs_wrap.o: slvs_wrap.cxx
 
 $(WRAPPER): $(OBJDIR)/slvs_wrap.o
 ifeq ($(OS),Windows_NT)
-	g++ -shared -o $@ $(OBJS) $< -L. -Lsrc -l:libslvs.so -L$(PYLIB) -lPython$(PYVER) $(DEFDLL)
+	g++ -shared -o $@ $(OBJS) $< -L. -Lsrc -l:libslvs.so -L$(PYLIB) -lpython$(PYVER) $(DEFDLL)
 else ifeq ($(shell uname),Darwin)
-	g++ -dynamiclib -o $@ $(OBJS) $< -L$(PYLIB) -I$(PYDIR) -lPython$(PYVER)
+	g++ -dynamiclib -o $@ $(OBJS) $< -L$(PYLIB) -lpython$(PYVER)m
 else
 	g++ -shared -o $@ $(OBJS) $< -L$(PYLIB) -I$(PYDIR)
 endif

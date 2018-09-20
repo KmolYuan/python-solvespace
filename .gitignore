@@ -21,3 +21,5 @@ cdemo
 *.e4q
 *.e6t
 *.ui
+
+.DS_Store

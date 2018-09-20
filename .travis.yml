@@ -1,29 +1,63 @@
 #Travis-Ci
-sudo: required
 language: python
 
 matrix:
   include:
-    - python: 3.5
-      dist: trusty
-    - python: 3.6
-      dist: trusty
-    - python: 3.6
-      dist: xenial
-    - python: 3.7
+
+    - os: linux
+      sudo: required
+      python: 3.5
       dist: xenial
 
-install:
- - sudo apt update
- - sudo apt -y install swig
+    - os: linux
+      sudo: required
+      python: 3.6
+      dist: xenial
+    
+    - os: linux
+      sudo: required
+      python: 3.7
+      dist: xenial
+    
+    - os: osx
+      osx_image: xcode10
+      language: generic
+      env: PYTHON=35
+
+    - os: osx
+      osx_image: xcode10
+      language: generic
+      env: PYTHON=36
+
+    - os: osx
+      osx_image: xcode10
+      language: generic
+      env: PYTHON=37
+
+addons:
+  apt:
+    packages:
+      - swig
+
+# For OSX
+before_install: |
+  if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+  brew install swig;
+  curl -LO https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci;
+  source ./macports-ci install;
+  yes | sudo port install python$PYTHON;
+  sudo port select --set python3 python$PYTHON;
+  python3 --version;
+  fi
 
 script:
  - make
  - cp example/PyDemo.py .
- - python PyDemo.py
+ - python3 PyDemo.py
 
 before_cache:
   - rm -rf $HOME/.cache/pip/log
+
 cache:
   directories:
     - $HOME/.cache/pip
