@@ -9,11 +9,11 @@ environment:
     
     - MINGW_DIR: C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0
       MSYS_DIR: C:\msys64
-      PYTHON_DIR: C:\Python35-x64
+      PYTHON_DIR: C:\Python36-x64
     
     - MINGW_DIR: C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0
       MSYS_DIR: C:\msys64
-      PYTHON_DIR: C:\Python36-x64
+      PYTHON_DIR: C:\Python37-x64
 
 skip_tags: true
 
@@ -25,7 +25,7 @@ cache:
 
 install:
   # Install SWIG.
-  - choco install swig --version 3.0.9 --yes --limit-output
+  - choco install swig --yes --limit-output
   
   # Environment variables.
   - set Path=%PYTHON_DIR%;%Path%
