@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/KmolYuan/python-solvespace.svg)](https://travis-ci.org/KmolYuan/python-solvespace)
+[![Build status](https://ci.appveyor.com/api/projects/status/b2o8jw7xnfqghqr5?svg=true)](https://ci.appveyor.com/project/KmolYuan/python-solvespace)
+[![Build status](https://travis-ci.org/KmolYuan/python-solvespace.svg)](https://travis-ci.org/KmolYuan/python-solvespace)
 ![OS](https://img.shields.io/badge/OS-Windows%2C%20Mac%20OS%2C%20Ubuntu-blue.svg)
 [![GitHub license](https://img.shields.io/badge/license-AGPLv3-blue.svg)](https://raw.githubusercontent.com/KmolYuan/python-solvespace/master/LICENSE)
 
