@@ -14,10 +14,6 @@ environment:
     - MINGW_DIR: C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0
       MSYS_DIR: C:\msys64
       PYTHON_DIR: C:\Python36-x64
-    
-    - MINGW_DIR: C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0
-      MSYS_DIR: C:\msys64
-      PYTHON_DIR: C:\Python37-x64
 
 skip_tags: true
 
@@ -49,7 +45,8 @@ install:
 build_script:
   - mingw32-make SHELL=cmd
 
-test: off
+before_test:
+  - copy example\PyDemo.py .
 
-matrix:
-  fast_finish: true
+test_script:
+  - python PyDemo.py
