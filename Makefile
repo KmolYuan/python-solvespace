@@ -15,6 +15,7 @@ BASES = \
   lib
 
 ifeq ($(OS), Windows_NT)
+    SHELL = cmd
     CFLAGS += -DWIN32 -D_USE_MATH_DEFINES
     BASES += w32util platform
     WRAPPER = _slvs.pyd

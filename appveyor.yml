@@ -6,11 +6,11 @@ platform:
 
 environment:
   matrix:
-    
+
     - MINGW_DIR: C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0
       MSYS_DIR: C:\msys64
       PYTHON_DIR: C:\Python36-x64
-    
+
     - MINGW_DIR: C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0
       MSYS_DIR: C:\msys64
       PYTHON_DIR: C:\Python37-x64
@@ -26,24 +26,24 @@ cache:
 install:
   # Install SWIG.
   - choco install swig --yes --limit-output
-  
+
   # Environment variables.
   - set Path=%PYTHON_DIR%;%Path%
   - set Path=%PYTHON_DIR%\Scripts;%Path%
   - set Path=%MSYS_DIR%\usr\bin;%Path%
   - set Path=%MINGW_DIR%\mingw64\bin;%Path%
-  
+
   # Show Python.
   - python --version
   - pip --version
-  
+
   # Show tool kits.
   - gcc --version
   - mingw32-make --version
   - swig -version
 
 build_script:
-  - mingw32-make SHELL=cmd
+  - mingw32-make
 
 before_test:
   - copy example\PyDemo.py .
