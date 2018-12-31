@@ -1,8 +1,8 @@
 *.exe
 */cdemo
 
-*/slvs.py
 slvs.py
+src/slvs.cpp
 *.pyc
 *.o*
 *.def

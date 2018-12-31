@@ -45,20 +45,31 @@ build: $(OBJDIR) libslvs.so $(WRAPPER)
 clean:
 ifeq ($(OS),Windows_NT)
 	-rd /S /Q $(OBJDIR)
+	-rd build /s /q
 	-del *.so
 	-del src\*.def
 	-del src\*.lib
 	-del src\*_wrap.cxx
 	-del *.pyd
+	-del src\slvs.cpp
 	-del slvs.py
 else
 	-rm -fr $(OBJDIR)
+	-rm -fr build
 	-rm -f *.so
 	-rm -f src/*_wrap.cxx
+	-rm -f src/slvs.cpp
 	-rm -f slvs.py
 endif
 
 .SECONDEXPANSION:
+
+cython: setup.py
+ifeq ($(OS),Windows_NT)
+	python setup.py build_ext --inplace
+else
+	python3 setup.py build_ext --inplace
+endif
 
 $(OBJDIR):
 ifeq ($(OS), Windows_NT)
