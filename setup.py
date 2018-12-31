@@ -13,10 +13,10 @@ lib = sysconfig.get_config_var('BINDIR')
 
 macros = [
     ('_hypot', 'hypot'),
+    ('M_PI', 'PI'),  # C++ 11
     ('ISOLATION_AWARE_ENABLED', None),
     ('LIBRARY', None),
-    ('DLL_EXPORT', None),
-    # ('_DEBUG', None),
+    ('EXPORT_DLL', None),
     ('_CRT_SECURE_NO_WARNINGS', None),
 ]
 
@@ -27,7 +27,7 @@ compile_args = [
     '-Wno-write-strings',
     '-fpermissive',
     '-fPIC',
-    # '-std=c++11',
+    '-std=c++11',
 ]
 
 sources = [
@@ -50,7 +50,6 @@ if system() == 'Windows':
 
     # Solvespace arguments.
     macros.append(('WIN32', None))
-    # macros.append(('_USE_MATH_DEFINES', None))
 
     # Platform sources.
     sources.append('src/platform/' + 'w32util.cpp')
