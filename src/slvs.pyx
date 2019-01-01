@@ -15,16 +15,25 @@ from libcpp.vector cimport vector
 
 cdef class Entity:
 
-    """Python object of 'Slvs_hEntity'."""
+    """Python object to handle a pointer of 'Slvs_hEntity'."""
 
-    cdef Slvs_hEntity code
+    cdef Slvs_hEntity h
+    cdef Slvs_hGroup g
+    cdef int t
 
-    def __cinit__(self, Slvs_hEntity code):
-        self.code = code
+    @staticmethod
+    cdef Entity create(Slvs_Entity *e):
+        cdef Entity entity = Entity.__new__(Entity)
+        entity.h = e.h
+        entity.g = e.group
+        entity.t = e.type
+        return entity
 
     def __repr__(self) -> str:
-        cdef int i = <int>self.code
-        return f"Entity({i})"
+        cdef int h = <int>self.h
+        cdef int g = <int>self.g
+        cdef int t = <int>self.t
+        return f"Entity({h}, {g}, {t})"
 
 
 cdef class SolverSystem:
@@ -65,9 +74,20 @@ cdef class SolverSystem:
         self.entity_list.clear()
         self.cons_list.clear()
 
-    cpdef void set_group(self, unsigned int g):
-        """Set the group by integer."""
+    cpdef void set_group(self, size_t g):
+        """Set the current group by integer."""
         self.g = <Slvs_hGroup>g
+
+    cpdef int group(self):
+        """Return the current group by integer."""
+        return <int>self.g
+
+    cpdef double param(self, size_t p):
+        """Return the value of the parameter."""
+        if self.solved:
+            return self.sys.param[p].val
+        else:
+            return self.param_list[p].val
 
     cpdef int dof(self):
         """Return the DOF of system."""
@@ -95,21 +115,25 @@ cdef class SolverSystem:
 
         return self.sys.result
 
-    cdef Slvs_hParam new_param(self, double val) nogil:
+    cdef inline Slvs_hParam new_param(self, double val) nogil:
         """Add a parameter."""
         cdef Slvs_hParam index = <Slvs_hParam>self.sys.params
         self.param_list.push_back(Slvs_MakeParam(index, self.g, val))
         self.sys.params += 1
         return index
 
-    cpdef Entity add_point_2d(self, Entity wp, double u, double v):
-        """Add 2D point."""
-        cdef Slvs_hEntity index = <Slvs_hEntity>self.sys.params
-        cdef Slvs_hParam u_p = self.new_param(u)
-        cdef Slvs_hParam v_p = self.new_param(v)
-        self.entity_list.push_back(Slvs_MakePoint2d(index, self.g, wp.code, u_p, v_p))
+    cdef inline void new_entity(self, Slvs_Entity entity) nogil:
+        """Push back new entity."""
+        self.entity_list.push_back(entity)
         self.sys.entities += 1
 
-        return Entity.__new__(Entity, index)
+    cpdef Entity add_point_2d(self, Entity wp, double u, double v):
+        """Add 2D point."""
+        cdef Slvs_hParam u_p = self.new_param(u)
+        cdef Slvs_hParam v_p = self.new_param(v)
+        cdef Slvs_Entity e = Slvs_MakePoint2d(<Slvs_hEntity>self.sys.params, self.g, wp.h, u_p, v_p)
+        self.new_entity(e)
+
+        return Entity.create(&e)
 
     # TODO: More methods.
