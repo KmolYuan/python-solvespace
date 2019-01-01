@@ -12,28 +12,97 @@ email: pyslvs@gmail.com
 from libc.stdlib cimport malloc, free
 from libcpp.vector cimport vector
 
+ctypedef Slvs_Param * Slvs_Param_ptr
+ctypedef fused Plist:
+    Slvs_Param_ptr
+    vector[Slvs_Param]
+
+cpdef tuple quaternion_u(double qw, double qx, double qy, double qz):
+    cdef double x, y, z
+    Slvs_QuaternionV(qw, qx, qy, qz, &x, &y, &z)
+    return x, y, z
+
+
+cpdef tuple quaternion_v(double qw, double qx, double qy, double qz):
+    cdef double x, y, z
+    Slvs_QuaternionV(qw, qx, qy, qz, &x, &y, &z)
+    return x, y, z
+
+
+cpdef tuple quaternion_n(double qw, double qx, double qy, double qz):
+    cdef double x, y, z
+    Slvs_QuaternionN(qw, qx, qy, qz, &x, &y, &z)
+    return x, y, z
+
+
+cpdef tuple make_quaternion(double ux, double uy, double uz, double vx, double vy, double vz):
+    cdef double qw, qx, qy, qz
+    Slvs_MakeQuaternion(ux, uy, uz, vx, vy, vz, &qw, &qx, &qy, &qz)
+    return qw, qx, qy, qz
+
+
+cdef class Params:
+
+    """Python object to handle multiple parameter handles."""
+
+    cdef vector[Slvs_hParam] param_list
+
+    @staticmethod
+    cdef Params create(Slvs_hParam *p, size_t count):
+        """Constructor."""
+        cdef Params params = Params.__new__(Params)
+        cdef size_t i
+        for i in range(count):
+            params.param_list.push_back(p[i])
+        return params
+
+    def __repr__(self) -> str:
+        cdef str m = f"{self.__class__.__name__}(["
+        cdef size_t i
+        cdef size_t s = self.param_list.size()
+        for i in range(s):
+            m += str(<int>self.param_list[i])
+            if i != s - 1:
+                m += ", "
+        m += "])"
+        return m
+
 
 cdef class Entity:
 
     """Python object to handle a pointer of 'Slvs_hEntity'."""
 
+    cdef int t
     cdef Slvs_hEntity h
     cdef Slvs_hGroup g
-    cdef int t
+    cdef readonly Params params
 
     @staticmethod
-    cdef Entity create(Slvs_Entity *e):
+    cdef Entity create(Slvs_Entity *e, size_t params):
+        """Constructor."""
         cdef Entity entity = Entity.__new__(Entity)
+        entity.t = e.type
         entity.h = e.h
         entity.g = e.group
-        entity.t = e.type
+        entity.params = Params.create(e.param, params)
         return entity
 
     def __repr__(self) -> str:
         cdef int h = <int>self.h
         cdef int g = <int>self.g
         cdef int t = <int>self.t
-        return f"Entity({h}, {g}, {t})"
+        return (
+            f"{self.__class__.__name__}"
+            f"(handle={h}, group={g}, type={t}, params={self.params})"
+        )
+
+
+cdef list _get_params(list p_list, Plist param, Params p):
+    """Get the parameters after solved."""
+    cdef size_t i
+    for i in range(p.param_list.size()):
+        p_list.append(param[<size_t>p.param_list[i]].val)
+    return p_list
 
 
 cdef class SolverSystem:
@@ -89,6 +158,29 @@ cdef class SolverSystem:
         else:
             return self.param_list[p].val
 
+    cdef list _params_unsolved(self, list p_list, Params p):
+        """Get the parameters before solved."""
+        cdef size_t i
+        for i in range(p.param_list.size()):
+            p_list.append(self.param_list[<size_t>p.param_list[i]].val)
+        return p_list
+
+    cdef list _params_solved(self, list p_list, Params p):
+        """Get the parameters after solved."""
+        cdef size_t i
+        for i in range(p.param_list.size()):
+            p_list.append(self.sys.param[<size_t>p.param_list[i]].val)
+        return p_list
+
+    cpdef list params(self, Params p):
+        """Get the parameters by Params object."""
+        cdef list param_list = []
+        if self.solved:
+            _get_params[Slvs_Param_ptr](param_list, self.sys.param, p)
+        else:
+            _get_params[vector[Slvs_Param]](param_list, self.param_list, p)
+        return param_list
+
     cpdef int dof(self):
         """Return the DOF of system."""
         if self.solved:
@@ -131,9 +223,21 @@ cdef class SolverSystem:
         """Add 2D point."""
         cdef Slvs_hParam u_p = self.new_param(u)
         cdef Slvs_hParam v_p = self.new_param(v)
-        cdef Slvs_Entity e = Slvs_MakePoint2d(<Slvs_hEntity>self.sys.params, self.g, wp.h, u_p, v_p)
+        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
+        cdef Slvs_Entity e = Slvs_MakePoint2d(i, self.g, wp.h, u_p, v_p)
         self.new_entity(e)
 
-        return Entity.create(&e)
+        return Entity.create(&e, 2)
+
+    cpdef Entity add_point_3d(self, double x, double y, double z):
+        """Add 3D point."""
+        cdef Slvs_hParam x_p = self.new_param(x)
+        cdef Slvs_hParam y_p = self.new_param(y)
+        cdef Slvs_hParam z_p = self.new_param(z)
+        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
+        cdef Slvs_Entity e = Slvs_MakePoint3d(i, self.g, x_p, y_p, z_p)
+        self.new_entity(e)
+
+        return Entity.create(&e, 3)
 
     # TODO: More methods.
