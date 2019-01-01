@@ -41,6 +41,14 @@ cpdef tuple make_quaternion(double ux, double uy, double uz, double vx, double v
     return qw, qx, qy, qz
 
 
+cdef list _get_params(list p_list, Plist param, Params p):
+    """Get the parameters after solved."""
+    cdef size_t i
+    for i in range(p.param_list.size()):
+        p_list.append(param[<size_t>p.param_list[i]].val)
+    return p_list
+
+
 cdef class Params:
 
     """Python object to handle multiple parameter handles."""
@@ -78,13 +86,13 @@ cdef class Entity:
     cdef readonly Params params
 
     @staticmethod
-    cdef Entity create(Slvs_Entity *e, size_t params):
+    cdef Entity create(Slvs_Entity *e, size_t p_size):
         """Constructor."""
         cdef Entity entity = Entity.__new__(Entity)
         entity.t = e.type
         entity.h = e.h
         entity.g = e.group
-        entity.params = Params.create(e.param, params)
+        entity.params = Params.create(e.param, p_size)
         return entity
 
     def __repr__(self) -> str:
@@ -95,14 +103,6 @@ cdef class Entity:
             f"{self.__class__.__name__}"
             f"(handle={h}, group={g}, type={t}, params={self.params})"
         )
-
-
-cdef list _get_params(list p_list, Plist param, Params p):
-    """Get the parameters after solved."""
-    cdef size_t i
-    for i in range(p.param_list.size()):
-        p_list.append(param[<size_t>p.param_list[i]].val)
-    return p_list
 
 
 cdef class SolverSystem:
@@ -221,6 +221,8 @@ cdef class SolverSystem:
 
     cpdef Entity add_point_2d(self, Entity wp, double u, double v):
         """Add 2D point."""
+        assert wp.t == SLVS_E_WORKPLANE, f"{wp} is not a work plane"
+
         cdef Slvs_hParam u_p = self.new_param(u)
         cdef Slvs_hParam v_p = self.new_param(v)
         cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
@@ -240,4 +242,107 @@ cdef class SolverSystem:
 
         return Entity.create(&e, 3)
 
-    # TODO: More methods.
+    cpdef Entity add_normal_3d(self, double qw, double qx, double qy, double qz):
+        """Add a 3D normal."""
+        cdef Slvs_hParam w_p = self.new_param(qw)
+        cdef Slvs_hParam x_p = self.new_param(qx)
+        cdef Slvs_hParam y_p = self.new_param(qy)
+        cdef Slvs_hParam z_p = self.new_param(qz)
+        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
+        cdef Slvs_Entity e = Slvs_MakeNormal3d(i, self.g, w_p, x_p, y_p, z_p)
+        self.new_entity(e)
+
+        return Entity.create(&e, 4)
+
+    cpdef Entity add_normal_2d(self, Entity wp):
+        """Add a 2D normal."""
+        assert wp.t == SLVS_E_WORKPLANE, f"{wp} is not a work plane"
+
+        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
+        cdef Slvs_Entity e = Slvs_MakeNormal2d(i, self.g, wp.h)
+        self.new_entity(e)
+
+        return Entity.create(&e, 0)
+
+    cpdef Entity add_distance(self, Entity wp, double d):
+        """Add a 2D distance."""
+        assert wp.t == SLVS_E_WORKPLANE, f"{wp} is not a work plane"
+
+        cdef Slvs_hParam d_p = self.new_param(d)
+        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
+        cdef Slvs_Entity e = Slvs_MakeDistance(i, self.g, wp.h, d_p)
+        self.new_entity(e)
+
+        return Entity.create(&e, 1)
+
+    cpdef Entity add_line_segment(self, Entity wp, Entity p1, Entity p2):
+        """Add a 2D line segment."""
+        assert wp.t == SLVS_E_WORKPLANE, f"{wp} is not a work plane"
+        assert p1.t == SLVS_E_POINT_IN_2D, f"{p1} is not a 2d point"
+        assert p2.t == SLVS_E_POINT_IN_2D, f"{p2} is not a 2d point"
+
+        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
+        cdef Slvs_Entity e = Slvs_MakeLineSegment(i, self.g, wp.h, p1.h, p2.h)
+        self.new_entity(e)
+
+        return Entity.create(&e, 0)
+
+    cpdef Entity add_cubic(self, Entity wp, Entity p1, Entity p2, Entity p3, Entity p4):
+        """Add a 2D cubic."""
+        assert wp.t == SLVS_E_WORKPLANE, f"{wp} is not a work plane"
+        assert p1.t == SLVS_E_POINT_IN_2D, f"{p1} is not a 2d point"
+        assert p2.t == SLVS_E_POINT_IN_2D, f"{p2} is not a 2d point"
+        assert p3.t == SLVS_E_POINT_IN_2D, f"{p3} is not a 2d point"
+        assert p4.t == SLVS_E_POINT_IN_2D, f"{p4} is not a 2d point"
+
+        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
+        cdef Slvs_Entity e = Slvs_MakeCubic(i, self.g, wp.h, p1.h, p2.h, p3.h, p4.h)
+        self.new_entity(e)
+
+        return Entity.create(&e, 0)
+
+    cpdef Entity add_arc(self, Entity wp, Entity nm, Entity ct, Entity start, Entity end):
+        """Add an 2D arc."""
+        assert wp.t == SLVS_E_WORKPLANE, f"{wp} is not a work plane"
+        assert nm.t == SLVS_E_NORMAL_IN_3D, f"{nm} is not a 3d normal"
+        assert ct.t == SLVS_E_POINT_IN_2D, f"{ct} is not a 2d point"
+        assert start.t == SLVS_E_POINT_IN_2D, f"{start} is not a 2d point"
+        assert end.t == SLVS_E_POINT_IN_2D, f"{end} is not a 2d point"
+
+        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
+        cdef Slvs_Entity e = Slvs_MakeArcOfCircle(i, self.g, wp.h, nm.h, ct.h, start.h, end.h)
+        self.new_entity(e)
+
+        return Entity.create(&e, 0)
+
+    cpdef Entity add_circle(self, Entity wp, Entity ct, Entity nm, Entity radius):
+        """Add a 2D circle."""
+        assert wp.t == SLVS_E_WORKPLANE, f"{wp} is not a work plane"
+        assert ct.t == SLVS_E_POINT_IN_2D, f"{ct} is not a 2d point"
+        assert nm.t == SLVS_E_NORMAL_IN_3D, f"{nm} is not a 3d normal"
+        assert radius.t == SLVS_E_DISTANCE, f"{radius} is not a distance"
+
+        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
+        cdef Slvs_Entity e = Slvs_MakeCircle(i, self.g, wp.h, ct.h, nm.h, radius.h)
+        self.new_entity(e)
+
+        return Entity.create(&e, 0)
+
+    cpdef Entity add_work_plane(self, Entity origin, Entity nm):
+        """Add a 3D work plane."""
+        assert origin.t == SLVS_E_POINT_IN_3D, f"{origin} is not a 3d point"
+        assert nm.t == SLVS_E_NORMAL_IN_3D, f"{nm} is not a 3d normal"
+
+        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
+        cdef Slvs_Entity e = Slvs_MakeWorkplane(i, self.g, origin.h, nm.h)
+        self.new_entity(e)
+
+        return Entity.create(&e, 0)
+
+    cpdef Entity create_2d_base(self):
+        """Create a basic 2D system and return the work plane."""
+        cdef double qw, qx, qy, qz
+        qw, qx, qy, qz = make_quaternion(1, 0, 0, 0, 1, 0)
+        cdef Entity origin = self.add_point_3d(0, 0, 0)
+        cdef Entity nm = self.add_normal_3d(qw, qx, qy, qz)
+        return self.add_work_plane(origin, nm)
