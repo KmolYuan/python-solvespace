@@ -2,8 +2,7 @@
 */cdemo
 
 slvs.py
-src/slvs.cpp
-*.pyc
+Cython/*.cpp
 *.o*
 *.def
 *.lib

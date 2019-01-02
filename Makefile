@@ -51,20 +51,20 @@ ifeq ($(OS),Windows_NT)
 	-del src\*.lib
 	-del src\*_wrap.cxx
 	-del *.pyd
-	-del src\slvs.cpp
+	-del Cython\*.cpp
 	-del slvs.py
 else
 	-rm -fr $(OBJDIR)
 	-rm -fr build
 	-rm -f *.so
 	-rm -f src/*_wrap.cxx
-	-rm -f src/slvs.cpp
+	-rm -f Cython/*.cpp
 	-rm -f slvs.py
 endif
 
 .SECONDEXPANSION:
 
-cython: setup.py
+build-cython: setup.py
 ifeq ($(OS),Windows_NT)
 	python setup.py build_ext --inplace
 else

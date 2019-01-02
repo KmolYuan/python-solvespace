@@ -31,7 +31,7 @@ compile_args = [
 ]
 
 sources = [
-    'src/' + 'slvs.pyx',
+    'Cython/' + 'slvs.pyx',
     'src/' + 'util.cpp',
     'src/' + 'entity.cpp',
     'src/' + 'expr.cpp',

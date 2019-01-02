@@ -95,6 +95,16 @@ cdef class Entity:
         entity.params = Params.create(e.param, p_size)
         return entity
 
+    @staticmethod
+    cdef Entity free_in_3d():
+        """A virtual work plane that present 3D entity or constraint."""
+        cdef Entity wp = Entity.__new__(Entity)
+        wp.t = SLVS_E_WORKPLANE
+        wp.h = SLVS_FREE_IN_3D
+        wp.g = 0
+        wp.params = Params.create(NULL, 0)
+        return wp
+
     def __repr__(self) -> str:
         cdef int h = <int>self.h
         cdef int g = <int>self.g
