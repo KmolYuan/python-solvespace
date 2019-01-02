@@ -11,6 +11,7 @@ email: pyslvs@gmail.com
 
 from libc.stdlib cimport malloc, free
 from libcpp.vector cimport vector
+from enum import IntEnum
 
 ctypedef Slvs_Param * Slvs_Param_ptr
 ctypedef fused Plist:
@@ -41,7 +42,7 @@ cpdef tuple make_quaternion(double ux, double uy, double uz, double vx, double v
     return qw, qx, qy, qz
 
 
-cdef list _get_params(list p_list, Plist param, Params p):
+cdef inline list _get_params(list p_list, Plist param, Params p):
     """Get the parameters after solved."""
     cdef size_t i
     for i in range(p.param_list.size()):
@@ -60,8 +61,9 @@ cdef class Params:
         """Constructor."""
         cdef Params params = Params.__new__(Params)
         cdef size_t i
-        for i in range(count):
-            params.param_list.push_back(p[i])
+        with nogil:
+            for i in range(count):
+                params.param_list.push_back(p[i])
         return params
 
     def __repr__(self) -> str:
@@ -89,19 +91,32 @@ cdef class Entity:
     cdef Entity create(Slvs_Entity *e, size_t p_size):
         """Constructor."""
         cdef Entity entity = Entity.__new__(Entity)
-        entity.t = e.type
-        entity.h = e.h
-        entity.g = e.group
+        with nogil:
+            entity.t = e.type
+            entity.h = e.h
+            entity.g = e.group
         entity.params = Params.create(e.param, p_size)
         return entity
 
     @staticmethod
-    cdef Entity free_in_3d():
+    def none_entity() -> Entity:
+        """A "None" entity used to fill in constraint option."""
+        cdef Entity n = Entity.__new__(Entity)
+        with nogil:
+            n.t = 0
+            n.h = 0
+            n.g = 0
+        n.params = Params.create(NULL, 0)
+        return n
+
+    @staticmethod
+    def free_in_3d() -> Entity:
         """A virtual work plane that present 3D entity or constraint."""
         cdef Entity wp = Entity.__new__(Entity)
-        wp.t = SLVS_E_WORKPLANE
-        wp.h = SLVS_FREE_IN_3D
-        wp.g = 0
+        with nogil:
+            wp.t = SLVS_E_WORKPLANE
+            wp.h = SLVS_FREE_IN_3D
+            wp.g = 0
         wp.params = Params.create(NULL, 0)
         return wp
 
@@ -113,6 +128,44 @@ cdef class Entity:
             f"{self.__class__.__name__}"
             f"(handle={h}, group={g}, type={t}, params={self.params})"
         )
+
+
+class Constraint(IntEnum):
+    # Expose macro
+    POINTS_COINCIDENT = SLVS_C_POINTS_COINCIDENT
+    PT_PT_DISTANCE = SLVS_C_PT_PT_DISTANCE
+    PT_PLANE_DISTANCE = SLVS_C_PT_PLANE_DISTANCE
+    PT_LINE_DISTANCE = SLVS_C_PT_LINE_DISTANCE
+    PT_FACE_DISTANCE = SLVS_C_PT_FACE_DISTANCE
+    PT_IN_PLANE = SLVS_C_PT_IN_PLANE
+    PT_ON_LINE = SLVS_C_PT_ON_LINE
+    PT_ON_FACE = SLVS_C_PT_ON_FACE
+    EQUAL_LENGTH_LINES = SLVS_C_EQUAL_LENGTH_LINES
+    LENGTH_RATIO = SLVS_C_LENGTH_RATIO
+    EQ_LEN_PT_LINE_D = SLVS_C_EQ_LEN_PT_LINE_D
+    EQ_PT_LN_DISTANCES = SLVS_C_EQ_PT_LN_DISTANCES
+    EQUAL_ANGLE = SLVS_C_EQUAL_ANGLE
+    EQUAL_LINE_ARC_LEN = SLVS_C_EQUAL_LINE_ARC_LEN
+    SYMMETRIC = SLVS_C_SYMMETRIC
+    SYMMETRIC_HORIZ = SLVS_C_SYMMETRIC_HORIZ
+    SYMMETRIC_VERT = SLVS_C_SYMMETRIC_VERT
+    SYMMETRIC_LINE = SLVS_C_SYMMETRIC_LINE
+    AT_MIDPOINT = SLVS_C_AT_MIDPOINT
+    HORIZONTAL = SLVS_C_HORIZONTAL
+    VERTICAL = SLVS_C_VERTICAL
+    DIAMETER = SLVS_C_DIAMETER
+    PT_ON_CIRCLE = SLVS_C_PT_ON_CIRCLE
+    SAME_ORIENTATION = SLVS_C_SAME_ORIENTATION
+    ANGLE = SLVS_C_ANGLE
+    PARALLEL = SLVS_C_PARALLEL
+    PERPENDICULAR = SLVS_C_PERPENDICULAR
+    ARC_LINE_TANGENT = SLVS_C_ARC_LINE_TANGENT
+    CUBIC_LINE_TANGENT = SLVS_C_CUBIC_LINE_TANGENT
+    EQUAL_RADIUS = SLVS_C_EQUAL_RADIUS
+    PROJ_PT_DISTANCE = SLVS_C_PROJ_PT_DISTANCE
+    WHERE_DRAGGED = SLVS_C_WHERE_DRAGGED
+    CURVE_CURVE_TANGENT = SLVS_C_CURVE_CURVE_TANGENT
+    LENGTH_DIFFERENCE = SLVS_C_LENGTH_DIFFERENCE
 
 
 cdef class SolverSystem:
@@ -217,17 +270,25 @@ cdef class SolverSystem:
 
         return self.sys.result
 
+    cpdef Entity create_2d_base(self):
+        """Create a basic 2D system and return the work plane."""
+        cdef double qw, qx, qy, qz
+        qw, qx, qy, qz = make_quaternion(1, 0, 0, 0, 1, 0)
+        cdef Entity origin = self.add_point_3d(0, 0, 0)
+        cdef Entity nm = self.add_normal_3d(qw, qx, qy, qz)
+        return self.add_work_plane(origin, nm)
+
     cdef inline Slvs_hParam new_param(self, double val) nogil:
         """Add a parameter."""
-        cdef Slvs_hParam index = <Slvs_hParam>self.sys.params
-        self.param_list.push_back(Slvs_MakeParam(index, self.g, val))
         self.sys.params += 1
-        return index
+        cdef Slvs_hParam h = <Slvs_hParam>self.sys.params
+        self.param_list.push_back(Slvs_MakeParam(h, self.g, val))
+        return h
 
-    cdef inline void new_entity(self, Slvs_Entity entity) nogil:
-        """Push back new entity."""
-        self.entity_list.push_back(entity)
+    cdef inline Slvs_hEntity eh(self) nogil:
+        """Return new entity handle."""
         self.sys.entities += 1
+        return <Slvs_hEntity>self.sys.entities
 
     cpdef Entity add_point_2d(self, Entity wp, double u, double v):
         """Add 2D point."""
@@ -235,9 +296,8 @@ cdef class SolverSystem:
 
         cdef Slvs_hParam u_p = self.new_param(u)
         cdef Slvs_hParam v_p = self.new_param(v)
-        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
-        cdef Slvs_Entity e = Slvs_MakePoint2d(i, self.g, wp.h, u_p, v_p)
-        self.new_entity(e)
+        cdef Slvs_Entity e = Slvs_MakePoint2d(self.eh(), self.g, wp.h, u_p, v_p)
+        self.entity_list.push_back(e)
 
         return Entity.create(&e, 2)
 
@@ -246,9 +306,8 @@ cdef class SolverSystem:
         cdef Slvs_hParam x_p = self.new_param(x)
         cdef Slvs_hParam y_p = self.new_param(y)
         cdef Slvs_hParam z_p = self.new_param(z)
-        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
-        cdef Slvs_Entity e = Slvs_MakePoint3d(i, self.g, x_p, y_p, z_p)
-        self.new_entity(e)
+        cdef Slvs_Entity e = Slvs_MakePoint3d(self.eh(), self.g, x_p, y_p, z_p)
+        self.entity_list.push_back(e)
 
         return Entity.create(&e, 3)
 
@@ -258,9 +317,8 @@ cdef class SolverSystem:
         cdef Slvs_hParam x_p = self.new_param(qx)
         cdef Slvs_hParam y_p = self.new_param(qy)
         cdef Slvs_hParam z_p = self.new_param(qz)
-        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
-        cdef Slvs_Entity e = Slvs_MakeNormal3d(i, self.g, w_p, x_p, y_p, z_p)
-        self.new_entity(e)
+        cdef Slvs_Entity e = Slvs_MakeNormal3d(self.eh(), self.g, w_p, x_p, y_p, z_p)
+        self.entity_list.push_back(e)
 
         return Entity.create(&e, 4)
 
@@ -268,9 +326,8 @@ cdef class SolverSystem:
         """Add a 2D normal."""
         assert wp.t == SLVS_E_WORKPLANE, f"{wp} is not a work plane"
 
-        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
-        cdef Slvs_Entity e = Slvs_MakeNormal2d(i, self.g, wp.h)
-        self.new_entity(e)
+        cdef Slvs_Entity e = Slvs_MakeNormal2d(self.eh(), self.g, wp.h)
+        self.entity_list.push_back(e)
 
         return Entity.create(&e, 0)
 
@@ -279,9 +336,8 @@ cdef class SolverSystem:
         assert wp.t == SLVS_E_WORKPLANE, f"{wp} is not a work plane"
 
         cdef Slvs_hParam d_p = self.new_param(d)
-        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
-        cdef Slvs_Entity e = Slvs_MakeDistance(i, self.g, wp.h, d_p)
-        self.new_entity(e)
+        cdef Slvs_Entity e = Slvs_MakeDistance(self.eh(), self.g, wp.h, d_p)
+        self.entity_list.push_back(e)
 
         return Entity.create(&e, 1)
 
@@ -291,9 +347,8 @@ cdef class SolverSystem:
         assert p1.t == SLVS_E_POINT_IN_2D, f"{p1} is not a 2d point"
         assert p2.t == SLVS_E_POINT_IN_2D, f"{p2} is not a 2d point"
 
-        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
-        cdef Slvs_Entity e = Slvs_MakeLineSegment(i, self.g, wp.h, p1.h, p2.h)
-        self.new_entity(e)
+        cdef Slvs_Entity e = Slvs_MakeLineSegment(self.eh(), self.g, wp.h, p1.h, p2.h)
+        self.entity_list.push_back(e)
 
         return Entity.create(&e, 0)
 
@@ -305,9 +360,8 @@ cdef class SolverSystem:
         assert p3.t == SLVS_E_POINT_IN_2D, f"{p3} is not a 2d point"
         assert p4.t == SLVS_E_POINT_IN_2D, f"{p4} is not a 2d point"
 
-        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
-        cdef Slvs_Entity e = Slvs_MakeCubic(i, self.g, wp.h, p1.h, p2.h, p3.h, p4.h)
-        self.new_entity(e)
+        cdef Slvs_Entity e = Slvs_MakeCubic(self.eh(), self.g, wp.h, p1.h, p2.h, p3.h, p4.h)
+        self.entity_list.push_back(e)
 
         return Entity.create(&e, 0)
 
@@ -319,22 +373,20 @@ cdef class SolverSystem:
         assert start.t == SLVS_E_POINT_IN_2D, f"{start} is not a 2d point"
         assert end.t == SLVS_E_POINT_IN_2D, f"{end} is not a 2d point"
 
-        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
-        cdef Slvs_Entity e = Slvs_MakeArcOfCircle(i, self.g, wp.h, nm.h, ct.h, start.h, end.h)
-        self.new_entity(e)
+        cdef Slvs_Entity e = Slvs_MakeArcOfCircle(self.eh(), self.g, wp.h, nm.h, ct.h, start.h, end.h)
+        self.entity_list.push_back(e)
 
         return Entity.create(&e, 0)
 
-    cpdef Entity add_circle(self, Entity wp, Entity ct, Entity nm, Entity radius):
+    cpdef Entity add_circle(self, Entity wp, Entity nm, Entity ct, Entity radius):
         """Add a 2D circle."""
         assert wp.t == SLVS_E_WORKPLANE, f"{wp} is not a work plane"
-        assert ct.t == SLVS_E_POINT_IN_2D, f"{ct} is not a 2d point"
         assert nm.t == SLVS_E_NORMAL_IN_3D, f"{nm} is not a 3d normal"
+        assert ct.t == SLVS_E_POINT_IN_2D, f"{ct} is not a 2d point"
         assert radius.t == SLVS_E_DISTANCE, f"{radius} is not a distance"
 
-        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
-        cdef Slvs_Entity e = Slvs_MakeCircle(i, self.g, wp.h, ct.h, nm.h, radius.h)
-        self.new_entity(e)
+        cdef Slvs_Entity e = Slvs_MakeCircle(self.eh(), self.g, wp.h, ct.h, nm.h, radius.h)
+        self.entity_list.push_back(e)
 
         return Entity.create(&e, 0)
 
@@ -343,16 +395,23 @@ cdef class SolverSystem:
         assert origin.t == SLVS_E_POINT_IN_3D, f"{origin} is not a 3d point"
         assert nm.t == SLVS_E_NORMAL_IN_3D, f"{nm} is not a 3d normal"
 
-        cdef Slvs_hEntity i = <Slvs_hEntity>self.sys.entities
-        cdef Slvs_Entity e = Slvs_MakeWorkplane(i, self.g, origin.h, nm.h)
-        self.new_entity(e)
+        cdef Slvs_Entity e = Slvs_MakeWorkplane(self.eh(), self.g, origin.h, nm.h)
+        self.entity_list.push_back(e)
 
         return Entity.create(&e, 0)
 
-    cpdef Entity create_2d_base(self):
-        """Create a basic 2D system and return the work plane."""
-        cdef double qw, qx, qy, qz
-        qw, qx, qy, qz = make_quaternion(1, 0, 0, 0, 1, 0)
-        cdef Entity origin = self.add_point_3d(0, 0, 0)
-        cdef Entity nm = self.add_normal_3d(qw, qx, qy, qz)
-        return self.add_work_plane(origin, nm)
+    cdef void add_constraint(
+        self,
+        int c_type,
+        Entity wp,
+        double v,
+        Entity p1,
+        Entity p2,
+        Entity e1,
+        Entity e2
+    ):
+        """Add customized constraint."""
+        self.sys.constraints += 1
+        cdef Slvs_hConstraint h = <Slvs_hConstraint>self.sys.constraints
+        cdef Slvs_Constraint c = Slvs_MakeConstraint(h, self.g, c_type, wp, v, p1, p2, e1, e2)
+        self.cons_list.push_back(c)

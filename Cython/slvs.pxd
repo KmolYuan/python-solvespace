@@ -18,13 +18,15 @@ cdef extern from "slvs.h" nogil:
     ctypedef uint32_t Slvs_hConstraint
     ctypedef uint32_t Slvs_hGroup
 
-    int SLVS_FREE_IN_3D
+    # Virtual work plane entity
+    Slvs_hEntity SLVS_FREE_IN_3D
 
     ctypedef struct Slvs_Param:
         Slvs_hParam h
         Slvs_hGroup group
         double val
 
+    # Entity type
     int SLVS_E_POINT_IN_3D
     int SLVS_E_POINT_IN_2D
 
@@ -49,6 +51,7 @@ cdef extern from "slvs.h" nogil:
         Slvs_hEntity distance
         Slvs_hParam param[4]
 
+    # Constraint type
     int SLVS_C_POINTS_COINCIDENT
     int SLVS_C_PT_PT_DISTANCE
     int SLVS_C_PT_PLANE_DISTANCE
@@ -113,6 +116,7 @@ cdef extern from "slvs.h" nogil:
         int dof
         int result
 
+    # Result
     int SLVS_RESULT_OKAY
     int SLVS_RESULT_INCONSISTENT
     int SLVS_RESULT_DIDNT_CONVERGE
