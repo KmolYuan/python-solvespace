@@ -13,10 +13,6 @@ from libc.stdlib cimport malloc, free
 from libcpp.vector cimport vector
 from enum import IntEnum
 
-ctypedef Slvs_Param * Slvs_Param_ptr
-ctypedef fused Plist:
-    Slvs_Param_ptr
-    vector[Slvs_Param]
 
 cpdef tuple quaternion_u(double qw, double qx, double qy, double qz):
     cdef double x, y, z
@@ -42,7 +38,7 @@ cpdef tuple make_quaternion(double ux, double uy, double uz, double vx, double v
     return qw, qx, qy, qz
 
 
-cdef inline list _get_params(list p_list, Plist param, Params p):
+cdef inline list _get_params(list p_list, vector[Slvs_Param] &param, Params p):
     """Get the parameters after solved."""
     cdef size_t i
     for i in range(p.param_list.size()):
@@ -91,13 +87,27 @@ _ENTITY_NONE.h = 0
 _ENTITY_NONE.g = 0
 _ENTITY_NONE.params = Params.create(NULL, 0)
 
+# Entity names
+cdef dict _ENTITY_NAME = {
+    SLVS_E_POINT_IN_3D: "point 3d",
+    SLVS_E_POINT_IN_2D: "point 2d",
+    SLVS_E_NORMAL_IN_2D: "normal 2d",
+    SLVS_E_NORMAL_IN_3D: "normal 3d",
+    SLVS_E_DISTANCE: "distance",
+    SLVS_E_WORKPLANE: "work plane",
+    SLVS_E_LINE_SEGMENT: "line segment",
+    SLVS_E_CUBIC: "cubic",
+    SLVS_E_CIRCLE: "circle",
+    SLVS_E_ARC_OF_CIRCLE: "arc",
+}
+
 
 cdef class Entity:
 
     """Python object to handle a pointer of 'Slvs_hEntity'."""
 
     cdef int t
-    cdef Slvs_hEntity h
+    cdef Slvs_hEntity h, wp
     cdef Slvs_hGroup g
     cdef readonly Params params
 
@@ -111,33 +121,71 @@ cdef class Entity:
         with nogil:
             entity.t = e.type
             entity.h = e.h
+            entity.wp = e.wrkpl
             entity.g = e.group
         entity.params = Params.create(e.param, p_size)
         return entity
 
-    @staticmethod
-    def none_entity() -> Entity:
-        """A "None" entity used to fill in constraint option."""
-        cdef Entity n = Entity.__new__(Entity)
-        with nogil:
-            n.t = 0
-            n.h = 0
-            n.g = 0
-        n.params = Params.create(NULL, 0)
-        return n
+    cdef inline bint is_3d(self):
+        return self.wp == SLVS_FREE_IN_3D
+
+    cdef inline bint is_none(self):
+        return self.h == 0
+
+    cdef inline bint is_point_2d(self):
+        return self.t == SLVS_E_POINT_IN_2D
+
+    cdef inline bint is_point_3d(self):
+        return self.t == SLVS_E_POINT_IN_3D
+
+    cdef inline bint is_point(self):
+        return self.is_point_2d() or self.is_point_3d()
+
+    cdef inline bint is_normal_2d(self):
+        return self.t == SLVS_E_NORMAL_IN_2D
+
+    cdef inline bint is_normal_3d(self):
+        return self.t == SLVS_E_NORMAL_IN_3D
+
+    cdef inline bint is_normal(self):
+        return self.is_normal_2d() or self.is_normal_3d()
+
+    cdef inline bint is_distance(self):
+        return self.t == SLVS_E_DISTANCE
+
+    cdef inline bint is_work_plane(self):
+        return self.t == SLVS_E_WORKPLANE
+
+    cdef inline bint is_line_2d(self):
+        return self.is_line() and not self.is_3d()
+
+    cdef inline bint is_line_3d(self):
+        return self.is_line() and self.is_3d()
+
+    cdef inline bint is_line(self):
+        return self.t == SLVS_E_LINE_SEGMENT
+
+    cdef inline bint is_cubic(self):
+        return self.t == SLVS_E_CUBIC
+
+    cdef inline bint is_circle(self):
+        return self.t == SLVS_E_CIRCLE
+
+    cdef inline bint is_arc(self):
+        return self.t == SLVS_E_ARC_OF_CIRCLE
 
     def __repr__(self) -> str:
         cdef int h = <int>self.h
         cdef int g = <int>self.g
-        cdef int t = <int>self.t
+        cdef str t = _ENTITY_NAME[<int>self.t]
         return (
             f"{self.__class__.__name__}"
-            f"(handle={h}, group={g}, type={t}, params={self.params})"
+            f"(handle={h}, group={g}, type=<{t}>, is_3d={self.is_3d()}, params={self.params})"
         )
 
 
 class Constraint(IntEnum):
-    # Expose macro
+    # Expose macro of constrain types
     POINTS_COINCIDENT = SLVS_C_POINTS_COINCIDENT
     PT_PT_DISTANCE = SLVS_C_PT_PT_DISTANCE
     PT_PLANE_DISTANCE = SLVS_C_PT_PLANE_DISTANCE
@@ -174,30 +222,31 @@ class Constraint(IntEnum):
     LENGTH_DIFFERENCE = SLVS_C_LENGTH_DIFFERENCE
 
 
+class ResultFlag(IntEnum):
+    # Expose macro of result flags
+    OKAY = SLVS_RESULT_OKAY
+    INCONSISTENT = SLVS_RESULT_INCONSISTENT
+    DIDNT_CONVERGE = SLVS_RESULT_DIDNT_CONVERGE
+    TOO_MANY_UNKNOWNS = SLVS_RESULT_TOO_MANY_UNKNOWNS
+
+
 cdef class SolverSystem:
 
     """Python object of 'Slvs_System'."""
 
-    cdef readonly bint solved
     cdef Slvs_hGroup g
     cdef Slvs_System sys
     cdef vector[Slvs_Param] param_list
     cdef vector[Slvs_Entity] entity_list
     cdef vector[Slvs_Constraint] cons_list
+    cdef vector[Slvs_hConstraint] failed_list
 
     def __cinit__(self):
-        self.solved = False
         self.g = 0
         self.sys.params = self.sys.entities = self.sys.constraints = 0
 
-    def __dealloc__(self):
-        free(self.sys.param)
-        free(self.sys.entity)
-        free(self.sys.constraint)
-        free(self.sys.failed)
-
     cdef inline void copy_to_sys(self) nogil:
-        """Copy data in to system."""
+        """Copy data from stack into system."""
         # Copy
         cdef size_t i
         for i in range(self.param_list.size()):
@@ -207,10 +256,18 @@ cdef class SolverSystem:
         for i in range(self.cons_list.size()):
             self.sys.constraint[i] = self.cons_list[i]
 
-        # Clear all
-        self.param_list.clear()
-        self.entity_list.clear()
-        self.cons_list.clear()
+    cdef inline void failed_collecting(self) nogil:
+        """Collecting the failed constraints."""
+        self.failed_list.clear()
+        cdef int i
+        for i in range(self.sys.faileds):
+            self.failed_list.push_back(self.sys.failed[i])
+
+    cdef inline void free(self) nogil:
+        free(self.sys.param)
+        free(self.sys.entity)
+        free(self.sys.constraint)
+        free(self.sys.failed)
 
     cpdef void set_group(self, size_t g):
         """Set the current group by integer."""
@@ -220,41 +277,19 @@ cdef class SolverSystem:
         """Return the current group by integer."""
         return <int>self.g
 
-    cpdef double param(self, size_t p):
-        """Return the value of the parameter."""
-        if self.solved:
-            return self.sys.param[p].val
-        else:
-            return self.param_list[p].val
-
-    cdef list _params_unsolved(self, list p_list, Params p):
-        """Get the parameters before solved."""
-        cdef size_t i
-        for i in range(p.param_list.size()):
-            p_list.append(self.param_list[<size_t>p.param_list[i]].val)
-        return p_list
-
-    cdef list _params_solved(self, list p_list, Params p):
-        """Get the parameters after solved."""
-        cdef size_t i
-        for i in range(p.param_list.size()):
-            p_list.append(self.sys.param[<size_t>p.param_list[i]].val)
-        return p_list
-
     cpdef list params(self, Params p):
         """Get the parameters by Params object."""
         cdef list param_list = []
-        if self.solved:
-            _get_params[Slvs_Param_ptr](param_list, self.sys.param, p)
-        else:
-            _get_params[vector[Slvs_Param]](param_list, self.param_list, p)
+        _get_params(param_list, self.param_list, p)
         return param_list
 
     cpdef int dof(self):
         """Return the DOF of system."""
-        if self.solved:
-            return self.sys.dof
-        raise ValueError("the system has not been solved!")
+        return self.sys.dof
+
+    cpdef list faileds(self):
+        """Return the count of failed constraint."""
+        return list(self.failed_list)
 
     cpdef int solve(self):
         """Solve the system."""
@@ -272,11 +307,11 @@ cdef class SolverSystem:
 
         # Copy to system
         self.copy_to_sys()
-
         # Solve
         Slvs_Solve(&self.sys, self.g)
-        self.solved = True
-
+        # Failed constraints and free memory.
+        self.failed_collecting()
+        self.free()
         return self.sys.result
 
     cpdef Entity create_2d_base(self):
@@ -301,7 +336,7 @@ cdef class SolverSystem:
 
     cpdef Entity add_point_2d(self, Entity wp, double u, double v):
         """Add 2D point."""
-        if wp is None or wp.t != SLVS_E_WORKPLANE:
+        if wp is None or not wp.is_work_plane():
             raise TypeError(f"{wp} is not a work plane")
 
         cdef Slvs_hParam u_p = self.new_param(u)
@@ -321,6 +356,16 @@ cdef class SolverSystem:
 
         return Entity.create(&e, 3)
 
+    cpdef Entity add_normal_2d(self, Entity wp):
+        """Add a 2D normal."""
+        if wp is None or not wp.is_work_plane():
+            raise TypeError(f"{wp} is not a work plane")
+
+        cdef Slvs_Entity e = Slvs_MakeNormal2d(self.eh(), self.g, wp.h)
+        self.entity_list.push_back(e)
+
+        return Entity.create(&e, 0)
+
     cpdef Entity add_normal_3d(self, double qw, double qx, double qy, double qz):
         """Add a 3D normal."""
         cdef Slvs_hParam w_p = self.new_param(qw)
@@ -332,19 +377,9 @@ cdef class SolverSystem:
 
         return Entity.create(&e, 4)
 
-    cpdef Entity add_normal_2d(self, Entity wp):
-        """Add a 2D normal."""
-        if wp is None or wp.t != SLVS_E_WORKPLANE:
-            raise TypeError(f"{wp} is not a work plane")
-
-        cdef Slvs_Entity e = Slvs_MakeNormal2d(self.eh(), self.g, wp.h)
-        self.entity_list.push_back(e)
-
-        return Entity.create(&e, 0)
-
     cpdef Entity add_distance(self, Entity wp, double d):
         """Add a 2D distance."""
-        if wp is None or wp.t != SLVS_E_WORKPLANE:
+        if wp is None or not wp.is_work_plane():
             raise TypeError(f"{wp} is not a work plane")
 
         cdef Slvs_hParam d_p = self.new_param(d)
@@ -353,13 +388,13 @@ cdef class SolverSystem:
 
         return Entity.create(&e, 1)
 
-    cpdef Entity add_line_segment(self, Entity wp, Entity p1, Entity p2):
-        """Add a 2D line segment."""
-        if wp is None or wp.t != SLVS_E_WORKPLANE:
+    cpdef Entity add_line_2d(self, Entity wp, Entity p1, Entity p2):
+        """Add a 2D line."""
+        if wp is None or not wp.is_work_plane():
             raise TypeError(f"{wp} is not a work plane")
-        if p1 is None or p1.t != SLVS_E_POINT_IN_2D:
+        if p1 is None or not p1.is_point_2d():
             raise TypeError(f"{p1} is not a 2d point")
-        if p2 is None or p2.t != SLVS_E_POINT_IN_2D:
+        if p2 is None or not p2.is_point_2d():
             raise TypeError(f"{p2} is not a 2d point")
 
         cdef Slvs_Entity e = Slvs_MakeLineSegment(self.eh(), self.g, wp.h, p1.h, p2.h)
@@ -367,17 +402,29 @@ cdef class SolverSystem:
 
         return Entity.create(&e, 0)
 
+    cpdef Entity add_line_3d(self, Entity p1, Entity p2):
+        """Add a 3D line."""
+        if p1 is None or not p1.is_point_3d():
+            raise TypeError(f"{p1} is not a 3d point")
+        if p2 is None or not p2.is_point_3d():
+            raise TypeError(f"{p2} is not a 3d point")
+
+        cdef Slvs_Entity e = Slvs_MakeLineSegment(self.eh(), self.g, SLVS_FREE_IN_3D, p1.h, p2.h)
+        self.entity_list.push_back(e)
+
+        return Entity.create(&e, 0)
+
     cpdef Entity add_cubic(self, Entity wp, Entity p1, Entity p2, Entity p3, Entity p4):
         """Add a 2D cubic."""
-        if wp is None or wp.t != SLVS_E_WORKPLANE:
+        if wp is None or not wp.is_work_plane():
             raise TypeError(f"{wp} is not a work plane")
-        if p1 is None or p1.t != SLVS_E_POINT_IN_2D:
+        if p1 is None or not p1.is_point_2d():
             raise TypeError(f"{p1} is not a 2d point")
-        if p2 is None or p2.t != SLVS_E_POINT_IN_2D:
+        if p2 is None or not p2.is_point_2d():
             raise TypeError(f"{p2} is not a 2d point")
-        if p3 is None or p3.t != SLVS_E_POINT_IN_2D:
+        if p3 is None or not p3.is_point_2d():
             raise TypeError(f"{p3} is not a 2d point")
-        if p4 is None or p4.t != SLVS_E_POINT_IN_2D:
+        if p4 is None or not p4.is_point_2d():
             raise TypeError(f"{p4} is not a 2d point")
 
         cdef Slvs_Entity e = Slvs_MakeCubic(self.eh(), self.g, wp.h, p1.h, p2.h, p3.h, p4.h)
@@ -387,15 +434,15 @@ cdef class SolverSystem:
 
     cpdef Entity add_arc(self, Entity wp, Entity nm, Entity ct, Entity start, Entity end):
         """Add an 2D arc."""
-        if wp is None or wp.t != SLVS_E_WORKPLANE:
+        if wp is None or not wp.is_work_plane():
             raise TypeError(f"{wp} is not a work plane")
-        if nm.t != SLVS_E_NORMAL_IN_3D:
+        if nm is None or not nm.is_normal_3d():
             raise TypeError(f"{nm} is not a 3d normal")
-        if ct.t != SLVS_E_POINT_IN_2D:
+        if ct is None or not ct.is_point_2d():
             raise TypeError(f"{ct} is not a 2d point")
-        if start.t != SLVS_E_POINT_IN_2D:
+        if start is None or not start.is_point_2d():
             raise TypeError(f"{start} is not a 2d point")
-        if end.t != SLVS_E_POINT_IN_2D:
+        if end is None or not end.is_point_2d():
             raise TypeError(f"{end} is not a 2d point")
 
         cdef Slvs_Entity e = Slvs_MakeArcOfCircle(self.eh(), self.g, wp.h, nm.h, ct.h, start.h, end.h)
@@ -405,13 +452,13 @@ cdef class SolverSystem:
 
     cpdef Entity add_circle(self, Entity wp, Entity nm, Entity ct, Entity radius):
         """Add a 2D circle."""
-        if wp is None or wp.t != SLVS_E_WORKPLANE:
+        if wp is None or not wp.is_work_plane():
             raise TypeError(f"{wp} is not a work plane")
-        if nm is None or nm.t != SLVS_E_NORMAL_IN_3D:
+        if nm is None or not nm.is_normal_3d():
             raise TypeError(f"{nm} is not a 3d normal")
-        if ct is None or ct.t != SLVS_E_POINT_IN_2D:
+        if ct is None or not ct.is_point_2d():
             raise TypeError(f"{ct} is not a 2d point")
-        if radius is None or radius.t != SLVS_E_DISTANCE:
+        if radius is None or not radius.is_distance():
             raise TypeError(f"{radius} is not a distance")
 
         cdef Slvs_Entity e = Slvs_MakeCircle(self.eh(), self.g, wp.h, ct.h, nm.h, radius.h)
@@ -442,11 +489,11 @@ cdef class SolverSystem:
         Entity e2
     ):
         """Add customized constraint."""
-        if wp is None or wp.t != SLVS_E_WORKPLANE:
+        if wp is None or not wp.is_work_plane():
             raise TypeError(f"{wp} is not a work plane")
-        if p1 is None or p1.t not in {0, SLVS_E_POINT_IN_2D, SLVS_E_POINT_IN_3D}:
+        if p1 is None or not (p1.is_none() or p1.is_point()):
             raise TypeError(f"{p1} is not a point")
-        if p2 is None or p2.t not in {0, SLVS_E_POINT_IN_2D, SLVS_E_POINT_IN_3D}:
+        if p2 is None or not (p2.is_none() or p2.is_point()):
             raise TypeError(f"{p2} is not a point")
         if e1 is None:
             raise TypeError(f"{e1} is not a entity")

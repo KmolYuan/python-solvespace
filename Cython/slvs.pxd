@@ -30,8 +30,8 @@ cdef extern from "slvs.h" nogil:
     int SLVS_E_POINT_IN_3D
     int SLVS_E_POINT_IN_2D
 
-    int SLVS_E_NORMAL_IN_3D
     int SLVS_E_NORMAL_IN_2D
+    int SLVS_E_NORMAL_IN_3D
 
     int SLVS_E_DISTANCE
 
