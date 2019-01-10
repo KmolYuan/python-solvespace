@@ -7,7 +7,7 @@
 ## Copyright 2008-2013 Jonathan Westhues.
 ## Copyright 2016-2017 Yuan Chang [pyslvs@gmail.com] Python-Solvespace bundled.
 
-from ..slvs import *
+from slvs import *
 
 sys = System()
 

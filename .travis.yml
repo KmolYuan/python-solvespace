@@ -6,19 +6,19 @@ matrix:
 
     - os: linux
       sudo: required
-      python: 3.5
+      python: "3.5"
       dist: xenial
 
     - os: linux
       sudo: required
-      python: 3.6
+      python: "3.6"
       dist: xenial
-    
+
     - os: linux
       sudo: required
-      python: 3.7
+      python: "3.7"
       dist: xenial
-    
+
     - os: osx
       osx_image: xcode10
       language: generic
@@ -42,9 +42,9 @@ addons:
 # For OSX
 before_install: |
   if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-  brew install swig;
   curl -LO https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci;
   source ./macports-ci install;
+  yes | sudo port install swig-python;
   yes | sudo port install python$PYTHON;
   sudo port select --set python3 python$PYTHON;
   python3 --version;
@@ -52,7 +52,7 @@ before_install: |
 
 script:
  - make
- - cp example/PyDemo.py .
+ - cp test/PyDemo.py .
  - python3 PyDemo.py
 
 before_cache:
