@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
+
 ## Some sample code for slvs.dll. We draw some geometric entities, provide
 ## initial guesses for their positions, and then constrain them. The solver
 ## calculates their new positions, in order to satisfy the constraints.
-##
+
 ## Copyright 2008-2013 Jonathan Westhues.
 ## Copyright 2016-2017 Yuan Chang [pyslvs@gmail.com] Python-Solvespace bundled.
 
-from slvs import *
-
+from ..slvs import *
 
 sys = System()
 
-'''
-An example of a constraint in 3d. We create a single group, with some
-entities and constraints.
-'''
-def Example3d():
+
+def example3d():
+    """
+    An example of a constraint in 3d. We create a single group, with some
+    entities and constraints.
+    """
     # A point, initially at (x y z) = (10 10 10)
     p0 = sys.add_param(10)
     p1 = sys.add_param(10)
@@ -37,24 +38,29 @@ def Example3d():
     # Let's tell the solver to keep the second point as close to constant
     # as possible, instead moving the first point.
     Constraint.dragged(Point102)
-    
+
     # Now that we have written our system, we solve.
     result = sys.solve()
     if result == SLVS_RESULT_OKAY:
-        print(
-            "okay; now at ({:.3f} {:.3f} {:.3f})\n".format(sys.get_param(0).val, sys.get_param(1).val, sys.get_param(2).val)+
-            "             ({:.3f} {:.3f} {:.3f})\n".format(sys.get_param(3).val, sys.get_param(4).val, sys.get_param(5).val)
-        )
+        print("okay; now at ({:.3f} {:.3f} {:.3f})".format(
+            sys.get_param(0).val, sys.get_param(1).val,
+            sys.get_param(2).val
+        ))
+        print("             ({:.3f} {:.3f} {:.3f})\n".format(
+            sys.get_param(3).val, sys.get_param(4).val,
+            sys.get_param(5).val
+        ))
         print("{} DOF".format(sys.dof))
     else:
         print("solve failed")
 
-'''
-An example of a constraint in 2d. In our first group, we create a workplane
-along the reference frame's xy plane. In a second group, we create some
-entities in that group and dimension them.
-'''
-def Example2d():
+
+def example2d(error: bool):
+    """
+    An example of a constraint in 2d. In our first group, we create a workplane
+    along the reference frame's xy plane. In a second group, we create some
+    entities in that group and dimension them.
+    """
     g1 = groupNum(1)
     sys.default_group = g1
 
@@ -136,7 +142,7 @@ def Example2d():
     # And the distance from one endpoint to the origin is 15.0 units.
     Constraint.distance(15., Workplane200, Point301, Point101)
 
-    if 0:
+    if error:
         # And same for the other endpoint; so if you add this constraint then
         # the sketch is overconstrained and will signal an error.
         Constraint.distance(18., Workplane200, Point301, Point101)
@@ -145,7 +151,7 @@ def Example2d():
     Constraint.equal_radius(Workplane200, Arc401, Circle402)
 
     # The arc has radius 17.0 units.
-    Constraint.diameter(17.*2, Workplane200, Arc401)
+    Constraint.diameter(17. * 2, Workplane200, Arc401)
 
     # If the solver fails, then ask it to report which constraints caused
     # the problem.
@@ -158,11 +164,11 @@ def Example2d():
         # Python-Solvespace can use wrapper of pointer to get the values,
         # or record the entry number first, then using the 'get_param' method.
         print("line from ({:.3f} {:.3f}) to ({:.3f} {:.3f})".format(
-            Point301.u().value, Point301.v().value, # (sys.get_param(7).val, sys.get_param(8).val) is okay.
+            Point301.u().value, Point301.v().value,  # (sys.get_param(7).val, sys.get_param(8).val) is okay.
             Point302.u().value, Point302.v().value
         ))
         print("arc center ({:.3f} {:.3f}) start ({:.3f} {:.3f}) finish ({:.3f} {:.3f})".format(
-            Point303.u().value, Point303.v().value, # (sys.get_param(11).val, sys.get_param(12).val) is okay.
+            Point303.u().value, Point303.v().value,  # (sys.get_param(11).val, sys.get_param(12).val) is okay.
             Point304.u().value, Point304.v().value,
             Point305.u().value, Point305.v().value
         ))
@@ -178,11 +184,12 @@ def Example2d():
         if result == SLVS_RESULT_INCONSISTENT:
             print("system inconsistent")
         else:
-            print("system nonconvergent")
+            print("system no convergent")
 
-if __name__=='__main__':
-    # Example3d()
-    Example2d()
+
+if __name__ == '__main__':
+    # example3d()
+    example2d(False)
 
 '''
 solved okay
