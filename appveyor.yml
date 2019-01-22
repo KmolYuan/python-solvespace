@@ -46,7 +46,7 @@ build_script:
   - mingw32-make
 
 before_test:
-  - copy example\PyDemo.py .
+  - copy test\PyDemo.py .
 
 test_script:
   - python PyDemo.py
