@@ -9,7 +9,9 @@ license: AGPL
 email: pyslvs@gmail.com
 """
 
+cimport cython
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
+from cpython.object cimport Py_EQ, Py_NE
 from libcpp.vector cimport vector
 
 
@@ -125,52 +127,76 @@ cdef class Entity:
         entity.params = Params.create(e.param, p_size)
         return entity
 
-    cdef inline bint is_3d(self):
+    def __richcmp__(self, other: Entity, op: cython.int) -> bint:
+        """Compare the entities."""
+        if op == Py_EQ:
+            return (
+                self.t == other.t and
+                self.h == other.h and
+                self.wp == other.wp and
+                self.g == other.g and
+                self.params == other.params
+            )
+        elif op == Py_NE:
+            return (
+                self.t != other.t or
+                self.h != other.h or
+                self.wp != other.wp or
+                self.g != other.g or
+                self.params != other.params
+            )
+        else:
+            raise TypeError(
+                f"'{op}' not support between instances of "
+                f"{type(self)} and {type(other)}"
+            )
+
+    cpdef bint is_3d(self):
         return self.wp == SLVS_FREE_IN_3D
 
-    cdef inline bint is_none(self):
+    cpdef bint is_none(self):
         return self.h == 0
 
-    cdef inline bint is_point_2d(self):
+    cpdef bint is_point_2d(self):
         return self.t == SLVS_E_POINT_IN_2D
 
-    cdef inline bint is_point_3d(self):
+    cpdef bint is_point_3d(self):
         return self.t == SLVS_E_POINT_IN_3D
 
-    cdef inline bint is_point(self):
+    cpdef bint is_point(self):
         return self.is_point_2d() or self.is_point_3d()
 
-    cdef inline bint is_normal_2d(self):
+    cpdef bint is_normal_2d(self):
         return self.t == SLVS_E_NORMAL_IN_2D
 
-    cdef inline bint is_normal_3d(self):
+    cpdef bint is_normal_3d(self):
         return self.t == SLVS_E_NORMAL_IN_3D
 
-    cdef inline bint is_normal(self):
+    cpdef bint is_normal(self):
         return self.is_normal_2d() or self.is_normal_3d()
 
-    cdef inline bint is_distance(self):
+    cpdef bint is_distance(self):
         return self.t == SLVS_E_DISTANCE
 
-    cdef inline bint is_work_plane(self):
+    cpdef bint is_work_plane(self):
         return self.t == SLVS_E_WORKPLANE
 
-    cdef inline bint is_line_2d(self):
+    cpdef bint is_line_2d(self):
         return self.is_line() and not self.is_3d()
 
-    cdef inline bint is_line_3d(self):
+    cpdef bint is_line_3d(self):
         return self.is_line() and self.is_3d()
 
-    cdef inline bint is_line(self):
+    cpdef bint is_line(self):
         return self.t == SLVS_E_LINE_SEGMENT
 
-    cdef inline bint is_cubic(self):
+    cpdef bint is_cubic(self):
         return self.t == SLVS_E_CUBIC
 
-    cdef inline bint is_circle(self):
+    cpdef bint is_circle(self):
         return self.t == SLVS_E_CIRCLE
 
-    cdef inline bint is_arc(self):
+    cpdef bint is_arc(self):
         return self.t == SLVS_E_ARC_OF_CIRCLE
 
     def __repr__(self) -> str:
@@ -456,10 +482,10 @@ cdef class SolverSystem:
         Entity p2,
         Entity e1,
         Entity e2,
-        Entity e3,
-        Entity e4,
-        int other,
-        int other2
+        Entity e3 = _ENTITY_NONE,
+        Entity e4 = _ENTITY_NONE,
+        int other = 0,
+        int other2 = 0
     ):
         """Add customized constraint."""
         if wp is None or not wp.is_work_plane():
@@ -491,22 +517,181 @@ cdef class SolverSystem:
         self.cons_list.push_back(c)
 
     #####
-    # TODO: Constraint methods.
+    # Constraint methods.
     #####
 
-    cpdef void on(self):
-        pass
+    cpdef void coincident(
+        self,
+        Entity e1,
+        Entity e2,
+        Entity wp = _WP_FREE_IN_3D
+    ):
+        """Coincident two entities."""
+        if not wp.is_none():
+            raise TypeError(f"work plane can not be none: {wp}")
 
-    cpdef void distance(self):
-        pass
+        if e1.is_point() and e2.is_point():
+            self.add_constraint(
+                POINTS_COINCIDENT,
+                wp,
+                0.,
+                e1,
+                e2,
+                _ENTITY_NONE,
+                _ENTITY_NONE
+            )
+        elif e1.is_point() and e2.is_work_plane() and wp is _WP_FREE_IN_3D:
+            self.add_constraint(
+                PT_IN_PLANE,
+                e2,
+                0.,
+                e1,
+                _ENTITY_NONE,
+                e2,
+                _ENTITY_NONE
+            )
+        elif e1.is_point() and (e2.is_line() or e2.is_circle()):
+            self.add_constraint(
+                PT_ON_LINE if e2.is_line() else PT_ON_CIRCLE,
+                wp,
+                0.,
+                e1,
+                _ENTITY_NONE,
+                e2,
+                _ENTITY_NONE
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
 
-    cpdef void equal(self):
+    cpdef void distance(
+        self,
+        Entity e1,
+        Entity e2,
+        double value,
+        Entity wp = _WP_FREE_IN_3D,
+    ):
+        """Distance constraint between two entities."""
+        if not wp.is_none():
+            raise TypeError(f"work plane can not be none: {wp}")
+
+        if value == 0.:
+            self.coincident(e1, e2, wp)
+            return
+
+        if e1.is_point() and e2.is_point():
+            self.add_constraint(
+                PT_PT_DISTANCE,
+                wp,
+                value,
+                e1,
+                e2,
+                _ENTITY_NONE,
+                _ENTITY_NONE
+            )
+        elif e1.is_point() and e2.is_work_plane() and wp is _WP_FREE_IN_3D:
+            self.add_constraint(
+                PT_PLANE_DISTANCE,
+                e2,
+                value,
+                e1,
+                _ENTITY_NONE,
+                e2,
+                _ENTITY_NONE
+            )
+        elif e1.is_point() and e2.is_line():
+            self.add_constraint(
+                PT_LINE_DISTANCE,
+                wp,
+                value,
+                e1,
+                _ENTITY_NONE,
+                e2,
+                _ENTITY_NONE
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
+
+    cpdef void equal(
+        self,
+        Entity e1,
+        Entity e2,
+        Entity wp = _WP_FREE_IN_3D
+    ):
+        """Equal constraint between two entities."""
+        if not wp.is_none():
+            raise TypeError(f"work plane can not be none: {wp}")
+
+        if e1.is_line() and e2.is_line():
+            self.add_constraint(
+                EQUAL_LENGTH_LINES,
+                wp,
+                0.,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                e1,
+                e2
+            )
+        elif e1.is_line() and (e2.is_arc() or e2.is_circle()):
+            self.add_constraint(
+                EQUAL_LINE_ARC_LEN,
+                wp,
+                0.,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                e1,
+                e2
+            )
+        elif (e1.is_arc() or e1.is_circle()) and (e2.is_arc() or e2.is_circle()):
+            self.add_constraint(
+                EQUAL_RADIUS,
+                wp,
+                0.,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                e1,
+                e2
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
+
+    cpdef void equal_included_angle(
+        self,
+        Entity e1,
+        Entity e2,
+        Entity e3,
+        Entity e4,
+        Entity wp
+    ):
+        """Constraint that line 1 and line 2, line 3 and line 4
+         must have same included angle.
+         """
+        if not wp.is_none():
+            raise TypeError(f"work plane can not be none: {wp}")
+
+        if wp is _WP_FREE_IN_3D:
+            raise ValueError("this is a 2d constraint")
+
+        if e1.is_line_2d() and e2.is_line_2d() and e3.is_line_2d() and e4.is_line_2d():
+            self.add_constraint(
+                EQUAL_ANGLE,
+                wp,
+                0.,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                e1,
+                e2,
+                e3,
+                e4
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
+
+    # TODO: More constraint methods.
+
+    cpdef void equal_point_to_line(self):
         pass
 
     cpdef void ratio(self):
-        pass
-
-    cpdef void equal_point_to_line(self):
         pass
 
     cpdef void symmetric(self):
