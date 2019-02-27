@@ -490,4 +490,63 @@ cdef class SolverSystem:
         c.other2 = other2
         self.cons_list.push_back(c)
 
+    #####
     # TODO: Constraint methods.
+    #####
+
+    cpdef void on(self):
+        pass
+
+    cpdef void distance(self):
+        pass
+
+    cpdef void equal(self):
+        pass
+
+    cpdef void ratio(self):
+        pass
+
+    cpdef void equal_point_to_line(self):
+        pass
+
+    cpdef void symmetric(self):
+        pass
+
+    cpdef void symmetric_h(self):
+        pass
+
+    cpdef void symmetric_v(self):
+        pass
+
+    cpdef void midpoint(self):
+        pass
+
+    cpdef void horizontal(self):
+        pass
+
+    cpdef void vertical(self):
+        pass
+
+    cpdef void diameter(self):
+        pass
+
+    cpdef void orientation(self):
+        pass
+
+    cpdef void angle(self):
+        pass
+
+    cpdef void perpendicular(self):
+        pass
+
+    cpdef void parallel(self):
+        pass
+
+    cpdef void tangent(self):
+        pass
+
+    cpdef void distance_proj(self):
+        pass
+
+    cpdef void dragged(self):
+        pass
