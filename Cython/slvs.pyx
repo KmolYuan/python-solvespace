@@ -9,9 +9,8 @@ license: AGPL
 email: pyslvs@gmail.com
 """
 
-from libc.stdlib cimport malloc, free
+from cpython.mem cimport PyMem_Malloc, PyMem_Free
 from libcpp.vector cimport vector
-from enum import IntEnum
 
 
 cpdef tuple quaternion_u(double qw, double qx, double qy, double qz):
@@ -184,52 +183,6 @@ cdef class Entity:
         )
 
 
-class Constraint(IntEnum):
-    # Expose macro of constrain types
-    POINTS_COINCIDENT = SLVS_C_POINTS_COINCIDENT
-    PT_PT_DISTANCE = SLVS_C_PT_PT_DISTANCE
-    PT_PLANE_DISTANCE = SLVS_C_PT_PLANE_DISTANCE
-    PT_LINE_DISTANCE = SLVS_C_PT_LINE_DISTANCE
-    PT_FACE_DISTANCE = SLVS_C_PT_FACE_DISTANCE
-    PT_IN_PLANE = SLVS_C_PT_IN_PLANE
-    PT_ON_LINE = SLVS_C_PT_ON_LINE
-    PT_ON_FACE = SLVS_C_PT_ON_FACE
-    EQUAL_LENGTH_LINES = SLVS_C_EQUAL_LENGTH_LINES
-    LENGTH_RATIO = SLVS_C_LENGTH_RATIO
-    EQ_LEN_PT_LINE_D = SLVS_C_EQ_LEN_PT_LINE_D
-    EQ_PT_LN_DISTANCES = SLVS_C_EQ_PT_LN_DISTANCES
-    EQUAL_ANGLE = SLVS_C_EQUAL_ANGLE
-    EQUAL_LINE_ARC_LEN = SLVS_C_EQUAL_LINE_ARC_LEN
-    SYMMETRIC = SLVS_C_SYMMETRIC
-    SYMMETRIC_HORIZ = SLVS_C_SYMMETRIC_HORIZ
-    SYMMETRIC_VERT = SLVS_C_SYMMETRIC_VERT
-    SYMMETRIC_LINE = SLVS_C_SYMMETRIC_LINE
-    AT_MIDPOINT = SLVS_C_AT_MIDPOINT
-    HORIZONTAL = SLVS_C_HORIZONTAL
-    VERTICAL = SLVS_C_VERTICAL
-    DIAMETER = SLVS_C_DIAMETER
-    PT_ON_CIRCLE = SLVS_C_PT_ON_CIRCLE
-    SAME_ORIENTATION = SLVS_C_SAME_ORIENTATION
-    ANGLE = SLVS_C_ANGLE
-    PARALLEL = SLVS_C_PARALLEL
-    PERPENDICULAR = SLVS_C_PERPENDICULAR
-    ARC_LINE_TANGENT = SLVS_C_ARC_LINE_TANGENT
-    CUBIC_LINE_TANGENT = SLVS_C_CUBIC_LINE_TANGENT
-    EQUAL_RADIUS = SLVS_C_EQUAL_RADIUS
-    PROJ_PT_DISTANCE = SLVS_C_PROJ_PT_DISTANCE
-    WHERE_DRAGGED = SLVS_C_WHERE_DRAGGED
-    CURVE_CURVE_TANGENT = SLVS_C_CURVE_CURVE_TANGENT
-    LENGTH_DIFFERENCE = SLVS_C_LENGTH_DIFFERENCE
-
-
-class ResultFlag(IntEnum):
-    # Expose macro of result flags
-    OKAY = SLVS_RESULT_OKAY
-    INCONSISTENT = SLVS_RESULT_INCONSISTENT
-    DIDNT_CONVERGE = SLVS_RESULT_DIDNT_CONVERGE
-    TOO_MANY_UNKNOWNS = SLVS_RESULT_TOO_MANY_UNKNOWNS
-
-
 cdef class SolverSystem:
 
     """Python object of 'Slvs_System'."""
@@ -248,13 +201,29 @@ cdef class SolverSystem:
     cdef inline void copy_to_sys(self) nogil:
         """Copy data from stack into system."""
         # Copy
-        cdef size_t i
-        for i in range(self.param_list.size()):
-            self.sys.param[i] = self.param_list[i]
-        for i in range(self.entity_list.size()):
-            self.sys.entity[i] = self.entity_list[i]
-        for i in range(self.cons_list.size()):
-            self.sys.constraint[i] = self.cons_list[i]
+        cdef int i = 0
+        cdef Slvs_Param param
+        for param in self.param_list:
+            self.sys.param[i] = param
+            i += 1
+
+        i = 0
+        cdef Slvs_Entity entity
+        for entity in self.entity_list:
+            self.sys.entity[i] = entity
+            i += 1
+
+        i = 0
+        cdef Slvs_Constraint con
+        for con in self.cons_list:
+            self.sys.constraint[i] = con
+            i += 1
+
+    cpdef void clear(self):
+        self.param_list.clear()
+        self.entity_list.clear()
+        self.cons_list.clear()
+        self.free()
 
     cdef inline void failed_collecting(self) nogil:
         """Collecting the failed constraints."""
@@ -263,11 +232,11 @@ cdef class SolverSystem:
         for i in range(self.sys.faileds):
             self.failed_list.push_back(self.sys.failed[i])
 
-    cdef inline void free(self) nogil:
-        free(self.sys.param)
-        free(self.sys.entity)
-        free(self.sys.constraint)
-        free(self.sys.failed)
+    cdef inline void free(self):
+        PyMem_Free(self.sys.param)
+        PyMem_Free(self.sys.entity)
+        PyMem_Free(self.sys.constraint)
+        PyMem_Free(self.sys.failed)
 
     cpdef void set_group(self, size_t g):
         """Set the current group by integer."""
@@ -294,15 +263,15 @@ cdef class SolverSystem:
     cpdef int solve(self):
         """Solve the system."""
         # Parameters
-        self.sys.param = <Slvs_Param *>malloc(self.param_list.size() * sizeof(Slvs_Param))
+        self.sys.param = <Slvs_Param *>PyMem_Malloc(self.param_list.size() * sizeof(Slvs_Param))
 
         # Entities
-        self.sys.entity = <Slvs_Entity *>malloc(self.entity_list.size() * sizeof(Slvs_Entity))
+        self.sys.entity = <Slvs_Entity *>PyMem_Malloc(self.entity_list.size() * sizeof(Slvs_Entity))
 
         # Constraints
         cdef size_t cons_size = self.cons_list.size()
-        self.sys.constraint = <Slvs_Constraint *>malloc(cons_size * sizeof(Slvs_Constraint))
-        self.sys.failed = <Slvs_hConstraint *>malloc(cons_size * sizeof(Slvs_hConstraint))
+        self.sys.constraint = <Slvs_Constraint *>PyMem_Malloc(cons_size * sizeof(Slvs_Constraint))
+        self.sys.failed = <Slvs_hConstraint *>PyMem_Malloc(cons_size * sizeof(Slvs_hConstraint))
         self.sys.faileds = cons_size
 
         # Copy to system
@@ -480,29 +449,45 @@ cdef class SolverSystem:
 
     cpdef void add_constraint(
         self,
-        int c_type,
+        Constraint c_type,
         Entity wp,
         double v,
         Entity p1,
         Entity p2,
         Entity e1,
-        Entity e2
+        Entity e2,
+        Entity e3,
+        Entity e4,
+        int other,
+        int other2
     ):
         """Add customized constraint."""
         if wp is None or not wp.is_work_plane():
             raise TypeError(f"{wp} is not a work plane")
-        if p1 is None or not (p1.is_none() or p1.is_point()):
-            raise TypeError(f"{p1} is not a point")
-        if p2 is None or not (p2.is_none() or p2.is_point()):
-            raise TypeError(f"{p2} is not a point")
-        if e1 is None:
-            raise TypeError(f"{e1} is not a entity")
-        if e2 is None:
-            raise TypeError(f"{e2} is not a entity")
+
+        cdef Entity e
+        for e in (p1, p2):
+            if e is None or not (e.is_none() or e.is_point()):
+                raise TypeError(f"{e} is not a point")
+        for e in (e1, e2, e3, e4):
+            if e is None:
+                raise TypeError(f"{e} is not a entity")
 
         self.sys.constraints += 1
-        cdef Slvs_hConstraint h = <Slvs_hConstraint>self.sys.constraints
-        cdef Slvs_Constraint c = Slvs_MakeConstraint(h, self.g, c_type, wp, v, p1, p2, e1, e2)
+        cdef Slvs_Constraint c
+        c.h = <Slvs_hConstraint>self.sys.constraints
+        c.group = self.g
+        c.type = c_type
+        c.wrkpl = wp.h
+        c.valA = v
+        c.ptA = p1.h
+        c.ptB = p2.h
+        c.entityA = e1.h
+        c.entityB = e2.h
+        c.entityC = e3.h
+        c.entityD = e4.h
+        c.other = other
+        c.other2 = other2
         self.cons_list.push_back(c)
 
     # TODO: Constraint methods.
