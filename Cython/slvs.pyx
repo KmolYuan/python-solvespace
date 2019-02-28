@@ -89,7 +89,7 @@ _ENTITY_NONE.g = 0
 _ENTITY_NONE.params = Params.create(NULL, 0)
 
 # Entity names
-cdef dict _ENTITY_NAME = {
+cdef dict _NAME_OF_ENTITIES = {
     SLVS_E_POINT_IN_3D: "point 3d",
     SLVS_E_POINT_IN_2D: "point 2d",
     SLVS_E_NORMAL_IN_2D: "normal 2d",
@@ -202,7 +202,7 @@ cdef class Entity:
     def __repr__(self) -> str:
         cdef int h = <int>self.h
         cdef int g = <int>self.g
-        cdef str t = _ENTITY_NAME[<int>self.t]
+        cdef str t = _NAME_OF_ENTITIES[<int>self.t]
         return (
             f"{self.__class__.__name__}"
             f"(handle={h}, group={g}, type=<{t}>, is_3d={self.is_3d()}, params={self.params})"
@@ -520,12 +520,7 @@ cdef class SolverSystem:
     # Constraint methods.
     #####
 
-    cpdef void coincident(
-        self,
-        Entity e1,
-        Entity e2,
-        Entity wp = _WP_FREE_IN_3D
-    ):
+    cpdef void coincident(self, Entity e1, Entity e2, Entity wp = _WP_FREE_IN_3D):
         """Coincident two entities."""
         if e1.is_point() and e2.is_point():
             self.add_constraint(
@@ -605,12 +600,7 @@ cdef class SolverSystem:
         else:
             raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
 
-    cpdef void equal(
-        self,
-        Entity e1,
-        Entity e2,
-        Entity wp = _WP_FREE_IN_3D
-    ):
+    cpdef void equal(self, Entity e1, Entity e2, Entity wp = _WP_FREE_IN_3D):
         """Equal constraint between two entities."""
         if e1.is_line() and e2.is_line():
             self.add_constraint(
@@ -701,13 +691,7 @@ cdef class SolverSystem:
         else:
             raise TypeError(f"unsupported entities: {e1}, {e2}, {e3}, {e4}, {wp}")
 
-    cpdef void ratio(
-        self,
-        Entity e1,
-        Entity e2,
-        double value,
-        Entity wp
-    ):
+    cpdef void ratio(self, Entity e1, Entity e2, double value, Entity wp):
         """The ratio constraint between two lines."""
         if wp is _WP_FREE_IN_3D:
             raise ValueError("this is a 2d constraint")
@@ -768,12 +752,7 @@ cdef class SolverSystem:
         else:
             raise TypeError(f"unsupported entities: {e1}, {e2}, {e3}, {wp}")
 
-    cpdef void symmetric_h(
-        self,
-        Entity e1,
-        Entity e2,
-        Entity wp
-    ):
+    cpdef void symmetric_h(self, Entity e1, Entity e2, Entity wp):
         """Symmetric constraint between two points with horizontal line."""
         if wp is _WP_FREE_IN_3D:
             raise ValueError("this is a 2d constraint")
@@ -791,12 +770,7 @@ cdef class SolverSystem:
         else:
             raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
 
-    cpdef void symmetric_v(
-        self,
-        Entity e1,
-        Entity e2,
-        Entity wp
-    ):
+    cpdef void symmetric_v(self, Entity e1, Entity e2, Entity wp):
         """Symmetric constraint between two points with vertical line."""
         if wp is _WP_FREE_IN_3D:
             raise ValueError("this is a 2d constraint")
@@ -814,37 +788,211 @@ cdef class SolverSystem:
         else:
             raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
 
-    # TODO: More constraint methods.
+    cpdef void midpoint(
+        self,
+        Entity e1,
+        Entity e2,
+        Entity wp = _WP_FREE_IN_3D
+    ):
+        """Midpoint constraint between a point and a line."""
+        if e1.is_point() and e2.is_line():
+            self.add_constraint(
+                AT_MIDPOINT,
+                wp,
+                0.,
+                e1,
+                _ENTITY_NONE,
+                e2,
+                _ENTITY_NONE
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
 
-    cpdef void midpoint(self):
-        pass
+    cpdef void horizontal(self, Entity e1, Entity wp):
+        """Horizontal constraint of a 2d point."""
+        if wp is _WP_FREE_IN_3D:
+            raise ValueError("this is a 2d constraint")
 
-    cpdef void horizontal(self):
-        pass
+        if e1.is_line_2d():
+            self.add_constraint(
+                HORIZONTAL,
+                wp,
+                0.,
+                e1,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                _ENTITY_NONE
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {wp}")
 
-    cpdef void vertical(self):
-        pass
+    cpdef void vertical(self, Entity e1, Entity wp):
+        """Vertical constraint of a 2d point."""
+        if wp is _WP_FREE_IN_3D:
+            raise ValueError("this is a 2d constraint")
 
-    cpdef void diameter(self):
-        pass
+        if e1.is_line_2d():
+            self.add_constraint(
+                VERTICAL,
+                wp,
+                0.,
+                e1,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                _ENTITY_NONE
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {wp}")
 
-    cpdef void orientation(self):
-        pass
+    cpdef void diameter(self, Entity e1, double value, Entity wp):
+        """Diameter constraint of a circular entities."""
+        if wp is _WP_FREE_IN_3D:
+            raise ValueError("this is a 2d constraint")
 
-    cpdef void angle(self):
-        pass
+        if e1.is_arc() or e1.is_circle():
+            self.add_constraint(
+                DIAMETER,
+                wp,
+                value,
+                e1,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                _ENTITY_NONE
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {wp}")
 
-    cpdef void perpendicular(self):
-        pass
+    cpdef void same_orientation(self, Entity e1, Entity e2, double value):
+        """Equal orientation constraint between two 3d normals."""
+        if e1.is_normal_3d() and e2.is_normal_3d():
+            self.add_constraint(
+                SAME_ORIENTATION,
+                _WP_FREE_IN_3D,
+                value,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                e1,
+                e2
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}")
 
-    cpdef void parallel(self):
-        pass
+    cpdef void angle(self, Entity e1, Entity e2, double value, Entity wp):
+        """Angle constraint between two 2d lines."""
+        if wp is _WP_FREE_IN_3D:
+            raise ValueError("this is a 2d constraint")
 
-    cpdef void tangent(self):
-        pass
+        if e1.is_line_2d() and e2.is_line_2d():
+            self.add_constraint(
+                ANGLE,
+                wp,
+                value,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                e1,
+                e2
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
 
-    cpdef void distance_proj(self):
-        pass
+    cpdef void perpendicular(self, Entity e1, Entity e2, Entity wp):
+        """Perpendicular constraint between two 2d lines."""
+        if wp is _WP_FREE_IN_3D:
+            raise ValueError("this is a 2d constraint")
 
-    cpdef void dragged(self):
-        pass
+        if e1.is_line_2d() and e2.is_line_2d():
+            self.add_constraint(
+                PERPENDICULAR,
+                wp,
+                0.,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                e1,
+                e2
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
+
+    cpdef void parallel(self, Entity e1, Entity e2, Entity wp = _WP_FREE_IN_3D):
+        """Parallel constraint between two lines."""
+        if e1.is_line() and e2.is_line():
+            self.add_constraint(
+                PARALLEL,
+                wp,
+                0.,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                e1,
+                e2
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
+
+    cpdef void tangent(self, Entity e1, Entity e2, Entity wp = _WP_FREE_IN_3D):
+        """Parallel constraint between two entities."""
+        if e1.is_arc() and e2.is_line_2d():
+            if wp is _WP_FREE_IN_3D:
+                raise ValueError("this is a 2d constraint")
+            self.add_constraint(
+                ARC_LINE_TANGENT,
+                wp,
+                0.,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                e1,
+                e2
+            )
+        elif e1.is_cubic() and e2.is_line_3d() and wp is _WP_FREE_IN_3D:
+            self.add_constraint(
+                CUBIC_LINE_TANGENT,
+                wp,
+                0.,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                e1,
+                e2
+            )
+        elif (e1.is_arc() or e1.is_cubic()) and (e2.is_arc() or e2.is_cubic()):
+            if (e1.is_arc() or e2.is_arc()) and wp is _WP_FREE_IN_3D:
+                raise ValueError("this is a 2d constraint")
+            self.add_constraint(
+                CURVE_CURVE_TANGENT,
+                wp,
+                0.,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                e1,
+                e2
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
+
+    cpdef void distance_proj(self, Entity e1, Entity e2, double value):
+        """Projected distance constraint between two 3d points."""
+        if e1.is_point_3d() and e2.is_point_3d():
+            self.add_constraint(
+                CURVE_CURVE_TANGENT,
+                _WP_FREE_IN_3D,
+                value,
+                e1,
+                e2,
+                _ENTITY_NONE,
+                _ENTITY_NONE
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}")
+
+    cpdef void dragged(self, Entity e1, Entity wp = _WP_FREE_IN_3D):
+        """Dragged constraint of a point."""
+        if e1.is_point():
+            self.add_constraint(
+                WHERE_DRAGGED,
+                wp,
+                0.,
+                e1,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                _ENTITY_NONE
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {wp}")
