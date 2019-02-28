@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
+# cython: language_level=3, embedsignature=True
 
 """Wrapper source code of Solvespace.
 
@@ -527,9 +527,6 @@ cdef class SolverSystem:
         Entity wp = _WP_FREE_IN_3D
     ):
         """Coincident two entities."""
-        if not wp.is_none():
-            raise TypeError(f"work plane can not be none: {wp}")
-
         if e1.is_point() and e2.is_point():
             self.add_constraint(
                 POINTS_COINCIDENT,
@@ -571,9 +568,6 @@ cdef class SolverSystem:
         Entity wp = _WP_FREE_IN_3D,
     ):
         """Distance constraint between two entities."""
-        if not wp.is_none():
-            raise TypeError(f"work plane can not be none: {wp}")
-
         if value == 0.:
             self.coincident(e1, e2, wp)
             return
@@ -618,9 +612,6 @@ cdef class SolverSystem:
         Entity wp = _WP_FREE_IN_3D
     ):
         """Equal constraint between two entities."""
-        if not wp.is_none():
-            raise TypeError(f"work plane can not be none: {wp}")
-
         if e1.is_line() and e2.is_line():
             self.add_constraint(
                 EQUAL_LENGTH_LINES,
@@ -665,9 +656,6 @@ cdef class SolverSystem:
         """Constraint that line 1 and line 2, line 3 and line 4
          must have same included angle.
          """
-        if not wp.is_none():
-            raise TypeError(f"work plane can not be none: {wp}")
-
         if wp is _WP_FREE_IN_3D:
             raise ValueError("this is a 2d constraint")
 
@@ -684,24 +672,149 @@ cdef class SolverSystem:
                 e4
             )
         else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}, {e3}, {e4}, {wp}")
+
+    cpdef void equal_point_to_line(
+        self,
+        Entity e1,
+        Entity e2,
+        Entity e3,
+        Entity e4,
+        Entity wp
+    ):
+        """Constraint that point 1 and line 1, point 2 and line 2
+        must have same distance.
+        """
+        if wp is _WP_FREE_IN_3D:
+            raise ValueError("this is a 2d constraint")
+
+        if e1.is_point_2d() and e2.is_line_2d() and e3.is_point_2d() and e4.is_line_2d():
+            self.add_constraint(
+                EQ_PT_LN_DISTANCES,
+                wp,
+                0.,
+                e1,
+                e3,
+                e2,
+                e4
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}, {e3}, {e4}, {wp}")
+
+    cpdef void ratio(
+        self,
+        Entity e1,
+        Entity e2,
+        double value,
+        Entity wp
+    ):
+        """The ratio constraint between two lines."""
+        if wp is _WP_FREE_IN_3D:
+            raise ValueError("this is a 2d constraint")
+
+        if e1.is_line_2d() and e2.is_line_2d():
+            self.add_constraint(
+                EQ_PT_LN_DISTANCES,
+                wp,
+                value,
+                _ENTITY_NONE,
+                _ENTITY_NONE,
+                e1,
+                e2
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
+
+    cpdef void symmetric(
+        self,
+        Entity e1,
+        Entity e2,
+        Entity e3 = _ENTITY_NONE,
+        Entity wp = _WP_FREE_IN_3D
+    ):
+        """Symmetric constraint between two points."""
+        if e1.is_point_3d() and e2.is_point_3d() and e3.is_work_plane() and wp is _WP_FREE_IN_3D:
+            self.add_constraint(
+                SYMMETRIC,
+                wp,
+                0.,
+                e1,
+                e2,
+                e3,
+                _ENTITY_NONE
+            )
+        elif e1.is_point_2d() and e2.is_point_2d() and e3.is_work_plane() and wp is _WP_FREE_IN_3D:
+            self.add_constraint(
+                SYMMETRIC,
+                e3,
+                0.,
+                e1,
+                e2,
+                e3,
+                _ENTITY_NONE
+            )
+        elif e1.is_point_2d() and e2.is_point_2d() and e3.is_line_2d():
+            if wp is _WP_FREE_IN_3D:
+                raise ValueError("this is a 2d constraint")
+            self.add_constraint(
+                SYMMETRIC_LINE,
+                wp,
+                0.,
+                e1,
+                e2,
+                e3,
+                _ENTITY_NONE
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}, {e3}, {wp}")
+
+    cpdef void symmetric_h(
+        self,
+        Entity e1,
+        Entity e2,
+        Entity wp
+    ):
+        """Symmetric constraint between two points with horizontal line."""
+        if wp is _WP_FREE_IN_3D:
+            raise ValueError("this is a 2d constraint")
+
+        if e1.is_point_2d() and e2.is_point_2d():
+            self.add_constraint(
+                SYMMETRIC_HORIZ,
+                wp,
+                0.,
+                e1,
+                e2,
+                _ENTITY_NONE,
+                _ENTITY_NONE
+            )
+        else:
+            raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
+
+    cpdef void symmetric_v(
+        self,
+        Entity e1,
+        Entity e2,
+        Entity wp
+    ):
+        """Symmetric constraint between two points with vertical line."""
+        if wp is _WP_FREE_IN_3D:
+            raise ValueError("this is a 2d constraint")
+
+        if e1.is_point_2d() and e2.is_point_2d():
+            self.add_constraint(
+                SYMMETRIC_VERT,
+                wp,
+                0.,
+                e1,
+                e2,
+                _ENTITY_NONE,
+                _ENTITY_NONE
+            )
+        else:
             raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
 
     # TODO: More constraint methods.
-
-    cpdef void equal_point_to_line(self):
-        pass
-
-    cpdef void ratio(self):
-        pass
-
-    cpdef void symmetric(self):
-        pass
-
-    cpdef void symmetric_h(self):
-        pass
-
-    cpdef void symmetric_v(self):
-        pass
 
     cpdef void midpoint(self):
         pass
