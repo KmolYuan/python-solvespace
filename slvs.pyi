@@ -179,7 +179,7 @@ class SolverSystem:
     def create_2d_base(self) -> Entity:
         ...
 
-    def add_point_2d(self, wp: Entity, u: float, v: float) -> Entity:
+    def add_point_2d(self, u: float, v: float, wp: Entity) -> Entity:
         ...
 
     def add_point_3d(self, x: float, y: float, z: float) -> Entity:
@@ -191,22 +191,22 @@ class SolverSystem:
     def add_normal_3d(self, qw: float, qx: float, qy: float, qz: float) -> Entity:
         ...
 
-    def add_distance(self, wp: Entity, d: float) -> Entity:
+    def add_distance(self, d: float, wp: Entity) -> Entity:
         ...
 
-    def add_line_2d(self, wp: Entity, p1: Entity, p2: Entity) -> Entity:
+    def add_line_2d(self, p1: Entity, p2: Entity, wp: Entity) -> Entity:
         ...
 
     def add_line_3d(self, p1: Entity, p2: Entity) -> Entity:
         ...
 
-    def add_cubic(self, wp: Entity, p1: Entity, p2: Entity, p3: Entity, p4: Entity) -> Entity:
+    def add_cubic(self, p1: Entity, p2: Entity, p3: Entity, p4: Entity, wp: Entity) -> Entity:
         ...
 
-    def add_arc(self, wp: Entity, nm: Entity, ct: Entity, start: Entity, end: Entity) -> Entity:
+    def add_arc(self, nm: Entity, ct: Entity, start: Entity, end: Entity, wp: Entity) -> Entity:
         ...
 
-    def add_circle(self, wp: Entity, nm: Entity, ct: Entity, radius: Entity) -> Entity:
+    def add_circle(self, nm: Entity, ct: Entity, radius: Entity, wp: Entity) -> Entity:
         ...
 
     def add_work_plane(self, origin: Entity, nm: Entity) -> Entity:

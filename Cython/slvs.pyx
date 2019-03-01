@@ -327,7 +327,7 @@ cdef class SolverSystem:
         self.sys.entities += 1
         return <Slvs_hEntity>self.sys.entities
 
-    cpdef Entity add_point_2d(self, Entity wp, double u, double v):
+    cpdef Entity add_point_2d(self, double u, double v, Entity wp):
         """Add 2D point."""
         if wp is None or not wp.is_work_plane():
             raise TypeError(f"{wp} is not a work plane")
@@ -370,7 +370,7 @@ cdef class SolverSystem:
 
         return Entity.create(&e, 4)
 
-    cpdef Entity add_distance(self, Entity wp, double d):
+    cpdef Entity add_distance(self, double d, Entity wp):
         """Add a 2D distance."""
         if wp is None or not wp.is_work_plane():
             raise TypeError(f"{wp} is not a work plane")
@@ -381,7 +381,7 @@ cdef class SolverSystem:
 
         return Entity.create(&e, 1)
 
-    cpdef Entity add_line_2d(self, Entity wp, Entity p1, Entity p2):
+    cpdef Entity add_line_2d(self, Entity p1, Entity p2, Entity wp):
         """Add a 2D line."""
         if wp is None or not wp.is_work_plane():
             raise TypeError(f"{wp} is not a work plane")
@@ -407,7 +407,7 @@ cdef class SolverSystem:
 
         return Entity.create(&e, 0)
 
-    cpdef Entity add_cubic(self, Entity wp, Entity p1, Entity p2, Entity p3, Entity p4):
+    cpdef Entity add_cubic(self, Entity p1, Entity p2, Entity p3, Entity p4, Entity wp):
         """Add a 2D cubic."""
         if wp is None or not wp.is_work_plane():
             raise TypeError(f"{wp} is not a work plane")
@@ -425,7 +425,7 @@ cdef class SolverSystem:
 
         return Entity.create(&e, 0)
 
-    cpdef Entity add_arc(self, Entity wp, Entity nm, Entity ct, Entity start, Entity end):
+    cpdef Entity add_arc(self, Entity nm, Entity ct, Entity start, Entity end, Entity wp):
         """Add an 2D arc."""
         if wp is None or not wp.is_work_plane():
             raise TypeError(f"{wp} is not a work plane")
@@ -443,7 +443,7 @@ cdef class SolverSystem:
 
         return Entity.create(&e, 0)
 
-    cpdef Entity add_circle(self, Entity wp, Entity nm, Entity ct, Entity radius):
+    cpdef Entity add_circle(self, Entity nm, Entity ct, Entity radius, Entity wp):
         """Add a 2D circle."""
         if wp is None or not wp.is_work_plane():
             raise TypeError(f"{wp} is not a work plane")
