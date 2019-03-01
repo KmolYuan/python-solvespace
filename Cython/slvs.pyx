@@ -644,8 +644,8 @@ cdef class SolverSystem:
         Entity wp
     ):
         """Constraint that line 1 and line 2, line 3 and line 4
-         must have same included angle.
-         """
+        must have same included angle.
+        """
         if wp is _WP_FREE_IN_3D:
             raise ValueError("this is a 2d constraint")
 
