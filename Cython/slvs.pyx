@@ -216,6 +216,9 @@ cdef class SolverSystem:
         self.g = 0
         self.sys.params = self.sys.entities = self.sys.constraints = 0
 
+    def __dealloc__(self):
+        self.free()
+
     cdef inline void copy_to_sys(self) nogil:
         """Copy data from stack into system."""
         # Copy

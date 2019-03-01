@@ -164,7 +164,7 @@ class SolverSystem:
     def group(self) -> int:
         ...
 
-    def params(self, p: Params) -> Tuple[float]:
+    def params(self, p: Params) -> Tuple[float, ...]:
         ...
 
     def dof(self) -> int:
