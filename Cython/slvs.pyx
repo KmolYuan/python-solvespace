@@ -52,9 +52,8 @@ cdef class Params:
         """Constructor."""
         cdef Params params = Params.__new__(Params)
         cdef size_t i
-        with nogil:
-            for i in range(count):
-                params.param_list.push_back(p[i])
+        for i in range(count):
+            params.param_list.push_back(p[i])
         return params
 
     def __repr__(self) -> str:
@@ -242,23 +241,28 @@ cdef class SolverSystem:
             i += 1
 
     cdef inline void copy_from_sys(self) nogil:
-        cdef int i
-        for i in range(<int>self.param_list.size()):
-            self.param_list[self.sys.param[i].h] = self.sys.param[i]
-        for i in range(<int>self.entity_list.size()):
-            self.entity_list[i] = self.sys.entity[i]
-        for i in range(<int>self.entity_list.size()):
-            self.cons_list[i] = self.sys.constraint[i]
-
-    cpdef void clear(self):
+        """Copy data from system into stack."""
         self.param_list.clear()
         self.entity_list.clear()
         self.cons_list.clear()
+        cdef int i
+        for i in range(self.sys.params):
+            self.param_list[self.sys.param[i].h] = self.sys.param[i]
+        for i in range(self.sys.entities):
+            self.entity_list.push_back(self.sys.entity[i])
+        for i in range(self.sys.constraints):
+            self.cons_list.push_back(self.sys.constraint[i])
+
+    cpdef void clear(self):
+        self.g = 0
+        self.param_list.clear()
+        self.entity_list.clear()
+        self.cons_list.clear()
+        self.failed_list.clear()
         self.free()
 
     cdef inline void failed_collecting(self) nogil:
         """Collecting the failed constraints."""
-        self.failed_list.clear()
         cdef int i
         for i in range(self.sys.faileds):
             self.failed_list.push_back(self.sys.failed[i])
@@ -268,6 +272,11 @@ cdef class SolverSystem:
         PyMem_Free(self.sys.entity)
         PyMem_Free(self.sys.constraint)
         PyMem_Free(self.sys.failed)
+        self.sys.param = NULL
+        self.sys.entity = NULL
+        self.sys.constraint = NULL
+        self.sys.failed = NULL
+        self.sys.params = self.sys.entities = self.sys.constraints = 0
 
     cpdef void set_group(self, size_t g):
         """Set the current group by integer."""
@@ -323,9 +332,8 @@ cdef class SolverSystem:
         """Create a basic 2D system and return the work plane."""
         cdef double qw, qx, qy, qz
         qw, qx, qy, qz = make_quaternion(1, 0, 0, 0, 1, 0)
-        cdef Entity origin = self.add_point_3d(0, 0, 0)
         cdef Entity nm = self.add_normal_3d(qw, qx, qy, qz)
-        return self.add_work_plane(origin, nm)
+        return self.add_work_plane(self.add_point_3d(0, 0, 0), nm)
 
     cdef inline Slvs_hParam new_param(self, double val) nogil:
         """Add a parameter."""
@@ -377,10 +385,8 @@ cdef class SolverSystem:
         cdef Slvs_hParam x_p = self.new_param(qx)
         cdef Slvs_hParam y_p = self.new_param(qy)
         cdef Slvs_hParam z_p = self.new_param(qz)
-        cdef Slvs_Entity e = Slvs_MakeNormal3d(self.eh(), self.g, w_p, x_p, y_p, z_p)
-        self.entity_list.push_back(e)
-
-        return Entity.create(&e, 4)
+        self.entity_list.push_back(Slvs_MakeNormal3d(self.eh(), self.g, w_p, x_p, y_p, z_p))
+        return Entity.create(&self.entity_list.back(), 4)
 
     cpdef Entity add_distance(self, double d, Entity wp):
         """Add a 2D distance."""
@@ -388,10 +394,8 @@ cdef class SolverSystem:
             raise TypeError(f"{wp} is not a work plane")
 
         cdef Slvs_hParam d_p = self.new_param(d)
-        cdef Slvs_Entity e = Slvs_MakeDistance(self.eh(), self.g, wp.h, d_p)
-        self.entity_list.push_back(e)
-
-        return Entity.create(&e, 1)
+        self.entity_list.push_back(Slvs_MakeDistance(self.eh(), self.g, wp.h, d_p))
+        return Entity.create(&self.entity_list.back(), 1)
 
     cpdef Entity add_line_2d(self, Entity p1, Entity p2, Entity wp):
         """Add a 2D line."""
@@ -402,10 +406,8 @@ cdef class SolverSystem:
         if p2 is None or not p2.is_point_2d():
             raise TypeError(f"{p2} is not a 2d point")
 
-        cdef Slvs_Entity e = Slvs_MakeLineSegment(self.eh(), self.g, wp.h, p1.h, p2.h)
-        self.entity_list.push_back(e)
-
-        return Entity.create(&e, 0)
+        self.entity_list.push_back(Slvs_MakeLineSegment(self.eh(), self.g, wp.h, p1.h, p2.h))
+        return Entity.create(&self.entity_list.back(), 0)
 
     cpdef Entity add_line_3d(self, Entity p1, Entity p2):
         """Add a 3D line."""
@@ -414,10 +416,8 @@ cdef class SolverSystem:
         if p2 is None or not p2.is_point_3d():
             raise TypeError(f"{p2} is not a 3d point")
 
-        cdef Slvs_Entity e = Slvs_MakeLineSegment(self.eh(), self.g, SLVS_FREE_IN_3D, p1.h, p2.h)
-        self.entity_list.push_back(e)
-
-        return Entity.create(&e, 0)
+        self.entity_list.push_back(Slvs_MakeLineSegment(self.eh(), self.g, SLVS_FREE_IN_3D, p1.h, p2.h))
+        return Entity.create(&self.entity_list.back(), 0)
 
     cpdef Entity add_cubic(self, Entity p1, Entity p2, Entity p3, Entity p4, Entity wp):
         """Add a 2D cubic."""
@@ -432,10 +432,8 @@ cdef class SolverSystem:
         if p4 is None or not p4.is_point_2d():
             raise TypeError(f"{p4} is not a 2d point")
 
-        cdef Slvs_Entity e = Slvs_MakeCubic(self.eh(), self.g, wp.h, p1.h, p2.h, p3.h, p4.h)
-        self.entity_list.push_back(e)
-
-        return Entity.create(&e, 0)
+        self.entity_list.push_back(Slvs_MakeCubic(self.eh(), self.g, wp.h, p1.h, p2.h, p3.h, p4.h))
+        return Entity.create(&self.entity_list.back(), 0)
 
     cpdef Entity add_arc(self, Entity nm, Entity ct, Entity start, Entity end, Entity wp):
         """Add an 2D arc."""
@@ -450,10 +448,8 @@ cdef class SolverSystem:
         if end is None or not end.is_point_2d():
             raise TypeError(f"{end} is not a 2d point")
 
-        cdef Slvs_Entity e = Slvs_MakeArcOfCircle(self.eh(), self.g, wp.h, nm.h, ct.h, start.h, end.h)
-        self.entity_list.push_back(e)
-
-        return Entity.create(&e, 0)
+        self.entity_list.push_back(Slvs_MakeArcOfCircle(self.eh(), self.g, wp.h, nm.h, ct.h, start.h, end.h))
+        return Entity.create(&self.entity_list.back(), 0)
 
     cpdef Entity add_circle(self, Entity nm, Entity ct, Entity radius, Entity wp):
         """Add a 2D circle."""
@@ -466,10 +462,8 @@ cdef class SolverSystem:
         if radius is None or not radius.is_distance():
             raise TypeError(f"{radius} is not a distance")
 
-        cdef Slvs_Entity e = Slvs_MakeCircle(self.eh(), self.g, wp.h, ct.h, nm.h, radius.h)
-        self.entity_list.push_back(e)
-
-        return Entity.create(&e, 0)
+        self.entity_list.push_back(Slvs_MakeCircle(self.eh(), self.g, wp.h, ct.h, nm.h, radius.h))
+        return Entity.create(&self.entity_list.back(), 0)
 
     cpdef Entity add_work_plane(self, Entity origin, Entity nm):
         """Add a 3D work plane."""
@@ -478,10 +472,8 @@ cdef class SolverSystem:
         if nm is None or nm.t != SLVS_E_NORMAL_IN_3D:
             raise TypeError(f"{nm} is not a 3d normal")
 
-        cdef Slvs_Entity e = Slvs_MakeWorkplane(self.eh(), self.g, origin.h, nm.h)
-        self.entity_list.push_back(e)
-
-        return Entity.create(&e, 0)
+        self.entity_list.push_back(Slvs_MakeWorkplane(self.eh(), self.g, origin.h, nm.h))
+        return Entity.create(&self.entity_list.back(), 0)
 
     cpdef void add_constraint(
         self,
