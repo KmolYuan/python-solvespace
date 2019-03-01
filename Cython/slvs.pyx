@@ -39,14 +39,6 @@ cpdef tuple make_quaternion(double ux, double uy, double uz, double vx, double v
     return qw, qx, qy, qz
 
 
-cdef inline list _get_params(list p_list, vector[Slvs_Param] &param, Params p):
-    """Get the parameters after solved."""
-    cdef size_t i
-    for i in range(p.param_list.size()):
-        p_list.append(param[<size_t>p.param_list[i]].val)
-    return p_list
-
-
 cdef class Params:
 
     """Python object to handle multiple parameter handles."""
@@ -275,8 +267,10 @@ cdef class SolverSystem:
     cpdef list params(self, Params p):
         """Get the parameters by Params object."""
         cdef list param_list = []
-        _get_params(param_list, self.param_list, p)
-        return param_list
+        cdef size_t i
+        for i in range(p.param_list.size()):
+            param_list.append(self.param_list[<size_t>p.param_list[i]].val)
+        return tuple(param_list)
 
     cpdef int dof(self):
         """Return the DOF of system."""
@@ -284,7 +278,11 @@ cdef class SolverSystem:
 
     cpdef list faileds(self):
         """Return the count of failed constraint."""
-        return list(self.failed_list)
+        failed_list = []
+        cdef Slvs_hConstraint error
+        for error in self.failed_list:
+            failed_list.append(<int>error)
+        return failed_list
 
     cpdef int solve(self):
         """Solve the system."""

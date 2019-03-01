@@ -96,6 +96,8 @@ class Entity:
     FREE_IN_3D: Entity
     NONE: Entity
 
+    params: Params
+
     def is_3d(self) -> bool:
         ...
 
@@ -162,7 +164,7 @@ class SolverSystem:
     def group(self) -> int:
         ...
 
-    def params(self, p: Params) -> List[float]:
+    def params(self, p: Params) -> Tuple[float]:
         ...
 
     def dof(self) -> int:
@@ -171,7 +173,7 @@ class SolverSystem:
     def faileds(self) -> List[int]:
         ...
 
-    def solve(self) -> int:
+    def solve(self) -> ResultFlag:
         ...
 
     def create_2d_base(self) -> Entity:
