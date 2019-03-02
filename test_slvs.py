@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""This module will test the functions of Python-Solvesapce."""
+"""This module will test the functions of Python-Solvespace."""
 
 __author__ = "Yuan Chang"
 __copyright__ = "Copyright (C) 2016-2019"

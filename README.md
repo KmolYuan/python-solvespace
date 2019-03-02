@@ -10,54 +10,30 @@ Python library from solver of Solve Space.
 
 Use for academic research and learning.
 
-There hasn't any Solvespace main program but Makefile in the `exposed` folder (With two OS version).
-
-Feature for CDemo and Python interface can see [Here](http://project.mde.tw/blog/slvs-library-functions.html) in English.
-
-Or see [Here](http://project.mde.tw/blog/slvs-cheng-shi-ku-han-shi.html) in Chinese.
-
-And there are some code and Solvespace drawing (Also include COMPILED library files) in OS (Windows and Ubuntu) folder.
+Feature for CDemo and Python interface can see [here](https://github.com/KmolYuan/python-solvespace/blob/master/Cython/DOC.txt).
 
 Requirement
 ===
 
 1. [GNU Make] (Windows)
 
-1. [SWIG]
+1. [Cython]
 
-1. python3-dev (Ubuntu package)
-
-Mac OS and Ubuntu
----
-
-First, install SWIG. This tool kit can make a Python bundle with C/C++ library.
-
-If your not, install python development kit.
-
-```bash
-# Using Homebrew
-brew install swig
-# Using APT
-sudo apt install swig python3-dev
-```
-
-Windows
----
-
-Download and install [SWIG](http://www.swig.org/download.html).
-
-Build
+Build and Test
 ===
+
+Build or clean the library:
 
 ```bash
 make
+make clean
 ```
 
-And take out this files:
+Run unit test:
 
-* _slvs.pyd or _slvs.so
-* slvs.py
-* libslvs.so
+```bash
+python test_slvs.py
+```
 
 [GNU Make]: https://sourceforge.net/projects/mingw-w64/files/latest/download?source=files
-[SWIG]: http://www.swig.org/download.html
+[Cython]: https://cython.org/
