@@ -322,11 +322,11 @@ class SolverSystem:
         """Equal orientation constraint between two 3d normals."""
         ...
 
-    def angle(self, e1: Entity, e2: Entity, value: float, wp: Entity) -> None:
-        """Angle constraint between two 2d lines."""
+    def angle(self, e1: Entity, e2: Entity, value: float, wp: Entity, inverse: bool = False) -> None:
+        """Degrees angle constraint between two 2d lines."""
         ...
 
-    def perpendicular(self, e1: Entity, e2: Entity, wp: Entity) -> None:
+    def perpendicular(self, e1: Entity, e2: Entity, wp: Entity, inverse: bool = False) -> None:
         """Perpendicular constraint between two 2d lines."""
         ...
 

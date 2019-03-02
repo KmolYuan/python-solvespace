@@ -706,7 +706,7 @@ cdef class SolverSystem:
             raise ValueError("this is a 2d constraint")
 
         if e1.is_line_2d():
-            self.add_constraint(HORIZONTAL, wp, 0., e1, _E_NONE, _E_NONE, _E_NONE)
+            self.add_constraint(HORIZONTAL, wp, 0., _E_NONE, _E_NONE, e1, _E_NONE)
         else:
             raise TypeError(f"unsupported entities: {e1}, {wp}")
 
@@ -716,7 +716,7 @@ cdef class SolverSystem:
             raise ValueError("this is a 2d constraint")
 
         if e1.is_line_2d():
-            self.add_constraint(VERTICAL, wp, 0., e1, _E_NONE, _E_NONE, _E_NONE)
+            self.add_constraint(VERTICAL, wp, 0., _E_NONE, _E_NONE, e1, _E_NONE)
         else:
             raise TypeError(f"unsupported entities: {e1}, {wp}")
 
@@ -726,7 +726,7 @@ cdef class SolverSystem:
             raise ValueError("this is a 2d constraint")
 
         if e1.is_arc() or e1.is_circle():
-            self.add_constraint(DIAMETER, wp, value, e1, _E_NONE, _E_NONE, _E_NONE)
+            self.add_constraint(DIAMETER, wp, value, _E_NONE, _E_NONE, e1, _E_NONE)
         else:
             raise TypeError(f"unsupported entities: {e1}, {wp}")
 
@@ -737,23 +737,25 @@ cdef class SolverSystem:
         else:
             raise TypeError(f"unsupported entities: {e1}, {e2}")
 
-    cpdef void angle(self, Entity e1, Entity e2, double value, Entity wp):
+    cpdef void angle(self, Entity e1, Entity e2, double value, Entity wp, bint inverse = False):
         """Degrees angle constraint between two 2d lines."""
         if wp is _E_FREE_IN_3D:
             raise ValueError("this is a 2d constraint")
 
         if e1.is_line_2d() and e2.is_line_2d():
-            self.add_constraint(ANGLE, wp, value, _E_NONE, _E_NONE, e1, e2)
+            self.add_constraint(ANGLE, wp, value, _E_NONE, _E_NONE,
+                                e1, e2, _E_NONE, _E_NONE, inverse)
         else:
             raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
 
-    cpdef void perpendicular(self, Entity e1, Entity e2, Entity wp):
+    cpdef void perpendicular(self, Entity e1, Entity e2, Entity wp, bint inverse = False):
         """Perpendicular constraint between two 2d lines."""
         if wp is _E_FREE_IN_3D:
             raise ValueError("this is a 2d constraint")
 
         if e1.is_line_2d() and e2.is_line_2d():
-            self.add_constraint(PERPENDICULAR, wp, 0., _E_NONE, _E_NONE, e1, e2)
+            self.add_constraint(PERPENDICULAR, wp, 0., _E_NONE, _E_NONE,
+                                e1, e2, _E_NONE, _E_NONE, inverse)
         else:
             raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
 
