@@ -10,6 +10,8 @@ email: pyslvs@gmail.com
 """
 
 from libc.stdint cimport uint32_t
+from libcpp.vector cimport vector
+from libcpp.map cimport map as c_map
 
 cdef extern from "slvs.h" nogil:
 
@@ -206,3 +208,118 @@ cpdef enum ResultFlag:
     INCONSISTENT
     DIDNT_CONVERGE
     TOO_MANY_UNKNOWNS
+
+
+cpdef tuple quaternion_u(double qw, double qx, double qy, double qz)
+cpdef tuple quaternion_v(double qw, double qx, double qy, double qz)
+cpdef tuple quaternion_n(double qw, double qx, double qy, double qz)
+cpdef tuple make_quaternion(double ux, double uy, double uz, double vx, double vy, double vz)
+
+
+cdef class Params:
+
+    cdef vector[Slvs_hParam] param_list
+
+    @staticmethod
+    cdef Params create(Slvs_hParam *p, size_t count)
+
+
+cdef class Entity:
+
+    cdef int t
+    cdef Slvs_hEntity h, wp
+    cdef Slvs_hGroup g
+    cdef readonly Params params
+
+    @staticmethod
+    cdef Entity create(Slvs_Entity *e, size_t p_size)
+
+    cpdef bint is_3d(self)
+    cpdef bint is_none(self)
+    cpdef bint is_point_2d(self)
+    cpdef bint is_point_3d(self)
+    cpdef bint is_point(self)
+    cpdef bint is_normal_2d(self)
+    cpdef bint is_normal_3d(self)
+    cpdef bint is_normal(self)
+    cpdef bint is_distance(self)
+    cpdef bint is_work_plane(self)
+    cpdef bint is_line_2d(self)
+    cpdef bint is_line_3d(self)
+    cpdef bint is_line(self)
+    cpdef bint is_cubic(self)
+    cpdef bint is_circle(self)
+    cpdef bint is_arc(self)
+
+
+cdef class SolverSystem:
+
+    cdef Slvs_hGroup g
+    cdef Slvs_System sys
+    cdef c_map[Slvs_hParam, Slvs_Param] param_list
+    cdef vector[Slvs_Entity] entity_list
+    cdef vector[Slvs_Constraint] cons_list
+    cdef vector[Slvs_hConstraint] failed_list
+
+    cdef void copy_to_sys(self) nogil
+    cdef void copy_from_sys(self) nogil
+    cpdef void clear(self)
+    cdef void failed_collecting(self) nogil
+    cdef void free(self)
+    cpdef void set_group(self, size_t g)
+    cpdef int group(self)
+    cpdef tuple params(self, Params p)
+    cpdef int dof(self)
+    cpdef object constraints(self)
+    cpdef list faileds(self)
+    cpdef int solve(self)
+    cpdef Entity create_2d_base(self)
+    cdef Slvs_hParam new_param(self, double val) nogil
+    cdef Slvs_hEntity eh(self) nogil
+
+    cpdef Entity add_point_2d(self, double u, double v, Entity wp)
+    cpdef Entity add_point_3d(self, double x, double y, double z)
+    cpdef Entity add_normal_2d(self, Entity wp)
+    cpdef Entity add_normal_3d(self, double qw, double qx, double qy, double qz)
+    cpdef Entity add_distance(self, double d, Entity wp)
+    cpdef Entity add_line_2d(self, Entity p1, Entity p2, Entity wp)
+    cpdef Entity add_line_3d(self, Entity p1, Entity p2)
+    cpdef Entity add_cubic(self, Entity p1, Entity p2, Entity p3, Entity p4, Entity wp)
+    cpdef Entity add_arc(self, Entity nm, Entity ct, Entity start, Entity end, Entity wp)
+    cpdef Entity add_circle(self, Entity nm, Entity ct, Entity radius, Entity wp)
+    cpdef Entity add_work_plane(self, Entity origin, Entity nm)
+    cpdef void add_constraint(
+        self,
+        Constraint c_type,
+        Entity wp,
+        double v,
+        Entity p1,
+        Entity p2,
+        Entity e1,
+        Entity e2,
+        Entity e3 = *,
+        Entity e4 = *,
+        int other = *,
+        int other2 = *
+    )
+
+    cpdef void coincident(self, Entity e1, Entity e2, Entity wp = *)
+    cpdef void distance(self, Entity e1, Entity e2, double value, Entity wp = *)
+    cpdef void equal(self, Entity e1, Entity e2, Entity wp = *)
+    cpdef void equal_included_angle(self, Entity e1, Entity e2, Entity e3, Entity e4, Entity wp)
+    cpdef void equal_point_to_line(self, Entity e1, Entity e2, Entity e3, Entity e4, Entity wp)
+    cpdef void ratio(self, Entity e1, Entity e2, double value, Entity wp)
+    cpdef void symmetric(self, Entity e1, Entity e2, Entity e3 = *, Entity wp = *)
+    cpdef void symmetric_h(self, Entity e1, Entity e2, Entity wp)
+    cpdef void symmetric_v(self, Entity e1, Entity e2, Entity wp)
+    cpdef void midpoint(self, Entity e1, Entity e2, Entity wp = *)
+    cpdef void horizontal(self, Entity e1, Entity wp)
+    cpdef void vertical(self, Entity e1, Entity wp)
+    cpdef void diameter(self, Entity e1, double value, Entity wp)
+    cpdef void same_orientation(self, Entity e1, Entity e2, double value)
+    cpdef void angle(self, Entity e1, Entity e2, double value, Entity wp)
+    cpdef void perpendicular(self, Entity e1, Entity e2, Entity wp)
+    cpdef void parallel(self, Entity e1, Entity e2, Entity wp = *)
+    cpdef void tangent(self, Entity e1, Entity e2, Entity wp = *)
+    cpdef void distance_proj(self, Entity e1, Entity e2, double value)
+    cpdef void dragged(self, Entity e1, Entity wp = *)

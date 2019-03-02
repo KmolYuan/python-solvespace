@@ -12,9 +12,7 @@ email: pyslvs@gmail.com
 cimport cython
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 from cpython.object cimport Py_EQ, Py_NE
-from libcpp.vector cimport vector
 from libcpp.pair cimport pair
-from libcpp.map cimport map as c_map
 from collections import Counter
 
 
@@ -45,8 +43,6 @@ cpdef tuple make_quaternion(double ux, double uy, double uz, double vx, double v
 cdef class Params:
 
     """Python object to handle multiple parameter handles."""
-
-    cdef vector[Slvs_hParam] param_list
 
     @staticmethod
     cdef Params create(Slvs_hParam *p, size_t count):
@@ -138,11 +134,6 @@ cdef dict _NAME_OF_CONSTRAINTS = {
 cdef class Entity:
 
     """Python object to handle a pointer of 'Slvs_hEntity'."""
-
-    cdef int t
-    cdef Slvs_hEntity h, wp
-    cdef Slvs_hGroup g
-    cdef readonly Params params
 
     FREE_IN_3D = _E_FREE_IN_3D
     NONE = _E_NONE
@@ -244,13 +235,6 @@ cdef class Entity:
 cdef class SolverSystem:
 
     """Python object of 'Slvs_System'."""
-
-    cdef Slvs_hGroup g
-    cdef Slvs_System sys
-    cdef c_map[Slvs_hParam, Slvs_Param] param_list
-    cdef vector[Slvs_Entity] entity_list
-    cdef vector[Slvs_Constraint] cons_list
-    cdef vector[Slvs_hConstraint] failed_list
 
     def __cinit__(self):
         self.g = 0
@@ -590,7 +574,7 @@ cdef class SolverSystem:
         Entity e1,
         Entity e2,
         double value,
-        Entity wp = _E_FREE_IN_3D,
+        Entity wp = _E_FREE_IN_3D
     ):
         """Distance constraint between two entities."""
         if value == 0.:
