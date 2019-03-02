@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Tuple, List
+from typing import Tuple, List, Counter
 from enum import IntEnum, auto
 
 
@@ -168,6 +168,9 @@ class SolverSystem:
         ...
 
     def dof(self) -> int:
+        ...
+
+    def constraints(self) -> Counter[str]:
         ...
 
     def faileds(self) -> List[int]:

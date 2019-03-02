@@ -15,6 +15,7 @@ from cpython.object cimport Py_EQ, Py_NE
 from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 from libcpp.map cimport map as c_map
+from collections import Counter
 
 
 cpdef tuple quaternion_u(double qw, double qx, double qy, double qz):
@@ -93,6 +94,44 @@ cdef dict _NAME_OF_ENTITIES = {
     SLVS_E_CUBIC: "cubic",
     SLVS_E_CIRCLE: "circle",
     SLVS_E_ARC_OF_CIRCLE: "arc",
+}
+
+# Constraint names
+cdef dict _NAME_OF_CONSTRAINTS = {
+    POINTS_COINCIDENT: "points coincident",
+    PT_PT_DISTANCE: "point point distance",
+    PT_PLANE_DISTANCE: "point plane distance",
+    PT_LINE_DISTANCE: "point line distance",
+    PT_FACE_DISTANCE: "point face distance",
+    PT_IN_PLANE: "point in plane",
+    PT_ON_LINE: "point on line",
+    PT_ON_FACE: "point on face",
+    EQUAL_LENGTH_LINES: "equal length lines",
+    LENGTH_RATIO: "length ratio",
+    EQ_LEN_PT_LINE_D: "equal length point line distance",
+    EQ_PT_LN_DISTANCES: "equal point line distance",
+    EQUAL_ANGLE: "equal angle",
+    EQUAL_LINE_ARC_LEN: "equal line arc length",
+    SYMMETRIC: "symmetric",
+    SYMMETRIC_HORIZ: "symmetric horizontal",
+    SYMMETRIC_VERT: "symmetric vertical",
+    SYMMETRIC_LINE: "symmetric line",
+    AT_MIDPOINT: "at midpoint",
+    HORIZONTAL: "horizontal",
+    VERTICAL: "vertical",
+    DIAMETER: "diameter",
+    PT_ON_CIRCLE: "point on circle",
+    SAME_ORIENTATION: "same orientation",
+    ANGLE: "angle",
+    PARALLEL: "parallel",
+    PERPENDICULAR: "perpendicular",
+    ARC_LINE_TANGENT: "arc line tangent",
+    CUBIC_LINE_TANGENT: "cubic line tangent",
+    EQUAL_RADIUS: "equal radius",
+    PROJ_PT_DISTANCE: "project point distance",
+    WHERE_DRAGGED: "where dragged",
+    CURVE_CURVE_TANGENT: "curve curve tangent",
+    LENGTH_DIFFERENCE: "length difference",
 }
 
 
@@ -297,6 +336,14 @@ cdef class SolverSystem:
     cpdef int dof(self):
         """Return the DOF of system."""
         return self.sys.dof
+
+    cpdef object constraints(self):
+        """Return the list of all constraints."""
+        cons_list = []
+        cdef Slvs_Constraint con
+        for con in self.cons_list:
+            cons_list.append(_NAME_OF_CONSTRAINTS[con.type])
+        return Counter(cons_list)
 
     cpdef list faileds(self):
         """Return the count of failed constraint."""
@@ -712,10 +759,7 @@ cdef class SolverSystem:
             raise ValueError("this is a 2d constraint")
 
         if e1.is_line_2d() and e2.is_line_2d():
-            if value in {0., 180.}:
-                self.parallel(e1, e2, wp)
-            else:
-                self.add_constraint(ANGLE, wp, value, _E_NONE, _E_NONE, e1, e2)
+            self.add_constraint(ANGLE, wp, value, _E_NONE, _E_NONE, e1, e2)
         else:
             raise TypeError(f"unsupported entities: {e1}, {e2}, {wp}")
 
