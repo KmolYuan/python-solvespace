@@ -10,36 +10,25 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 from .slvs import (
-    # Entities & Constraint
-    Point3d,
-    Workplane,
-    Normal3d,
-    Point2d,
-    LineSegment2d,
+    quaternion_u,
+    quaternion_v,
+    quaternion_n,
+    make_quaternion,
     Constraint,
-    # Result flags
-    SLVS_RESULT_OKAY,
-    SLVS_RESULT_INCONSISTENT,
-    SLVS_RESULT_DIDNT_CONVERGE,
-    SLVS_RESULT_TOO_MANY_UNKNOWNS,
-    # System base
-    System,
-    groupNum,
-    Slvs_MakeQuaternion,
+    ResultFlag,
+    Params,
+    Entity,
+    SolverSystem,
 )
 
 __all__ = [
-    'Point3d',
-    'Workplane',
-    'Normal3d',
-    'Point2d',
-    'LineSegment2d',
+    'quaternion_u',
+    'quaternion_v',
+    'quaternion_n',
+    'make_quaternion',
     'Constraint',
-    'SLVS_RESULT_OKAY',
-    'SLVS_RESULT_INCONSISTENT',
-    'SLVS_RESULT_DIDNT_CONVERGE',
-    'SLVS_RESULT_TOO_MANY_UNKNOWNS',
-    'System',
-    'groupNum',
-    'Slvs_MakeQuaternion',
+    'ResultFlag',
+    'Params',
+    'Entity',
+    'SolverSystem',
 ]

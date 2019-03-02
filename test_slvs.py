@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 
+"""This module will test the functions of Python-Solvesapce."""
+
+__author__ = "Yuan Chang"
+__copyright__ = "Copyright (C) 2016-2019"
+__license__ = "AGPL"
+__email__ = "pyslvs@gmail.com"
+
 import unittest
 from unittest import TestCase
 from math import radians
