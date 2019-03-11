@@ -60,8 +60,7 @@ before_install:
   fi
 
 script:
- - make
- - python3 test_slvs.py
+ - make test
 
 before_cache:
   - rm -rf $HOME/.cache/pip/log

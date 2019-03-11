@@ -46,4 +46,4 @@ build_script:
 - mingw32-make
 
 test_script:
-- python test_slvs.py
+- mingw32-make test
