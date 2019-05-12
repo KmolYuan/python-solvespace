@@ -40,7 +40,7 @@ def make_quaternion(
 
 
 class Constraint(IntEnum):
-    # Expose macro of constrain types
+    # Expose macro of constraint types
     POINTS_COINCIDENT = 100000
     PT_PT_DISTANCE = auto()
     PT_PLANE_DISTANCE = auto()

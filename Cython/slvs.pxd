@@ -165,7 +165,7 @@ cdef extern from "slvs.h" nogil:
 
 
 cpdef enum Constraint:
-    # Expose macro of constrain types
+    # Expose macro of constraint types
     POINTS_COINCIDENT = 100000
     PT_PT_DISTANCE
     PT_PLANE_DISTANCE
