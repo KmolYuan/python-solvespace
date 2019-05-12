@@ -730,10 +730,10 @@ cdef class SolverSystem:
         else:
             raise TypeError(f"unsupported entities: {e1}, {wp}")
 
-    cpdef void same_orientation(self, Entity e1, Entity e2, double value):
+    cpdef void same_orientation(self, Entity e1, Entity e2):
         """Equal orientation constraint between two 3d normals."""
         if e1.is_normal_3d() and e2.is_normal_3d():
-            self.add_constraint(SAME_ORIENTATION, _E_FREE_IN_3D, value, _E_NONE, _E_NONE, e1, e2)
+            self.add_constraint(SAME_ORIENTATION, _E_FREE_IN_3D, 0., _E_NONE, _E_NONE, e1, e2)
         else:
             raise TypeError(f"unsupported entities: {e1}, {e2}")
 

@@ -240,7 +240,7 @@ class SolverSystem:
         e1: Entity,
         e2: Entity,
         value: float,
-        wp: Entity = Entity.FREE_IN_3D,
+        wp: Entity = Entity.FREE_IN_3D
     ) -> None:
         """Distance constraint between two entities."""
         ...
@@ -318,7 +318,7 @@ class SolverSystem:
         """Diameter constraint of a circular entities."""
         ...
 
-    def same_orientation(self, e1: Entity, e2: Entity, value: float) -> None:
+    def same_orientation(self, e1: Entity, e2: Entity) -> None:
         """Equal orientation constraint between two 3d normals."""
         ...
 
