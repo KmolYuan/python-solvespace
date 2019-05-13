@@ -316,7 +316,7 @@ cdef class SolverSystem:
     cpdef void horizontal(self, Entity e1, Entity wp)
     cpdef void vertical(self, Entity e1, Entity wp)
     cpdef void diameter(self, Entity e1, double value, Entity wp)
-    cpdef void same_orientation(self, Entity e1, Entity e2, double value)
+    cpdef void same_orientation(self, Entity e1, Entity e2)
     cpdef void angle(self, Entity e1, Entity e2, double value, Entity wp, bint inverse = *)
     cpdef void perpendicular(self, Entity e1, Entity e2, Entity wp, bint inverse = *)
     cpdef void parallel(self, Entity e1, Entity e2, Entity wp = *)
