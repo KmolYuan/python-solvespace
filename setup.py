@@ -7,17 +7,23 @@ __copyright__ = "Copyright (C) 2016-2019"
 __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
+import os
+import codecs
 from setuptools import setup, Extension, find_packages
 from platform import system
 from distutils import sysconfig
 
+here = os.path.abspath(os.path.dirname(__file__))
 src_path = 'src/'
 platform_path = src_path + 'platform/'
 ver = sysconfig.get_config_var('VERSION')
 lib = sysconfig.get_config_var('BINDIR')
 
-with open("README.md", "r") as f:
-    long_description = f.read()
+
+def read(*parts):
+    with codecs.open(os.path.join(here, *parts), 'r') as f:
+        return f.read()
+
 
 macros = [
     ('_hypot', 'hypot'),
@@ -71,19 +77,20 @@ setup(
     author=__author__,
     author_email=__email__,
     description="Python library of Solvespace",
-    long_description=long_description,
+    long_description=read("README.md"),
     url="https://github.com/solvespace/solvespace",
     packages=find_packages(),
     ext_modules=[Extension(
         "slvs",
-        sources=sources,
+        sources,
         language="c++",
         include_dirs=['include', src_path, platform_path],
         define_macros=macros,
         extra_compile_args=compile_args
     )],
+    python_requires=">=3.6",
     setup_requires=[
-        'setuptools>=18.0',
+        'setuptools',
         'wheel',
         'cython',
     ],
