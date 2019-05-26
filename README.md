@@ -6,7 +6,7 @@
 Python Solvespace
 ===
 
-Python library from solver of Solve Space. 
+Python library from solver of Solvespace.
 
 Use for academic research and learning.
 
